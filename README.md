@@ -1,6 +1,7 @@
-# the-everything
+# The Everything
 
-## Sea Glass
-A calm block puzzle with a lighthouse to build. Clear rows of sea glass to collect shells and wash away sand, earn pearls, then spin the wheel to build the lighthouse.
+A calm puzzle-and-build game. Play puzzles to earn pearls, spend pearls on the wheel to build islands, and watch your little archipelago grow on the map.
 
-Play: `sea-glass/index.html`
+Islands so far: The Lighthouse (Seaside) and The Greenhouse (Spring Garden).
+
+Play: https://gareth23broad.github.io/the-everything/
