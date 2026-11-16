@@ -17,13 +17,13 @@ canvas#gl{z-index:0}canvas#c{z-index:1}
 .top{width:min(100%,460px);display:flex;align-items:center;justify-content:space-between}
 .lvl{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#6f84a1;text-align:center;flex:1}
 .pill{pointer-events:auto;font:inherit;font-weight:700;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.6);color:#55657f;border-radius:999px;box-shadow:0 6px 16px rgba(90,100,150,.14);cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-#jar{display:flex;align-items:center;gap:6px;padding:4px 12px 4px 5px;font-size:16px;min-width:76px;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-#jar canvas{width:26px;height:26px}
-#jar{transform:scale(var(--pulse,1));box-shadow:0 6px 16px rgba(90,100,150,.14),0 0 0 calc(6px * var(--glow,0)) rgba(214,196,245,calc(var(--glow,0))),0 0 22px calc(4px * var(--glow,0)) rgba(255,240,250,calc(var(--glow,0)))}
+#jar{display:flex;align-items:center;gap:7px;padding:5px 15px 5px 6px;font-size:19px;min-width:90px;transform-origin:30% 50%;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+#jar canvas{width:32px;height:32px}
+#jar{transform:scale(var(--pulse,1));box-shadow:0 6px 16px rgba(90,100,150,.14),0 0 0 calc(9px * var(--glow,0)) rgba(214,196,245,calc(var(--glow,0) * 0.8)),0 0 30px calc(8px * var(--glow,0)) rgba(255,236,250,calc(var(--glow,0)))}
 #jar.bump{transform:scale(1.14)}
 #mute,#map{width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0}
 #mute svg,#map svg{width:18px;height:18px}
-.rgrp{display:flex;gap:8px;min-width:80px;justify-content:flex-end}
+.rgrp{display:flex;gap:8px;min-width:90px;justify-content:flex-end}
 body[data-mode=hub] #map{visibility:hidden}
 .stack{display:grid;margin-top:10px}
 .stack>*{align-self:start;grid-area:1/1;display:flex;flex-direction:column;align-items:center;transition:opacity .7s ease,transform .9s ease}
@@ -32,6 +32,11 @@ body[data-mode=block] #blockHud,body[data-mode=build] #buildHud,body[data-mode=h
 .counter{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.95);padding:4px 16px 4px 7px;border-radius:999px;font-weight:700;font-size:18px;color:#55657f;box-shadow:0 6px 16px rgba(90,100,150,.12);font-variant-numeric:tabular-nums}
 .counter canvas{width:30px;height:30px}
 .chips{display:flex;gap:6px;margin-top:8px}
+#logicHud{position:relative}
+#hintBox{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:50%;transform:translate(-50%,10px);width:min(92vw,420px);pointer-events:none;box-sizing:border-box;display:flex;gap:9px;align-items:flex-start;background:rgba(255,253,246,.96);border:1px solid #fff;border-radius:16px;padding:10px 14px;font-size:13.5px;font-weight:600;line-height:1.32;color:#4b5a73;box-shadow:0 12px 30px rgba(80,90,140,.22);opacity:0;transition:opacity .35s,transform .35s;z-index:5}
+#hintBox.show{opacity:1;transform:translate(-50%,0)}
+body.hinting #visit{opacity:0!important;pointer-events:none}
+#hintBox svg{width:20px;height:20px;flex:none;margin-top:1px}
 .chip{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.95);border-radius:10px;padding:4px 9px;font-size:11px;font-weight:700;color:#5b6c8a;white-space:nowrap}
 #tools{position:fixed;left:0;right:0;z-index:2;display:flex;justify-content:center;gap:14px;opacity:0;pointer-events:none;transition:opacity .5s}
 body[data-mode=logic] #tools{opacity:1}
@@ -142,6 +147,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <div class="mwrap"><div class="mlabel">Multiplier</div><button id="mult" class="pill">×1</button></div>
 </div>
 <div id="toast"></div>
+<div id="hintBox"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span id="hintText"></span></div>
 
 <div class="card" id="intro"><div class="inner">
   <div class="kicker">Welcome to</div>
@@ -717,8 +723,8 @@ function makePuzzle(n,seed){
   return null;
 }
 const THEMES={
-  lighthouse:{piece:'shell',one:'shell',many:'Shells',pal:['#8fd0d6','#f4a99a','#f3d79a','#b9a8e6','#a6dfb4','#9fc3ef','#f7c1d3','#7fc8b4','#f8c49a','#a9b6d6']},
-  garden:{piece:'flower',one:'flower',many:'Flowers',pal:['#f6b3c8','#a8d88f','#ffe08a','#c9b2f0','#f8c9a0','#9fd6c8','#e8a3b0','#86cbe0','#a9c4f2','#efc8e6']},
+  lighthouse:{piece:'shell',one:'shell',many:'Shells',names:['aqua','coral','sand','lavender','mint','sky blue','pink','sea green','peach','slate'],pal:['#8fd0d6','#f4a99a','#f3d79a','#b9a8e6','#a6dfb4','#9fc3ef','#f7c1d3','#7fc8b4','#f8c49a','#a9b6d6']},
+  garden:{piece:'flower',one:'flower',many:'Flowers',names:['pink','green','yellow','lilac','apricot','mint','rose','blue','periwinkle','blossom'],pal:['#f6b3c8','#a8d88f','#ffe08a','#c9b2f0','#f8c9a0','#9fd6c8','#e8a3b0','#86cbe0','#a9c4f2','#efc8e6']},
 };
 const TH=()=>THEMES[save.current];
 function paintFlower(g,cx,cy,r){
@@ -746,7 +752,7 @@ function tileSprite(col,s){
 let LG=null,ld=null,lX=0,lY=0,lS=300,lShore=0,logicTop=0,hintShown=false;
 const hashStr=s=>{let h=2166136261;for(const ch of s)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
 function logicSize(){const k=save.solved||0;return k<2?4:k<6?5:k<12?6:k<20?7:k<32?8:k<48?9:10;}
-function newLogic(){
+function newLogic(){$('hintBox').classList.remove('show');document.body.classList.remove('hinting');
   const n=logicSize(),seed=hashStr(save.current)+save.level*1009+(save.solved||0)*7919;
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
   LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null};
@@ -756,23 +762,57 @@ const lPlaced=()=>LG?LG.st.filter(v=>v===2).length:0;
 function cellAt(x,y){if(!LG)return -1;const n=LG.n,cs=lS/n,c=Math.floor((x-lX)/cs),r=Math.floor((y-lY)/cs);return r>=0&&c>=0&&r<n&&c<n?r*n+c:-1;}
 function setCell(i,v,batch,delay=0){batch.push({i,prev:LG.st[i]});LG.st[i]=v;LG.anim[i]={t0:performance.now()+delay,type:v===1?'x':v===2?'pop':'clear'};}
 function tapCell(i){
-  const s=LG.st[i];if(s===2)return;
+  const s=LG.st[i];if(s===2)return;if(LG.hint&&!LG.hint.cells.includes(i))clearHint();
   if(s===0){const b=[];setCell(i,1,b);LG.hist.push(b);sfx.mark();return;}
   placePiece(i);
 }
 function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
   if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
-  const b=[];setCell(i,2,b);const k=LG.reg[r][c];
-  LG.hist.push(b);LG.hint=null;
+  const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();
+  LG.hist.push(b);
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',TH().pal[k]]);
   if(placed===n)logicWin();
 }
-function undo(){if(!LG||LG.done||!LG.hist.length)return;const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
+function undo(){if(!LG||LG.done||!LG.hist.length)return;clearHint();const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
+function showHint(cells,kind,text){LG.hint={cells,kind,t0:performance.now()};$('hintText').textContent=text;$('hintBox').classList.add('show');document.body.classList.add('hinting');clearTimeout(showHint.t);showHint.t=setTimeout(clearHint,9000);sfx.tide();}
+function clearHint(){if(LG)LG.hint=null;$('hintBox').classList.remove('show');document.body.classList.remove('hinting');}
 function hint(){
-  if(!LG||LG.done)return;const n=LG.n;let best=null;
-  for(let r=0;r<n;r++){const i=r*n+LG.sol[r];if(LG.st[i]===2)continue;const k=LG.reg[r][LG.sol[r]];let sz=0;for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(LG.reg[y][x]===k&&LG.st[y*n+x]!==1)sz++;if(!best||sz<best.sz)best={i,sz};}
-  if(best){LG.hint={i:best.i,t0:performance.now()};sfx.tide();}
+  if(!LG||LG.done)return;
+  const n=LG.n,st=LG.st,reg=LG.reg,th=TH(),P=th.one,nm=k=>th.names[k%th.names.length];
+  const R=i=>i/n|0,C=i=>i%n,K=i=>reg[R(i)][C(i)];
+  const pcs=[];for(let i=0;i<n*n;i++)if(st[i]===2)pcs.push(i);
+  const rowHas=Array(n).fill(false),colHas=Array(n).fill(false),regHas=Array(n).fill(false);
+  pcs.forEach(i=>{rowHas[R(i)]=colHas[C(i)]=regHas[K(i)]=true;});
+  const touches=i=>pcs.some(j=>Math.abs(R(j)-R(i))<=1&&Math.abs(C(j)-C(i))<=1);
+  const why=i=>st[i]===2?'piece':rowHas[R(i)]?'row':colHas[C(i)]?'col':regHas[K(i)]?'reg':touches(i)?'touch':null;
+  const cand=[];for(let i=0;i<n*n;i++)if(!why(i))cand.push(i);
+  const tapNote=i=>st[i]===1?' (it’s marked X — tap it to place the '+P+')':' — tap it twice to place it';
+  for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);
+    if(cs.length===1)return showHint(cs,'place',`This is the only square left in the ${nm(k)} area that can hold a ${P}${tapNote(cs[0])}.`);}
+  for(let r=0;r<n;r++){if(rowHas[r])continue;const cs=cand.filter(i=>R(i)===r);
+    if(cs.length===1)return showHint(cs,'place',`Every other square in this row is ruled out, so the ${P} for this row goes here${tapNote(cs[0])}.`);}
+  for(let c=0;c<n;c++){if(colHas[c])continue;const cs=cand.filter(i=>C(i)===c);
+    if(cs.length===1)return showHint(cs,'place',`Every other square in this column is ruled out, so the ${P} for this column goes here${tapNote(cs[0])}.`);}
+  for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);if(!cs.length)continue;
+    const rows=new Set(cs.map(R)),cols=new Set(cs.map(C));
+    if(rows.size===1){const r=cs[0]/n|0,o=cand.filter(i=>R(i)===r&&K(i)!==k&&st[i]===0);
+      if(o.length)return showHint(o,'x',`The ${nm(k)} area can only fit its ${P} in this row — so the row’s ${P} must be ${nm(k)}, and these other squares in the row can be X’d.`);}
+    if(cols.size===1){const c=cs[0]%n,o=cand.filter(i=>C(i)===c&&K(i)!==k&&st[i]===0);
+      if(o.length)return showHint(o,'x',`The ${nm(k)} area can only fit its ${P} in this column — so these other squares in the column can be X’d.`);}}
+  {const groups={row:[],col:[],reg:[],touch:[]};for(let i=0;i<n*n;i++){if(st[i]!==0)continue;const w=why(i);if(w&&groups[w])groups[w].push(i);}
+    const pick=(g,txt)=>{if(!groups[g].length)return false;const first=groups[g][0];let cells=groups[g];
+      if(g==='row')cells=cells.filter(i=>R(i)===R(first));else if(g==='col')cells=cells.filter(i=>C(i)===C(first));else if(g==='reg')cells=cells.filter(i=>K(i)===K(first));
+      showHint(cells,'x',txt(first));return true;};
+    if(pick('touch',()=>`These squares touch a ${P}, and ${th.many.toLowerCase()} can’t touch — not even corners — so they can be X’d.`))return;
+    if(pick('row',()=>`This row already has its ${P}, so the rest of the row can be X’d.`))return;
+    if(pick('col',()=>`This column already has its ${P}, so the rest of the column can be X’d.`))return;
+    if(pick('reg',f=>`The ${nm(K(f))} area already has its ${P}, so the rest of it can be X’d.`))return;}
+  for(const i of cand){if(st[i]!==0)continue;
+    for(let k=0;k<n;k++){if(regHas[k]||k===K(i))continue;const left=cand.filter(j=>K(j)===k&&j!==i&&R(j)!==R(i)&&C(j)!==C(i)&&!(Math.abs(R(j)-R(i))<=1&&Math.abs(C(j)-C(i))<=1));
+      if(!left.length)return showHint([i],'x',`A ${P} here would block every square of the ${nm(k)} area, leaving it with nowhere to go — so this one is an X.`);}}
+  let best=null;for(let r=0;r<n;r++){const i=r*n+LG.sol[r];if(st[i]===2)continue;const k=K(i),sz=cand.filter(j=>K(j)===k).length;if(!best||sz<best.sz)best={i,sz,k};}
+  if(best)showHint([best.i],'place',`This one takes a few steps of thinking, so here’s a little peek: the ${nm(best.k)} area’s ${P} belongs here${tapNote(best.i)}.`);
 }
 const LOGIC_PEARLS=40;
 function logicWin(){
@@ -800,8 +840,10 @@ function drawLogic(t){
       if(a&&a.type==='dance'&&age>0)oy=-Math.abs(Math.sin(age*0.008))*cs*0.12*Math.max(0,1-age/2400);
       drawToken(x,y+oy,cs*0.4*sc);paintPiece(ctx,kind,x,y+oy,cs*0.27*sc);}
   }
-  if(LG.hint){const age=t-LG.hint.t0,i=LG.hint.i;if(age>4500)LG.hint=null;else{const r=i/n|0,c=i%n,pu=0.5+0.5*Math.sin(age*0.008);
-    rrect(ctx,lX+c*cs+cs*0.06,lY+r*cs+cs*0.06,cs*0.88,cs*0.88,cs*0.18);ctx.lineWidth=cs*0.07;ctx.strokeStyle=`rgba(255,255,255,${0.55+0.4*pu})`;ctx.shadowColor='rgba(255,240,200,0.9)';ctx.shadowBlur=12*pu;ctx.stroke();ctx.shadowBlur=0;}}
+  if(LG.hint){const age=t-LG.hint.t0,pu=0.5+0.5*Math.sin(age*0.008),xk=LG.hint.kind==='x';
+    LG.hint.cells.forEach(i=>{const r=i/n|0,c=i%n;rrect(ctx,lX+c*cs+cs*0.06,lY+r*cs+cs*0.06,cs*0.88,cs*0.88,cs*0.18);ctx.lineWidth=cs*0.07;
+      ctx.strokeStyle=xk?`rgba(255,226,214,${0.6+0.35*pu})`:`rgba(255,255,255,${0.6+0.35*pu})`;ctx.shadowColor=xk?'rgba(240,150,130,0.9)':'rgba(255,240,200,0.95)';ctx.shadowBlur=12*pu;ctx.stroke();ctx.shadowBlur=0;
+      if(xk&&LG.st[i]===0){ctx.save();ctx.globalAlpha=0.35+0.2*pu;drawX(lX+(c+0.5)*cs,lY+(r+0.5)*cs,cs,1);ctx.restore();}});}
 }
 function drawToken(x,y,r){ctx.save();ctx.shadowColor='rgba(60,70,110,0.28)';ctx.shadowBlur=r*0.35;ctx.shadowOffsetY=r*0.1;
   const g=ctx.createRadialGradient(x-r*0.3,y-r*0.35,r*0.1,x,y,r);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#f6efe6');
@@ -851,7 +893,7 @@ function setLabels(){
   $('toBuild').textContent='Build the '+w.short.toLowerCase();$('contSub').textContent=`${w.world} · Puzzle ${save.level}`;
 }
 function go(target,opts={}){
-  if(trans||mode===target)return false;
+  if(trans||mode===target)return false;clearHint();
   if(drag){drag=snap=hi=null;}
   const from=mode;mode=target;document.body.dataset.mode=target;
   trans={from,to:target,t0:performance.now(),dur:opts.dur||2600,L0:{...L},done:opts.done};
@@ -1166,7 +1208,7 @@ function frame(t){
   drawWheel(t,(1-L.build)*H*0.7);
   drawFx(t,'top',0);
   updateLabels();updateHud();
-  {const ph=(t%5000)/5000,k=ph<0.24?Math.sin(ph/0.24*Math.PI):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.08*k).toFixed(3));j.style.setProperty('--glow',(0.55*k).toFixed(3));}
+  {const ph=(t%5000)/5000,k=ph<0.3?Math.pow(Math.sin(ph/0.3*Math.PI),1.5):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.18*k).toFixed(3));j.style.setProperty('--glow',(0.9*k).toFixed(3));}
   requestAnimationFrame(frame);
 }
 
