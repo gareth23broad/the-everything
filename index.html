@@ -924,7 +924,7 @@ function selectWorld(id){
   if(save.current!==id){save.current=id;persist();dStage=save.stage;dPts=save.pts;}
   sfx.pick();go('build',{done:arriveBuild});
 }
-function outOfPearls(){if(mode!=='build')return;toast('Out of pearls · back to the puzzles',1900);setTimeout(goLogic,1500);}
+function outOfPearls(){if(mode!=='build')return;toast('Out of pearls · tap ‹ Puzzle to earn more',2600);}
 function showComplete(I){
   const next=WORLDS[WORLDS.indexOf(I.w)+1];
   $('cKick').textContent=I.w.id==='lighthouse'?'The lighthouse is lit':'The greenhouse is in bloom';
