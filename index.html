@@ -148,7 +148,8 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <h1>The Everything</h1>
   <p>Place one shell in every colour, row and column. Shells can’t touch, not even corners.</p>
   <div class="gl">
-    <div><canvas data-ic="piece"></canvas>Tap once for an X, twice for a shell</div>
+    <div><canvas data-ic="piece"></canvas>Tap for an X, again for a shell</div>
+    <div><canvas data-ic="piece"></canvas>Swipe to mark lots of Xs</div>
     <div><canvas data-ic="pearl"></canvas>Every puzzle earns 40 pearls</div>
     <div><canvas data-ic="pearl"></canvas>Spend pearls to build your islands</div>
   </div>
@@ -763,8 +764,6 @@ function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
   if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];
-  for(let j=0;j<n*n;j++){if(LG.st[j]!==0)continue;const rr=j/n|0,cc=j%n;
-    if(rr===r||cc===c||LG.reg[rr][cc]===k||(Math.abs(rr-r)<=1&&Math.abs(cc-c)<=1))setCell(j,1,b,120+Math.hypot(rr-r,cc-c)*35);}
   LG.hist.push(b);LG.hint=null;
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',TH().pal[k]]);
   if(placed===n)logicWin();
