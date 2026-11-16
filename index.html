@@ -790,26 +790,24 @@ function drawLogic(t){
   ctx.save();ctx.shadowColor='rgba(70,80,130,0.2)';ctx.shadowBlur=30;ctx.shadowOffsetY=10;rrect(ctx,lX-pad,lY-pad,lS+2*pad,lS+2*pad,pad*2);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fill();ctx.restore();
   rrect(ctx,lX-pad,lY-pad,lS+2*pad,lS+2*pad,pad*2);ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.stroke();
   for(let r=0;r<n;r++)for(let c=0;c<n;c++)ctx.drawImage(tileSprite(pal[LG.reg[r][c]%pal.length],cs).c,lX+c*cs,lY+r*cs,cs,cs);
-  ctx.strokeStyle='rgba(70,80,115,0.45)';ctx.lineWidth=Math.max(1.5,cs*0.045);ctx.lineCap='round';ctx.beginPath();
-  for(let r=0;r<n;r++)for(let c=0;c<n;c++){const k=LG.reg[r][c];
-    if(c<n-1&&LG.reg[r][c+1]!==k){ctx.moveTo(lX+(c+1)*cs,lY+r*cs+2);ctx.lineTo(lX+(c+1)*cs,lY+(r+1)*cs-2);}
-    if(r<n-1&&LG.reg[r+1][c]!==k){ctx.moveTo(lX+c*cs+2,lY+(r+1)*cs);ctx.lineTo(lX+(c+1)*cs-2,lY+(r+1)*cs);}}
-  ctx.stroke();
   const kind=TH().piece;
   for(let i=0;i<n*n;i++){
     const r=i/n|0,c=i%n,x=lX+(c+0.5)*cs,y=lY+(r+0.5)*cs,s=LG.st[i],a=LG.anim[i],age=a?t-a.t0:1e9;
     if(a&&a.type==='wrong'&&age<750){const p=Math.max(0,age)/750;
       ctx.save();ctx.globalAlpha=Math.min(1,p*1.6);drawX(x,y,cs,1);ctx.restore();
-      ctx.save();ctx.globalAlpha=1-p;ctx.translate(x,y);ctx.rotate(Math.sin(age*0.04)*0.35*(1-p));paintPiece(ctx,kind,0,0,cs*0.3);ctx.restore();continue;}
+      ctx.save();ctx.globalAlpha=1-p;ctx.translate(x,y);ctx.rotate(Math.sin(age*0.04)*0.35*(1-p));drawToken(0,0,cs*0.4);paintPiece(ctx,kind,0,0,cs*0.27);ctx.restore();continue;}
     if(s===1){if(age<0)continue;drawX(x,y,cs,Math.min(1,age/160));}
     else if(s===2){let sc=1,oy=0;if(a&&a.type==='pop'&&age<380)sc=1+0.35*Math.sin(Math.min(1,age/380)*Math.PI)*(1-age/380);
       if(a&&a.type==='dance'&&age>0)oy=-Math.abs(Math.sin(age*0.008))*cs*0.12*Math.max(0,1-age/2400);
-      const gl=ctx.createRadialGradient(x,y,0,x,y,cs*0.5);gl.addColorStop(0,'rgba(255,255,255,0.55)');gl.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=gl;ctx.fillRect(x-cs/2,y-cs/2,cs,cs);
-      paintPiece(ctx,kind,x,y+oy,cs*0.3*sc);}
+      drawToken(x,y+oy,cs*0.4*sc);paintPiece(ctx,kind,x,y+oy,cs*0.27*sc);}
   }
   if(LG.hint){const age=t-LG.hint.t0,i=LG.hint.i;if(age>4500)LG.hint=null;else{const r=i/n|0,c=i%n,pu=0.5+0.5*Math.sin(age*0.008);
     rrect(ctx,lX+c*cs+cs*0.06,lY+r*cs+cs*0.06,cs*0.88,cs*0.88,cs*0.18);ctx.lineWidth=cs*0.07;ctx.strokeStyle=`rgba(255,255,255,${0.55+0.4*pu})`;ctx.shadowColor='rgba(255,240,200,0.9)';ctx.shadowBlur=12*pu;ctx.stroke();ctx.shadowBlur=0;}}
 }
+function drawToken(x,y,r){ctx.save();ctx.shadowColor='rgba(60,70,110,0.28)';ctx.shadowBlur=r*0.35;ctx.shadowOffsetY=r*0.1;
+  const g=ctx.createRadialGradient(x-r*0.3,y-r*0.35,r*0.1,x,y,r);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#f6efe6');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.restore();
+  ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.lineWidth=Math.max(1,r*0.07);ctx.strokeStyle='rgba(255,255,255,0.95)';ctx.stroke();}
 function drawX(x,y,cs,a){const k=cs*0.17*(0.6+0.4*a);ctx.save();ctx.globalAlpha*=a;ctx.lineCap='round';ctx.lineWidth=Math.max(2,cs*0.075);ctx.strokeStyle='rgba(255,255,255,0.95)';ctx.shadowColor='rgba(60,70,110,0.25)';ctx.shadowBlur=3;
   ctx.beginPath();ctx.moveTo(x-k,y-k);ctx.lineTo(x+k,y+k);ctx.moveTo(x+k,y-k);ctx.lineTo(x-k,y+k);ctx.stroke();ctx.restore();}
 
