@@ -38,6 +38,9 @@ body[data-mode=drop] #dropHud,body[data-mode=pour] #pourHud,body[data-mode=block
 body.hinting #visit{opacity:0!important;pointer-events:none}
 #hintBox svg{width:20px;height:20px;flex:none;margin-top:1px}
 .chip{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.95);border-radius:10px;padding:4px 9px;font-size:11px;font-weight:700;color:#5b6c8a;white-space:nowrap}
+#hud .stack .ibtn{pointer-events:none!important}
+body:not([data-mode=pour]) #ptools .pill,body:not([data-mode=logic]) #tools .pill,body:not([data-mode=drop]) #dropBar .pill,body:not([data-mode=drop]) #dropBar .pedArrow{pointer-events:none!important}
+body[data-mode=logic] #logicHud .ibtn,body[data-mode=pour] #pourHud .ibtn,body[data-mode=block] #blockHud .ibtn,body[data-mode=build] #buildHud .ibtn,body[data-mode=hub] #hubHud .ibtn,body[data-mode=drop] #dropHud .ibtn{pointer-events:auto!important}
 #hud .ibtn,.ibtn{pointer-events:auto;width:30px;height:30px;padding:0;font:italic 700 16px Georgia,serif;color:#6f84a1;display:flex;align-items:center;justify-content:center;flex:none}
 .crow{display:flex;align-items:center;gap:8px}
 #help ul{text-align:left;margin:0 0 18px;padding-left:20px;color:#55657f;font-weight:500;line-height:1.45;font-size:15px}
