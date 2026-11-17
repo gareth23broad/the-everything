@@ -1628,7 +1628,7 @@ function dropBall(x){
   save.pearls-=cost;dPearls-=cost;persist();updateHud(true);DB.sess.drops++;DB.sess.spent+=cost;
   DB.balls.push({x:DWORLD.chutes[ci]+(Math.random()-0.5)*0.2,y:0.35,vx:(Math.random()-0.5)*0.6,vy:0,hit:new Map(),m,ci,t0:now_});DB.chuteFx={i:ci,t:now_};sfx.pick();
 }
-function bumpHit(b,o){const v=b.m;o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
+function bumpHit(b,o){const v=1;o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
 function awardDrop(v,x,y){save.dropPts=(save.dropPts||0)+v;fx.push({type:'text',text:'+'+v,x,y,t0:performance.now(),dur:1000,size:Math.max(15,dS*0.6),layer:'drop'});
   while(save.dropPts>=PRIZE_PTS){save.dropPts-=PRIZE_PTS;winPrize();}persist();updateDropHud();}
 function winPrize(){const tg=dropTarget();
@@ -1685,7 +1685,7 @@ function drawDrop(t){
     ctx.fillStyle='#c9616c';ctx.beginPath();ctx.arc(x,y+r*0.08,rr*1.06,0,7);ctx.fill();
     g=ctx.createRadialGradient(x-rr*0.35,y-rr*0.4,rr*0.05,x,y,rr);g.addColorStop(0,'#fff0ea');g.addColorStop(0.45,'#f6a7a0');g.addColorStop(1,'#d9707c');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rr,0,7);ctx.fill();
     ctx.fillStyle='rgba(255,255,255,0.85)';ctx.beginPath();ctx.ellipse(x-rr*0.35,y-rr*0.45,rr*0.3,rr*0.16,-0.5,0,7);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font=`800 ${r*0.6}px Quicksand,ui-rounded,system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(150,50,60,0.5)';ctx.shadowBlur=3;ctx.fillText('+'+m,x,y+r*0.08);ctx.shadowBlur=0;}
+    ctx.fillStyle='#fff';ctx.font=`800 ${r*0.6}px Quicksand,ui-rounded,system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(150,50,60,0.5)';ctx.shadowBlur=3;ctx.fillText('+1',x,y+r*0.08);ctx.shadowBlur=0;}
   // cups: dark inside, back wall
   const cupT=dY+CUP_T*dS,cupB=dY+DH*dS,lipT=dY+LIP_T*dS;
   SLOTV.forEach((v,sI)=>{const x=dX+sI*dS;g=ctx.createLinearGradient(0,cupT,0,cupB);const big=v>=25;
@@ -2112,7 +2112,7 @@ const HELP={
   logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Tap a ${th.one} spot that’s wrong and it gently turns into an X — nothing is lost.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
-  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers add bonus points too.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
+  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
 };
 function showHelp(k){const[h,lines]=HELP[k]();$('helpTitle').textContent=h;$('helpList').innerHTML=lines.map(l=>'<li>'+l.replace(/</g,'&lt;')+'</li>').join('');$('help').classList.add('show');sfx.pick();}
 document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{audio.wake();showHelp(b.dataset.help);}));
