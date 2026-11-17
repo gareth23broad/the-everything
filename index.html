@@ -357,6 +357,7 @@ const SAVE_KEY='everything-v1';
 const save={pearls:0,free:0,mult:1,intro:false,current:'lighthouse',solved:0,gates:{},builds:{}};
 WORLDS.forEach(w=>save.builds[w.id]={stage:0,pts:0,level:1});
 try{
+  if(location.hash==='#test-grab'||location.hash==='#test-drop')window.__test=location.hash.slice(6);
   if(location.hash==='#reset'){localStorage.removeItem(SAVE_KEY);localStorage.removeItem('seaglass-v1');}
   let s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(!s){const o=JSON.parse(localStorage.getItem('seaglass-v1')||'null');if(o)s={pearls:o.pearls,free:o.free,mult:o.mult,intro:o.intro,current:'lighthouse',builds:{lighthouse:{stage:o.stage||0,pts:o.pts||0,level:o.level||1}}};}
@@ -1821,8 +1822,8 @@ function goHub(){if(trans||spin||mode==='hub')return;if(mode==='drop'){settleBal
 /* ---------- Coin Grab (mist gate) ---------- */
 let GR={on:false};const gcv=$('gcv'),gx=gcv.getContext('2d');
 function gMsg(t,ms){const m=$('gMsg');m.textContent=t;m.classList.add('show');if(ms)setTimeout(()=>{if(m.textContent===t)m.classList.remove('show');},ms);}
-function startGrab(id){if(trans||GR.on)return;const d=Math.min(window.devicePixelRatio||1,2);gcv.width=W*d;gcv.height=H*d;gx.setTransform(d,0,0,d,0,0);
-  GR={on:true,id,coins:[],fx:[],n:0,el:0,phase:'ready',dur:WMAP[id].mega?22000:16000,acc:0,flurry:3500,last:performance.now(),r:Math.max(28,Math.min(42,W*0.085))};
+function startGrab(id,test){if(trans||GR.on)return;const d=Math.min(window.devicePixelRatio||1,2);gcv.width=W*d;gcv.height=H*d;gx.setTransform(d,0,0,d,0,0);
+  GR={on:true,id,test:!!test,coins:[],fx:[],n:0,el:0,phase:'ready',dur:WMAP[id].mega?22000:16000,acc:0,flurry:3500,last:performance.now(),r:Math.max(28,Math.min(42,W*0.085))};
   hubZt=clampZ(WMAP[id].pos[1]-25);$('gN').textContent='0';$('gFill').style.width='100%';$('grab').classList.add('on');document.body.classList.add('grabbing');paintIcons();sfx.pick();
   setTimeout(()=>{gMsg('Ready?');sfx.tide();},500);requestAnimationFrame(grabLoop);}
 function spawnCoin(x){const r=GR.r*(0.9+Math.random()*0.2),sp=H/2.9;GR.coins.push({x:x??(r+Math.random()*(W-2*r)),y:-r-Math.random()*40,vx:(Math.random()-0.5)*40,vy:sp*(0.55+Math.random()*0.3),r,spin:Math.random()*6,sv:2+Math.random()*2.5,sw:Math.random()*6});}
@@ -1846,14 +1847,18 @@ function grabLoop(now){if(!GR.on)return;const dt=Math.min(0.05,(now-GR.last)/100
     else{gx.save();gx.globalAlpha=1-k*k;gx.font=`800 ${26}px Quicksand,ui-rounded,system-ui,sans-serif`;gx.textAlign='center';gx.fillStyle='#fff';gx.shadowColor='rgba(170,110,30,.6)';gx.shadowBlur=8;gx.fillText('+1',f.x,f.y-k*50);gx.restore();}}
   requestAnimationFrame(grabLoop);}
 function grabAt(x,y){if(!GR.on||GR.phase==='ready')return;let best=null,bd=1e9;for(const c of GR.coins){const d=Math.hypot(c.x-x,c.y-y);if(d<c.r*1.5&&d<bd){bd=d;best=c;}}
-  if(!best)return;GR.coins.splice(GR.coins.indexOf(best),1);GR.n++;save.pearls++;dPearls++;persist();updateHud(true);
+  if(!best)return;GR.coins.splice(GR.coins.indexOf(best),1);GR.n++;if(!GR.test){save.pearls++;dPearls++;persist();updateHud(true);}
   const cb=document.querySelector('#gTop .gcount canvas').getBoundingClientRect(),now=performance.now();
   GR.fx.push({type:'ring',x:best.x,y:best.y,r:best.r,t0:now,dur:450,a:Math.random()*6},{type:'txt',x:best.x,y:best.y-best.r,t0:now,dur:800},{type:'fly',x:best.x,y:best.y,tx:cb.left+cb.width/2,ty:cb.top+cb.height/2,r:best.r,t0:now,dur:520});
   setTimeout(()=>{$('gN').textContent=GR.n;const e=document.querySelector('#gTop .gcount');e.animate([{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:220});},500);
   sfx.pearl(GR.n);}
 gcv.addEventListener('pointerdown',e=>{audio.wake();e.preventDefault();grabAt(e.clientX,e.clientY);});
 $('gInfo').addEventListener('click',()=>showHelp('grab'));
-function finishGrab(){const id=GR.id,n=GR.n;GR.on=false;$('gMsg').classList.remove('show');
+function finishGrab(){const id=GR.id,n=GR.n,test=GR.test;GR.on=false;$('gMsg').classList.remove('show');
+  if(test){$('gsTitle').textContent='+'+n+' coin'+(n===1?'':'s');$('gsText').textContent='Test round: coins aren’t saved.';$('gsOk').textContent='Play again';
+    setTimeout(()=>{$('grab').classList.remove('on');document.body.classList.remove('grabbing');$('gsum').classList.add('show');sfx.reward(2);},300);
+    $('gsOk').onclick=()=>{$('gsum').classList.remove('show');setTimeout(()=>startGrab(id,true),400);};return;}
+  $('gsOk').textContent='Lift the mist';
   $('gsTitle').textContent='+'+n+' coin'+(n===1?'':'s');$('gsText').textContent=(n?'Lovely grabbing! ':'')+'The mist is ready to lift on '+WMAP[id].world+'.';
   setTimeout(()=>{$('grab').classList.remove('on');document.body.classList.remove('grabbing');$('gsum').classList.add('show');sfx.reward(2);},300);
   $('gsOk').onclick=()=>{$('gsum').classList.remove('show');const I=islands[id],w=WMAP[id];save.gates[id]=true;persist();setLabels();updateHud(true);
@@ -2217,7 +2222,10 @@ function frame(t){
   updateLabels();updateHud();
   {const ph=(t%5000)/5000,k=ph<0.3?Math.pow(Math.sin(ph/0.3*Math.PI),1.5):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.06*k).toFixed(3));j.style.setProperty('--glow',(0.35*k).toFixed(3));shimmerCoins(t);
    {const u=Math.max(0,Math.min(1,(L.drop-0.25)/0.75)),e=u*u*(3-2*u),mt=$('mTop');mt.style.opacity=e.toFixed(3);mt.style.visibility=e<0.01?'hidden':'visible';mt.style.transform=`translateY(${((1-L.drop)*H*0.95).toFixed(1)}px)`;}}
-  if(!document.body.classList.contains('ready')&&(frame.n=(frame.n||0)+1)>2)document.body.classList.add('ready');
+  if(!document.body.classList.contains('ready')&&(frame.n=(frame.n||0)+1)>2){document.body.classList.add('ready');
+    if(window.__test){started=true;$('intro').classList.remove('show');const k=window.__test;window.__test=null;
+      if(k==='grab'){go('hub',{done:()=>startGrab(WORLDS[Math.min(WORLDS.length-1,WORLDS.findIndex(w=>w.id===activeWorld())+1)].id,true)});}
+      else{go('hub',{done:()=>goDrop()});}}}
   requestAnimationFrame(frame);
 }
 
