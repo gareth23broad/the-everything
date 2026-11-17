@@ -2224,14 +2224,15 @@ function frame(t){
    {const u=Math.max(0,Math.min(1,(L.drop-0.25)/0.75)),e=u*u*(3-2*u),mt=$('mTop');mt.style.opacity=e.toFixed(3);mt.style.visibility=e<0.01?'hidden':'visible';mt.style.transform=`translateY(${((1-L.drop)*H*0.95).toFixed(1)}px)`;}}
   if(!document.body.classList.contains('ready')&&(frame.n=(frame.n||0)+1)>2){document.body.classList.add('ready');
     if(window.__test){started=true;$('intro').classList.remove('show');const k=window.__test;window.__test=null;
-      if(k==='grab'){go('hub',{done:()=>startGrab(WORLDS[Math.min(WORLDS.length-1,WORLDS.findIndex(w=>w.id===activeWorld())+1)].id,true)});}
-      else{go('hub',{done:()=>goDrop()});}}}
+      const run=k==='grab'?()=>startGrab(WORLDS[Math.min(WORLDS.length-1,WORLDS.findIndex(w=>w.id===activeWorld())+1)].id,true):()=>goDrop();
+      if(mode==='hub'||!go('hub',{done:()=>setTimeout(run,200)}))setTimeout(run,600);}}
   requestAnimationFrame(frame);
 }
 
 /* ---------- start ---------- */
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
+addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
 window.__grab=()=>GR;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
