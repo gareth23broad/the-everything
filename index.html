@@ -373,7 +373,7 @@ try{
     localStorage.setItem(SAVE_KEY,JSON.stringify({pearls:300,free:0,mult:1,intro:false,current:'garden',solved:10,gates:{garden:true},builds:{lighthouse:{stage:6,pts:0,level:9},garden:{stage:3,pts:0,level:5}}}));}}catch(e){}}
   let s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(!s){const o=JSON.parse(localStorage.getItem('seaglass-v1')||'null');if(o)s={pearls:o.pearls,free:o.free,mult:o.mult,intro:o.intro,current:'lighthouse',builds:{lighthouse:{stage:o.stage||0,pts:o.pts||0,level:o.level||1}}};}
-  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
+  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed','zoomHint'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
   if(!WMAP[save.current])save.current='lighthouse';
 }catch(e){}
 const W_=()=>WMAP[save.current],B=()=>save.builds[save.current],NS=id=>WMAP[id].stages.length,NSC=()=>W_().stages.length;
@@ -1151,11 +1151,12 @@ function boardPose(id,topY,boardTop){
   const D=Math.min(1600,Math.max(70,8.9*sc*H/(2*px*TANH)));
   return{pos:c.clone().add(new V3(0,1.2,D)),tgt:c.clone().add(new V3(0,1.2,0)),oy:H/2-hy};
 }
-let vT=0;
+let vT=0;const BZ={z:1,zt:1,a:0,at:0,ptrs:new Map(),pinch:null,rot:null};
 function buildPose(t){
   const c=ctr(save.current),top=buildTop+10,bot=(wcy-R*1.2-10)*(1-vT)+(H-96)*vT,ys=(top+bot)/2,px=Math.max(60,bot-top)*0.9;
-  const sc=W_().scale||1,ty=4.2*sc;let r=8.4*sc*H/(2*px*TANH);r=Math.max(r,15*sc/(2*0.92*TANH*(W/H)));
-  const e=0.15,a=(W_().cam||0.62)+Math.sin(t*0.00011)*0.24;
+  BZ.z+=(BZ.zt-BZ.z)*0.18;BZ.a+=(BZ.at-BZ.a)*0.18;
+  const sc=W_().scale||1,ty=4.2*sc*(1-0.6*(BZ.z-1)/2.2);let r=8.4*sc*H/(2*px*TANH);r=Math.max(r,15*sc/(2*0.92*TANH*(W/H)))/BZ.z;
+  const e=0.15+0.12*(BZ.z-1)/2.2,a=(W_().cam||0.62)+Math.sin(t*0.00011)*0.24+BZ.a;
   return{pos:c.clone().add(new V3(Math.sin(a)*r*Math.cos(e),ty+r*Math.sin(e),Math.cos(a)*r*Math.cos(e))),tgt:c.clone().add(new V3(0,ty,0)),oy:H/2-ys};
 }
 let hubZ=null,hubZt=null,hubDrag=null;
@@ -1799,7 +1800,7 @@ function setLabels(){
    else{$('cont').querySelector('.ct').textContent='Prize Drop';$('contSub').textContent='All islands built';}}}
 }
 function go(target,opts={}){
-  if(trans||mode===target)return false;clearHint();if(target==='hub'){const a=activeWorld();if(save.current!==a){save.current=a;persist();dStage=save.stage;dPts=save.pts;}hubZt=clampZ(ctr(save.current).z-25);if(hubZ===null)hubZ=hubZt;}
+  if(trans||mode===target)return false;clearHint();if(target==='build'){BZ.zt=1;BZ.at=0;}if(target==='hub'){const a=activeWorld();if(save.current!==a){save.current=a;persist();dStage=save.stage;dPts=save.pts;}hubZt=clampZ(ctr(save.current).z-25);if(hubZ===null)hubZ=hubZt;}
   if(drag){drag=snap=hi=null;}
   const from=mode;mode=target;document.body.dataset.mode=target;
   trans={from,to:target,t0:performance.now(),dur:opts.dur||2600,L0:{...L},done:opts.done};
@@ -1907,13 +1908,14 @@ function finishGrab(){const id=GR.id,n=GR.n,test=GR.test;GR.on=false;GR.coins.fo
   setTimeout(()=>{$('grab').classList.remove('on');document.body.classList.remove('grabbing');$('gsum').classList.add('show');sfx.reward(2);},300);
   $('gsOk').onclick=()=>{$('gsum').classList.remove('show');const I=islands[id],w=WMAP[id];save.gates[id]=true;persist();setLabels();updateHud(true);
     setTimeout(()=>{I.mistTo=0;const s2=toScreen(w.pos[0],3,w.pos[1]);burst(s2.x,s2.y,40,['#ffffff','#ffe3ec','#e0f6ee']);sfx.stage();toast(w.world+' is open',2200);},400);};}
+function zoomHint(){BZ.zt=1;BZ.at=0;if(!save.zoomHint){save.zoomHint=true;persist();setTimeout(()=>toast('Pinch to zoom · drag to turn',2600),1800);}}
 function selectWorld(id){
   if(trans||mode!=='hub')return;
   if(!WMAP[id]){toast('More islands are coming soon',1800);return;}
   if(gateOpen(id)){sfx.pick();startGrab(id);return;}
   if(!unlocked(id)){const i=WORLDS.findIndex(w=>w.id===id);toast('Finish '+WORLDS[i-1].name.toLowerCase()+' to open this island',2200);return;}
   if(save.current!==id){save.current=id;persist();dStage=save.stage;dPts=save.pts;}
-  sfx.pick();go('build',{done:arriveBuild});
+  sfx.pick();zoomHint();go('build',{done:arriveBuild});
 }
 function outOfPearls(){if(mode!=='build')return;toast('Out of coins · tap ‹ Puzzle to earn more',2600);}
 function showComplete(I){
@@ -2066,13 +2068,23 @@ function burst(x,y,n,cols){const t=performance.now();for(let i=0;i<n;i++){const 
 
 /* ---------- input ---------- */
 function slotAt(x,y){if(y<trayY-cell*0.3||y>trayY+trayH+cell*0.3)return -1;const i=Math.floor((x-(boardX-cell*0.4))/((boardS+cell*0.8)/3));return i>=0&&i<3?i:-1;}
+cv.addEventListener('pointerdown',e=>{if(mode!=='build'||trans)return;BZ.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(BZ.ptrs.size===2){const[p1,p2]=[...BZ.ptrs.values()];BZ.pinch={d0:Math.hypot(p1.x-p2.x,p1.y-p2.y)||1,z0:BZ.zt,a0:BZ.at,mx:(p1.x+p2.x)/2};BZ.rot=null;e.stopImmediatePropagation();return;}
+  if(Math.hypot(e.clientX-wcx,e.clientY-wcy)>R*0.98||vT>0.5){BZ.rot={x:e.clientX,a0:BZ.at,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}}},true);
+cv.addEventListener('pointermove',e=>{if(mode!=='build'||!BZ.ptrs.has(e.pointerId))return;BZ.ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(BZ.pinch&&BZ.ptrs.size>=2){const[p1,p2]=[...BZ.ptrs.values()];BZ.zt=Math.max(1,Math.min(3.2,BZ.pinch.z0*Math.hypot(p1.x-p2.x,p1.y-p2.y)/BZ.pinch.d0));BZ.at=BZ.pinch.a0+((p1.x+p2.x)/2-BZ.pinch.mx)/W*2.2;}
+  else if(BZ.rot){const dx=e.clientX-BZ.rot.x;if(Math.abs(dx)>6)BZ.rot.moved=true;if(BZ.rot.moved)BZ.at=BZ.rot.a0-dx/W*2.6;}});
+const bzEnd=e=>{BZ.ptrs.delete(e.pointerId);if(BZ.ptrs.size<2)BZ.pinch=null;if(!BZ.ptrs.size)BZ.rot=null;};
+cv.addEventListener('pointerup',bzEnd);cv.addEventListener('pointercancel',bzEnd);
+cv.addEventListener('wheel',e=>{if(mode!=='build')return;e.preventDefault();BZ.zt=Math.max(1,Math.min(3.2,BZ.zt*Math.exp(-e.deltaY*0.002)));},{passive:false});
+cv.addEventListener('dblclick',()=>{if(mode==='build'){BZ.zt=1;BZ.at=0;}});
 cv.addEventListener('pointerdown',e=>{
   audio.wake();
   if(trans)return;
   if(mode==='hub'){hubDrag={x:e.clientX,y:e.clientY,z:hubZt,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}return;}
   if(mode==='pour'){const i=pourAt(e.clientX,e.clientY);if(i>=0)tapBottle(i);return;}
   if(mode==='drop'){if(e.clientY>dY-dS*0.6&&e.clientY<dY+(CUP_T-0.3)*dS&&e.clientX>dX-dS&&e.clientX<dX+DW*dS+dS)dropBall(e.clientX);return;}
-  if(mode==='build'){if(Math.hypot(e.clientX-wcx,e.clientY-wcy)<R*0.98)trySpin();return;}
+  if(mode==='build'){if(vT<0.5&&Math.hypot(e.clientX-wcx,e.clientY-wcy)<R*0.98)trySpin();return;}
   if(mode==='logic'){if(!started||!LG||LG.done)return;const i=cellAt(e.clientX,e.clientY);if(i<0)return;
     ld={start:i,last:i,moved:false,mode:LG.st[i]===0?'mark':LG.st[i]===1?'unmark':null,batch:[]};try{cv.setPointerCapture(e.pointerId)}catch(_){}return;}
   if(!started||won||mode!=='block')return;
