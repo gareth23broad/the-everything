@@ -41,6 +41,7 @@ body.hinting #visit{opacity:0!important;pointer-events:none}
 #hintBox svg{width:20px;height:20px;flex:none;margin-top:1px}
 .chip{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.95);border-radius:10px;padding:4px 9px;font-size:11px;font-weight:700;color:#5b6c8a;white-space:nowrap}
 #hud .stack .ibtn{pointer-events:none!important}
+#grab:not(.on) .pill{pointer-events:none!important}
 body:not([data-mode=pour]) #ptools .pill,body:not([data-mode=logic]) #tools .pill,body:not([data-mode=drop]) #dropBar .pill{pointer-events:none!important}
 body[data-mode=logic] #logicHud .ibtn,body[data-mode=pour] #pourHud .ibtn,body[data-mode=block] #blockHud .ibtn,body[data-mode=build] #buildHud .ibtn,body[data-mode=hub] #hubHud .ibtn,body[data-mode=drop] #dropHud .ibtn{pointer-events:auto!important}
 #hud .ibtn,.ibtn{pointer-events:auto;width:30px;height:30px;padding:0;font:italic 700 16px Georgia,serif;color:#6f84a1;display:flex;align-items:center;justify-content:center;flex:none}
@@ -82,6 +83,9 @@ body[data-mode=drop] #mTop #dmult{pointer-events:auto}
 #pedName{font-weight:700;font-size:14px;color:#4b5a73;margin-top:-4px;white-space:nowrap}
 #pedIsl{font-size:10.5px;font-weight:700;color:#8a7a5a;letter-spacing:.04em;white-space:nowrap}
 @media (max-height:760px){#pedCanvas{width:90px;height:76px}}
+#dropLabel .dlBal{position:absolute;right:-6px;top:-50px;width:30px;height:45px;filter:drop-shadow(0 4px 6px rgba(200,90,110,.35));animation:dlbob 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes dlbob{50%{transform:translateY(-4px) rotate(3deg)}}
+@media (max-height:760px){#dropLabel .dlBal{width:24px;height:36px;top:-40px}}
 #dropLabel{position:fixed;left:0;top:0;z-index:2;display:flex;align-items:center;gap:9px;padding:9px 18px 9px 12px;background:linear-gradient(180deg,#ff9e8c,#f07a8f);border:2px solid #fff;color:#fff;box-shadow:0 10px 26px rgba(230,110,120,.45);animation:dpulse 2.2s ease-in-out infinite}
 #dropLabel svg{width:26px;height:26px}
 #dropLabel span{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
@@ -147,6 +151,18 @@ body.viewing #bottom .mwrap{opacity:0;pointer-events:none}
 #visit .arr{font-size:20px;line-height:1;margin-left:2px;color:#8a9ab3}
 @media (max-height:760px){#visit{padding:8px 18px 8px 14px;font-size:15px}.stack{margin-top:8px}}
 body:not([data-mode=logic]) #visit{opacity:0;transform:translate(-50%,24px);pointer-events:none}
+#grab{position:fixed;inset:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .6s;background:radial-gradient(120% 80% at 50% 40%,rgba(90,90,150,.22),rgba(60,60,110,.5))}
+#grab.on{opacity:1;pointer-events:auto}
+body.grabbing #hubHud,body.grabbing #labels,body.grabbing #dropLabel,body.grabbing #cont,body.grabbing #dropBubble,body.grabbing .top{opacity:0!important;pointer-events:none!important;transition:opacity .5s}
+#gcv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#gTop{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 12px);display:flex;align-items:center;gap:10px;padding:0 16px}
+#gTop .gcount{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 9px;font-size:24px;font-weight:800;color:#55657f;pointer-events:none}
+#gTop .gcount canvas{width:32px;height:32px}
+#gBar{flex:1;height:14px;border-radius:999px;background:rgba(255,255,255,.45);border:1.5px solid #fff;overflow:hidden}
+#gFill{height:100%;width:100%;background:linear-gradient(90deg,#ffe2a8,#f6c34f);border-radius:999px}
+#gInfo{width:40px!important;height:40px!important;font-size:20px!important}
+#gMsg{position:absolute;left:0;right:0;top:36%;text-align:center;font-weight:800;font-size:64px;color:#fff;letter-spacing:.02em;text-shadow:0 4px 0 #e9a64a,0 10px 24px rgba(160,90,40,.45);opacity:0;transform:scale(.6);transition:opacity .35s,transform .45s cubic-bezier(.3,1.6,.5,1);pointer-events:none}
+#gMsg.show{opacity:1;transform:none}
 #toast{position:fixed;left:50%;top:30%;z-index:3;transform:translate(-50%,10px);background:rgba(255,255,255,.85);border:1px solid #fff;border-radius:999px;padding:11px 22px;font-weight:700;color:#55657f;box-shadow:0 12px 30px rgba(80,90,140,.2);opacity:0;pointer-events:none;transition:opacity .45s,transform .45s;white-space:nowrap}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .card{position:fixed;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(236,224,232,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s}
@@ -211,7 +227,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <div id="ped"><div class="pedMid"><div id="pedKick">NEXT PRIZE</div><canvas id="pedCanvas"></canvas><div id="pedName">—</div><div id="pedIsl"></div></div></div>
   <button id="dInfo" class="pill" aria-label="How to play"><span>i</span></button></div>
 <div id="mTop"><div class="mcoins"><canvas data-ic="pearl"></canvas><span id="mCoins">0</span></div><div id="mProg"><div id="mFill"></div><span id="mPT">0/500</span></div><div class="mmul"><span id="dcost">25 per drop</span><button id="dmult" class="pill">×1</button></div></div>
-<button id="dropLabel" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-6 6c0 3.5 3.5 6.5 6 8 2.5-1.5 6-4.5 6-8a6 6 0 0 0-6-6z"/><path d="M10 17.5l.5 2.5h3l.5-2.5"/></svg><span><b>Prize Drop</b><i id="dropSub">Win keepsakes</i></span></button>
+<button id="dropLabel" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-6 6c0 3.5 3.5 6.5 6 8 2.5-1.5 6-4.5 6-8a6 6 0 0 0-6-6z"/><path d="M10 17.5l.5 2.5h3l.5-2.5"/></svg><span><b>Prize Drop</b><i id="dropSub">Win keepsakes</i></span><svg class="dlBal" viewBox="0 0 40 60"><defs><radialGradient id="bg1" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".55" stop-color="#f7a9bf"/><stop offset="1" stop-color="#e57f9b"/></radialGradient></defs><path d="M20 2C9 2 3 10 3 19c0 10 9 18 14 22h6c5-4 14-12 14-22C37 10 31 2 20 2z" fill="url(#bg1)" stroke="#fff" stroke-width="2"/><path d="M20 2c-5 6-6 26-3 39M20 2c5 6 6 26 3 39" fill="none" stroke="#fff" stroke-width="1.6" opacity=".85"/><path d="M17 41l-2 9M23 41l2 9" stroke="#b98a64" stroke-width="1.4"/><rect x="13.5" y="49" width="13" height="9" rx="2" fill="#c8a27c" stroke="#fff" stroke-width="1.5"/></svg></button>
 <div id="dropBubble">You’ve got coins to spare — try the Prize Drop!</div>
 <div id="ptools"><button id="pUndo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button><button id="pRestart" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e98c80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button></div>
 <div id="tools"><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint</button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
@@ -222,6 +238,15 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <button id="back" class="pill">‹ Puzzle</button>
   <div class="mwrap"><div class="mlabel">Multiplier</div><button id="mult" class="pill">×1</button></div>
 </div>
+<div id="grab"><canvas id="gcv"></canvas>
+  <div id="gTop"><div class="gcount pill"><canvas data-ic="pearl"></canvas><span id="gN">0</span></div><div id="gBar"><div id="gFill"></div></div><button class="ibtn pill" id="gInfo" aria-label="How to play">i</button></div>
+  <div id="gMsg"></div></div>
+<div class="card" id="gsum"><div class="inner">
+  <div class="kicker">Coin Grab</div>
+  <h1 id="gsTitle">+0 coins</h1>
+  <p id="gsText"></p>
+  <button class="btn" id="gsOk">Lift the mist</button>
+</div></div>
 <div id="toast"></div>
 <div id="hintBox"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span id="hintText"></span></div>
 
@@ -337,7 +362,7 @@ const W_=()=>WMAP[save.current],B=()=>save.builds[save.current],NS=id=>WMAP[id].
 ['stage','pts','level'].forEach(k=>Object.defineProperty(save,k,{enumerable:false,get:()=>B()[k],set:v=>{B()[k]=v;}}));
 WORLDS.forEach((w,i)=>{if(i>0&&(save.builds[w.id].stage>0||save.builds[w.id].pts>0))save.gates[w.id]=true;});
 const prevDone=id=>{const i=WORLDS.findIndex(w=>w.id===id);return i===0||save.builds[WORLDS[i-1].id].stage>=NS(WORLDS[i-1].id);};
-const unlocked=id=>prevDone(id);
+const unlocked=id=>{const i=WORLDS.findIndex(w=>w.id===id);return i===0||(prevDone(id)&&!!save.gates[id]);};
 const gateOpen=id=>!unlocked(id)&&prevDone(id);
 const isDone=id=>save.builds[id].stage>=NS(id);
 function activeWorld(){const w=WORLDS.find(w=>unlocked(w.id)&&!isDone(w.id));if(w)return w.id;const u=WORLDS.filter(w=>unlocked(w.id));return u[u.length-1].id;}
@@ -514,7 +539,7 @@ const mc=document.createElement('canvas');mc.width=mc.height=128;{const g=mc.get
 const mistTex=new THREE.CanvasTexture(mc);
 function addMist(g){const grp=new THREE.Group();for(let i=0;i<9;i++){const a=i/9*Math.PI*2,s=new THREE.Sprite(new THREE.SpriteMaterial({map:mistTex,transparent:true,opacity:0,depthWrite:false}));
   s.scale.set(11,7,1);s.position.set(Math.cos(a)*3.4,2.4+(i%3)*1.6,Math.sin(a)*3.4);s.userData.p=i*1.3;grp.add(s);}g.add(grp);return grp;}
-function mistUpdate(o,t){if(o.w&&o.mistTo>0&&unlocked(o.w.id)&&o.w.id!==pendingReveal)o.mistTo=0;o.mistLv+=(o.mistTo-o.mistLv)*0.02;o.mist.visible=o.mistLv>0.01;o.mist.rotation.y=t*0.00004;
+function mistUpdate(o,t){o.mistLv+=(o.mistTo-o.mistLv)*0.02;o.mist.visible=o.mistLv>0.01;o.mist.rotation.y=t*0.00004;
   o.mist.children.forEach(s=>{s.material.opacity=o.mistLv*(0.5+0.15*Math.sin(t*0.0007+s.userData.p));});}
 
 const islands={},mistIslands=[];
@@ -1100,7 +1125,7 @@ function update3D(t){
   mistIslands.forEach((o,k)=>{const v=vis(o.g);o.g.visible=v;const f=foams[WORLDS.length+k];f.a.visible=f.b.visible=v;});
   buoys.forEach(b=>{b.visible=mapView||cp.distanceTo(b.position)>fd;});
   if(balloon){if(bTarget){balloon.position.x=bTarget.x;balloon.position.z=bTarget.z;}
-    balloon.visible=mapView&&!!bTarget;balloon.position.y=3.6+Math.sin(t*0.0011)*0.12;balloon.rotation.y=t*0.00015;balloon.userData.halo.material.opacity=dropUnlocked()?0.35+0.25*Math.sin(t*0.003):0.1;}
+    balloon.visible=false;balloon.position.y=3.6+Math.sin(t*0.0011)*0.12;balloon.rotation.y=t*0.00015;balloon.userData.halo.material.opacity=dropUnlocked()?0.35+0.25*Math.sin(t*0.003):0.1;}
 }
 const ctr=id=>{const w=WMAP[id];return new V3(w.pos[0],0,w.pos[1]);};
 function boardPose(id,topY,boardTop){
@@ -1752,7 +1777,7 @@ function setLabels(){
   $('toBuild').textContent='Build the '+w.short.toLowerCase();
   $('back').textContent=isDone(save.current)?'‹ Map':'‹ Puzzle';
   {const a=activeWorld(),aw=WMAP[a];if(!isDone(a)){$('contSub').textContent=`${aw.world} · Puzzle ${save.builds[a].level}`;$('cont').querySelector('.ct').textContent='Continue';}
-   else{const nx=WORLDS[WORLDS.findIndex(x=>x.id===a)+1];if(nx&&gateOpen(nx.id)){$('cont').querySelector('.ct').textContent='Continue';$('contSub').textContent='Clear the mist · '+nx.world;}
+   else{const nx=WORLDS[WORLDS.findIndex(x=>x.id===a)+1];if(nx&&gateOpen(nx.id)){$('cont').querySelector('.ct').textContent='Continue';$('contSub').textContent='Coin Grab · '+nx.world;}
    else{$('cont').querySelector('.ct').textContent='Prize Drop';$('contSub').textContent='All islands built';}}}
 }
 function go(target,opts={}){
@@ -1788,10 +1813,50 @@ function dropSummary(){const S=DB.sess;if(!S.drops)return;const p=save.dropPts||
   setTimeout(()=>$('dsum').classList.add('show'),900);DB.sess={drops:0,spent:0,won:[],keeps:[]};}
 let sumKeep=null;
 function goHub(){if(trans||spin||mode==='hub')return;if(mode==='drop'){settleBalls();dropSummary();}go('hub');}
+/* ---------- Coin Grab (mist gate) ---------- */
+let GR={on:false};const gcv=$('gcv'),gx=gcv.getContext('2d');
+function gMsg(t,ms){const m=$('gMsg');m.textContent=t;m.classList.add('show');if(ms)setTimeout(()=>{if(m.textContent===t)m.classList.remove('show');},ms);}
+function startGrab(id){if(trans||GR.on)return;const d=Math.min(window.devicePixelRatio||1,2);gcv.width=W*d;gcv.height=H*d;gx.setTransform(d,0,0,d,0,0);
+  GR={on:true,id,coins:[],fx:[],n:0,el:0,phase:'ready',dur:WMAP[id].mega?22000:16000,acc:0,flurry:3500,last:performance.now(),r:Math.max(28,Math.min(42,W*0.085))};
+  hubZt=clampZ(WMAP[id].pos[1]-25);$('gN').textContent='0';$('gFill').style.width='100%';$('grab').classList.add('on');document.body.classList.add('grabbing');paintIcons();sfx.pick();
+  setTimeout(()=>{gMsg('Ready?');sfx.tide();},500);requestAnimationFrame(grabLoop);}
+function spawnCoin(x){const r=GR.r*(0.9+Math.random()*0.2),sp=H/2.9;GR.coins.push({x:x??(r+Math.random()*(W-2*r)),y:-r-Math.random()*40,vx:(Math.random()-0.5)*40,vy:sp*(0.55+Math.random()*0.3),r,spin:Math.random()*6,sv:2+Math.random()*2.5,sw:Math.random()*6});}
+function grabLoop(now){if(!GR.on)return;const dt=Math.min(0.05,(now-GR.last)/1000)*(window.__gs||1);GR.last=now;const paused=$('help').classList.contains('show');
+  if(!paused){GR.el+=dt*1000;
+    if(GR.phase==='ready'&&GR.el>1900){GR.phase='go';GR.el=0;gMsg('Grab!',700);}
+    else if(GR.phase==='go'){const p=GR.el/GR.dur;$('gFill').style.width=Math.max(0,100*(1-p))+'%';
+      GR.acc+=dt*(2.0+2.2*p);while(GR.acc>1){GR.acc-=1;spawnCoin();}
+      GR.flurry-=dt*1000;if(GR.flurry<0){GR.flurry=3800+Math.random()*1500;const cx=W*(0.25+Math.random()*0.5);for(let k=0;k<6;k++)setTimeout(()=>GR.on&&spawnCoin(Math.max(GR.r,Math.min(W-GR.r,cx+(Math.random()-0.5)*W*0.4))),k*90);}
+      if(GR.el>=GR.dur){GR.phase='end';GR.el=0;gMsg('Time’s up!',1400);}}
+    else if(GR.phase==='end'&&(GR.el>1700&&!GR.coins.length||GR.el>3200)){finishGrab();return;}
+    const g=H/2.2;for(const c of GR.coins){c.vy=Math.min(c.vy+g*0.25*dt,H/1.6);c.y+=c.vy*dt;c.x+=c.vx*dt+Math.sin(now*0.002+c.sw)*0.25;c.spin+=c.sv*dt;}
+    GR.coins=GR.coins.filter(c=>c.y<H+c.r*1.5);}
+  gx.clearRect(0,0,W,H);
+  for(const c of GR.coins){gx.save();gx.globalAlpha=0.25;gx.fillStyle='#3b3550';gx.beginPath();gx.ellipse(c.x+c.r*0.18,c.y+c.r*0.3,c.r*0.8*Math.max(0.25,Math.abs(Math.cos(c.spin))),c.r*0.75,0,0,7);gx.fill();gx.restore();paintCoin(gx,c.x,c.y,c.r,Math.cos(c.spin));}
+  GR.fx=GR.fx.filter(f=>now-f.t0<f.dur);
+  for(const f of GR.fx){const k=(now-f.t0)/f.dur;
+    if(f.type==='fly'){const e=k*k*(3-2*k),x=f.x+(f.tx-f.x)*e,y=f.y+(f.ty-f.y)*e-Math.sin(k*Math.PI)*60;paintCoin(gx,x,y,f.r*(1-0.55*e),1);}
+    else if(f.type==='ring'){gx.save();gx.globalAlpha=1-k;gx.strokeStyle='#fff3c4';gx.lineWidth=4*(1-k);gx.beginPath();gx.arc(f.x,f.y,f.r*(0.8+k*1.1),0,7);gx.stroke();
+      for(let j=0;j<6;j++){const a=j/6*Math.PI*2+f.a;gx.fillStyle='#fff8dc';gx.beginPath();gx.arc(f.x+Math.cos(a)*f.r*(0.6+k*1.6),f.y+Math.sin(a)*f.r*(0.6+k*1.6),3.2*(1-k),0,7);gx.fill();}gx.restore();}
+    else{gx.save();gx.globalAlpha=1-k*k;gx.font=`800 ${26}px Quicksand,ui-rounded,system-ui,sans-serif`;gx.textAlign='center';gx.fillStyle='#fff';gx.shadowColor='rgba(170,110,30,.6)';gx.shadowBlur=8;gx.fillText('+1',f.x,f.y-k*50);gx.restore();}}
+  requestAnimationFrame(grabLoop);}
+function grabAt(x,y){if(!GR.on||GR.phase==='ready')return;let best=null,bd=1e9;for(const c of GR.coins){const d=Math.hypot(c.x-x,c.y-y);if(d<c.r*1.5&&d<bd){bd=d;best=c;}}
+  if(!best)return;GR.coins.splice(GR.coins.indexOf(best),1);GR.n++;save.pearls++;dPearls++;persist();updateHud(true);
+  const cb=document.querySelector('#gTop .gcount canvas').getBoundingClientRect(),now=performance.now();
+  GR.fx.push({type:'ring',x:best.x,y:best.y,r:best.r,t0:now,dur:450,a:Math.random()*6},{type:'txt',x:best.x,y:best.y-best.r,t0:now,dur:800},{type:'fly',x:best.x,y:best.y,tx:cb.left+cb.width/2,ty:cb.top+cb.height/2,r:best.r,t0:now,dur:520});
+  setTimeout(()=>{$('gN').textContent=GR.n;const e=document.querySelector('#gTop .gcount');e.animate([{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:220});},500);
+  sfx.pearl(GR.n);}
+gcv.addEventListener('pointerdown',e=>{audio.wake();e.preventDefault();grabAt(e.clientX,e.clientY);});
+$('gInfo').addEventListener('click',()=>showHelp('grab'));
+function finishGrab(){const id=GR.id,n=GR.n;GR.on=false;$('gMsg').classList.remove('show');
+  $('gsTitle').textContent='+'+n+' coin'+(n===1?'':'s');$('gsText').textContent=(n?'Lovely grabbing! ':'')+'The mist is ready to lift on '+WMAP[id].world+'.';
+  setTimeout(()=>{$('grab').classList.remove('on');document.body.classList.remove('grabbing');$('gsum').classList.add('show');sfx.reward(2);},300);
+  $('gsOk').onclick=()=>{$('gsum').classList.remove('show');const I=islands[id],w=WMAP[id];save.gates[id]=true;persist();setLabels();updateHud(true);
+    setTimeout(()=>{I.mistTo=0;const s2=toScreen(w.pos[0],3,w.pos[1]);burst(s2.x,s2.y,40,['#ffffff','#ffe3ec','#e0f6ee']);sfx.stage();toast(w.world+' is open',2200);},400);};}
 function selectWorld(id){
   if(trans||mode!=='hub')return;
   if(!WMAP[id]){toast('More islands are coming soon',1800);return;}
-  if(gateOpen(id)){sfx.pick();startGate(id);return;}
+  if(gateOpen(id)){sfx.pick();startGrab(id);return;}
   if(!unlocked(id)){const i=WORLDS.findIndex(w=>w.id===id);toast('Finish '+WORLDS[i-1].name.toLowerCase()+' to open this island',2200);return;}
   if(save.current!==id){save.current=id;persist();dStage=save.stage;dPts=save.pts;}
   sfx.pick();go('build',{done:arriveBuild});
@@ -1801,7 +1866,7 @@ function showComplete(I){
   const next=WORLDS[WORLDS.indexOf(I.w)+1];
   if(next&&next.mega)setTimeout(()=>toast('Next up: a mega island!',2400),3200);
   $('cKick').textContent={lighthouse:'The lighthouse is lit',garden:'The greenhouse is in bloom',harbour:'The harbour lamp is lit',snow:'The cabin is warm and cosy',night:'The stars are out',lavender:'The windmill is turning',tea:'The tea is brewing',glen:'The fairy lights are twinkling',maple:'The treehouse is cosy',cat:'The cat is watching over the bay'}[I.w.id]||'All built';
-  $('cText').textContent=next?`${next.world} is next — the mist lifts when you head back to the map.`:'More islands are coming soon.';
+  $('cText').textContent=next?`Tap the misty island on the map to play Coin Grab and open ${next.world}.`:'More islands are coming soon.';
   pendingReveal=next?next.id:null;$('complete').classList.add('show');
 }
 const labelEls={};
@@ -1842,8 +1907,8 @@ function updateLabels(){
     const o=labelEls[id],sc0=(WMAP[id]&&WMAP[id].scale)||1,s=toScreen(o.pos[0],0,o.pos[1]+7.4*sc0);o.el.style.opacity=(s.y<hubTop+20||s.y>H-125)?0:1;o.el.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,0)`;
     const w=WMAP[id];let name,st,cls='';
     if(!w){name='Coming soon';st='In the mist';cls='lock';}
-    else if(gateOpen(id)){name=(w.mega?'★ ':'')+w.world;st=w.mega?'Mega island · clear the mist':'Clear the mist';cls='gate';}
-    else if(!unlocked(id)||(islands[id].mistTo>0.5&&id===pendingReveal)){name=w.world;st='Locked';cls='lock';}
+    else if(gateOpen(id)){name=(w.mega?'★ ':'')+w.world;st=w.mega?'Mega island · Coin Grab':'Coin Grab · lift the mist';cls='gate';}
+    else if(!unlocked(id)||(islands[id].mistTo>0.5)){name=w.world;st='Locked';cls='lock';}
     else{const b=save.builds[id];name=(w.mega?'★ ':'')+w.name;st=b.stage>=NS(id)?'Complete ✓ · ✦ '+keepsOwned(id).length+'/3':`${b.stage} of ${NS(id)} built`;if(id===save.current)cls='cur';}
     const txt=name+'|'+st+'|'+cls;if(txt!==o.txt){o.txt=txt;o.el.querySelector('b').textContent=name;o.el.querySelector('span').textContent=st;o.el.className='ilabel pill '+cls;}
   }
@@ -1974,7 +2039,7 @@ $('jar').addEventListener('click',()=>{audio.wake();goBuild();});
 $('map').addEventListener('click',()=>{audio.wake();goHub();});
 function goContinue(){if(trans||mode!=='hub')return;const a=activeWorld();
   if(!isDone(a)){save.current=a;goLogic();return;}
-  const nx=WORLDS[WORLDS.findIndex(x=>x.id===a)+1];if(nx&&gateOpen(nx.id)){startGate(nx.id);return;}goDrop();}
+  const nx=WORLDS[WORLDS.findIndex(x=>x.id===a)+1];if(nx&&gateOpen(nx.id)){hubZt=clampZ(nx.pos[1]-25);startGrab(nx.id);return;}goDrop();}
 $('cont').addEventListener('click',()=>{audio.wake();goContinue();});
 $('dropLabel').addEventListener('click',()=>{audio.wake();$('dropBubble').classList.remove('show');goDrop();});
 $('dropBubble').addEventListener('click',()=>{audio.wake();$('dropBubble').classList.remove('show');goDrop();});
@@ -1989,6 +2054,7 @@ $('dmult').addEventListener('click',()=>{const cur=dMult(),i=MULTS.indexOf(cur),
 $('prizeKeep').addEventListener('click',()=>$('prize').classList.remove('show'));
 $('prizeSee').addEventListener('click',()=>{$('prize').classList.remove('show');if(lastWon){DB.sess={drops:0,spent:0,won:[]};save.current=lastWon.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);}});
 const HELP={
+  grab:()=>['Coin Grab',['Coins rain down from the sky. Tap them before they fall off the screen.','Every coin you grab is worth 1 coin, and it’s yours to keep.','There’s no losing. When time’s up, the mist lifts anyway.']],
   logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Tap a ${th.one} spot that’s wrong and it gently turns into an X — nothing is lost.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
@@ -2007,7 +2073,7 @@ $('mult').addEventListener('click',()=>{if(spin)return;let m=save.mult%3+1;if(SP
 $('toBuild').addEventListener('click',()=>{$('done').classList.remove('show');setTimeout(goBuild,250);});
 $('keep').addEventListener('click',()=>{$('done').classList.remove('show');fx.push({type:'wipe',t0:performance.now(),dur:1300,fn:()=>newLogic()});sfx.whoosh(0.6);});
 $('toMap').addEventListener('click',()=>{$('complete').classList.remove('show');const id=pendingReveal;pendingReveal=null;
-  setTimeout(()=>go('hub',{done:()=>{if(!id)return;const I=islands[id],w=WMAP[id];save.gates[id]=true;persist();hubZt=clampZ(w.pos[1]-25);setTimeout(()=>{I.mistTo=0;const s2=toScreen(w.pos[0],3,w.pos[1]);burst(s2.x,s2.y,40,['#ffffff','#ffe3ec','#e0f6ee']);sfx.stage();toast(w.world+' is open',2200);},700);}}),250);});
+  setTimeout(()=>go('hub',{done:()=>{if(id){hubZt=clampZ(WMAP[id].pos[1]-25);setTimeout(()=>toast('Tap the mist to play Coin Grab',2400),600);}}}),250);});
 $('gMap').addEventListener('click',()=>{$('gate').classList.remove('show');const id=gateTarget;save.gates[id]=true;save.current=id;dStage=save.stage;dPts=save.pts;LG=null;persist();
   setTimeout(()=>go('hub',{done:()=>{const I=islands[id],w=WMAP[id];I.mistTo=0;hubZt=clampZ(w.pos[1]-25);const s2=toScreen(w.pos[0],3,w.pos[1]);burst(s2.x,s2.y,40,['#ffffff','#ffe3ec','#e0f6ee']);sfx.stage();toast(w.world+' is open',2200);gateTarget=null;}}),250);});
 $('go').addEventListener('click',()=>{audio.wake();started=true;save.intro=true;persist();$('intro').classList.remove('show');});
@@ -2152,7 +2218,7 @@ function frame(t){
 /* ---------- start ---------- */
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
-window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
+window.__grab=()=>GR;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
 requestAnimationFrame(frame);
