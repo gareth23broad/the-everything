@@ -369,6 +369,9 @@ WORLDS.forEach(w=>save.builds[w.id]={stage:0,pts:0,level:1});
 try{
   if(location.hash==='#test-grab'||location.hash==='#test-drop')window.__test=location.hash.slice(6);
   if(location.hash==='#reset'){localStorage.removeItem(SAVE_KEY);localStorage.removeItem('seaglass-v1');}
+  if(location.hash==='#for-you'){try{if(!localStorage.getItem('everything-gift')){localStorage.setItem('everything-gift','1');
+    localStorage.setItem(SAVE_KEY,JSON.stringify({pearls:300,free:0,mult:1,intro:false,current:'garden',solved:10,gates:{garden:true},builds:{lighthouse:{stage:6,pts:0,level:9},garden:{stage:3,pts:0,level:5}}}));}}catch(e){}
+    try{history.replaceState(null,'',location.pathname+location.search.replace(/[?&]v=\d+/,''));}catch(e){}}
   let s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(!s){const o=JSON.parse(localStorage.getItem('seaglass-v1')||'null');if(o)s={pearls:o.pearls,free:o.free,mult:o.mult,intro:o.intro,current:'lighthouse',builds:{lighthouse:{stage:o.stage||0,pts:o.pts||0,level:o.level||1}}};}
   if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
