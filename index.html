@@ -2077,6 +2077,11 @@ cv.addEventListener('pointermove',e=>{if(mode!=='build'||!BZ.ptrs.has(e.pointerI
   else if(BZ.rot){const dx=e.clientX-BZ.rot.x;if(Math.abs(dx)>6)BZ.rot.moved=true;if(BZ.rot.moved)BZ.at=BZ.rot.a0-dx/W*2.6;}});
 const bzEnd=e=>{BZ.ptrs.delete(e.pointerId);if(BZ.ptrs.size<2)BZ.pinch=null;if(!BZ.ptrs.size)BZ.rot=null;};
 cv.addEventListener('pointerup',bzEnd);cv.addEventListener('pointercancel',bzEnd);
+let tp=null;const tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY)||1;
+document.addEventListener('touchstart',e=>{if(mode==='build'&&e.touches.length===2){tp={d0:tdist(e.touches),z0:BZ.zt};}},{passive:true,capture:true});
+document.addEventListener('touchmove',e=>{if(mode==='build'&&tp&&e.touches.length===2){e.preventDefault();BZ.zt=Math.max(1,Math.min(3.2,tp.z0*tdist(e.touches)/tp.d0));}},{passive:false,capture:true});
+document.addEventListener('touchend',e=>{if(e.touches.length<2)tp=null;},{passive:true,capture:true});
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 cv.addEventListener('wheel',e=>{if(mode!=='build')return;e.preventDefault();BZ.zt=Math.max(1,Math.min(3.2,BZ.zt*Math.exp(-e.deltaY*0.002)));},{passive:false});
 cv.addEventListener('dblclick',()=>{if(mode==='build'){BZ.zt=1;BZ.at=0;}});
 cv.addEventListener('pointerdown',e=>{
@@ -2294,7 +2299,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-window.__grab=()=>GR;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
+window.__grab=()=>GR;window.__BZ=BZ;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
 requestAnimationFrame(frame);
