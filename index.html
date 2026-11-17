@@ -83,6 +83,11 @@ body[data-mode=drop] #mTop #dmult{pointer-events:auto}
 #pedName{font-weight:700;font-size:14px;color:#4b5a73;margin-top:-4px;white-space:nowrap}
 #pedIsl{font-size:10.5px;font-weight:700;color:#8a7a5a;letter-spacing:.04em;white-space:nowrap}
 @media (max-height:760px){#pedCanvas{width:90px;height:76px}}
+body:not(.ready) #hud,body:not(.ready) .card,body:not(.ready) #tools,body:not(.ready) #ptools,body:not(.ready) #bottom,body:not(.ready) #cont,body:not(.ready) #visit{visibility:hidden!important}
+body::after{content:'The Everything';position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font:700 30px Quicksand,ui-rounded,system-ui,sans-serif;color:#7d8aa6;letter-spacing:.02em;pointer-events:none;transition:opacity .6s;animation:ldp 1.6s ease-in-out infinite}
+body.ready::after{opacity:0;animation:none}
+@keyframes ldp{50%{opacity:.55}}
+body:not(.ready) #dropLabel,body:not(.ready) #labels,body:not(.ready) #mTop,body:not(.ready) #dropBubble,body:not(.ready) #grab{visibility:hidden!important}
 #dropLabel .dlBal{position:absolute;right:-6px;top:-50px;width:30px;height:45px;filter:drop-shadow(0 4px 6px rgba(200,90,110,.35));animation:dlbob 3.2s ease-in-out infinite;pointer-events:none}
 @keyframes dlbob{50%{transform:translateY(-4px) rotate(3deg)}}
 @media (max-height:760px){#dropLabel .dlBal{width:24px;height:36px;top:-40px}}
@@ -2212,6 +2217,7 @@ function frame(t){
   updateLabels();updateHud();
   {const ph=(t%5000)/5000,k=ph<0.3?Math.pow(Math.sin(ph/0.3*Math.PI),1.5):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.06*k).toFixed(3));j.style.setProperty('--glow',(0.35*k).toFixed(3));shimmerCoins(t);
    {const u=Math.max(0,Math.min(1,(L.drop-0.25)/0.75)),e=u*u*(3-2*u),mt=$('mTop');mt.style.opacity=e.toFixed(3);mt.style.visibility=e<0.01?'hidden':'visible';mt.style.transform=`translateY(${((1-L.drop)*H*0.95).toFixed(1)}px)`;}}
+  if(!document.body.classList.contains('ready')&&(frame.n=(frame.n||0)+1)>2)document.body.classList.add('ready');
   requestAnimationFrame(frame);
 }
 
