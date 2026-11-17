@@ -182,6 +182,7 @@ body.grabbing #hubHud,body.grabbing #labels,body.grabbing #dropLabel,body.grabbi
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .card{position:fixed;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(236,224,232,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s}
 .card.show{opacity:1;pointer-events:auto}
+#done.perfect .kicker{color:#c8962a}#done .earn{padding:8px 18px;border-radius:999px;transition:background .4s}#done.perfect .earn{background:linear-gradient(180deg,#fff6d8,#ffe7a8);box-shadow:0 0 0 2px #f2cf6a,0 8px 22px rgba(220,170,60,.35)}
 .inner{background:rgba(255,255,255,.82);border-radius:30px;padding:26px 26px 22px;width:min(80vw,320px);text-align:center;box-shadow:0 24px 60px rgba(80,90,140,.22);border:1px solid rgba(255,255,255,.95);transform:translateY(14px) scale(.96);transition:transform .7s cubic-bezier(.2,1.2,.4,1)}
 .card.show .inner{transform:none}
 .kicker{letter-spacing:.22em;text-transform:uppercase;font-size:12px;color:#86a2b6;font-weight:700}
@@ -272,14 +273,14 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <div class="gl">
     <div><canvas data-ic="piece"></canvas>Tap for an X, again for a shell</div>
     <div><canvas data-ic="piece"></canvas>Swipe to mark lots of Xs</div>
-    <div><canvas data-ic="pearl"></canvas>Every puzzle earns 40 coins</div>
+    <div><canvas data-ic="pearl"></canvas>Every puzzle earns coins · double for a perfect run</div>
     <div><canvas data-ic="pearl"></canvas>Spend coins to build your islands</div>
   </div>
   <button class="btn" id="go">Begin</button>
 </div></div>
 
 <div class="card" id="done"><div class="inner">
-  <div class="kicker">Level complete</div>
+  <div class="kicker" id="doneKick">Level complete</div>
   <h1 id="doneTitle">Beautifully done</h1>
   <div class="earn"><canvas data-ic="pearl"></canvas><span id="doneEarn">+0</span></div>
   <button class="btn" id="toBuild">Build the lighthouse</button>
@@ -1390,7 +1391,7 @@ function tapCell(i){
 }
 function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
-  if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
+  if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();
   LG.hist.push(b);
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',TH().pal[k]]);
@@ -1436,14 +1437,14 @@ function hint(){
   let best=null;for(let r=0;r<n;r++){const i=r*n+LG.sol[r];if(st[i]===2)continue;const k=K(i),sz=cand.filter(j=>K(j)===k).length;if(!best||sz<best.sz)best={i,sz,k};}
   if(best)showHint([best.i],'place',`This one takes a few steps of thinking, so here’s a little peek: the ${nm(best.k)} area’s ${P} belongs here${tapNote(best.i)}.`);
 }
-const LOGIC_PEARLS=40;
+const LOGIC_PEARLS=40,logicReward=n=>[40,40,44,48,52,56,60][Math.max(0,Math.min(6,n-4))];
 function logicWin(){
   LG.done=true;const t=performance.now(),n=LG.n;
   for(let i=0;i<n*n;i++)if(LG.st[i]===2)LG.anim[i]={t0:t+300+((i/n|0)+(i%n))*60,type:'dance'};
-  save.pearls+=LOGIC_PEARLS;save.level++;save.solved=(save.solved||0)+1;persist();
+  const perfect=!LG.wrong,earn=logicReward(n)*(perfect?2:1);save.pearls+=earn;save.level++;save.solved=(save.solved||0)+1;persist();
   setTimeout(()=>{fx.push({type:'text',text:'Level complete',x:W/2,y:lY+lS*0.45,t0:performance.now(),dur:1900,size:Math.max(30,lS*0.1),big:true,layer:'logic'});sfx.win();
-    burst(W/2,lY+lS*0.45,40,['#ffffff','#fff1d6','#ffe3ec']);const sp=iconPos('lCountBox');pourPearls(LOGIC_PEARLS,sp.x,sp.y,performance.now()+500);},700);
-  setTimeout(()=>{$('doneEarn').textContent='+'+LOGIC_PEARLS+' coins';$('doneTitle').textContent=['Beautifully done','So lovely','Calm and clear','Wonderful'][Math.random()*4|0];setLabels();$('done').classList.add('show');},3000);
+    burst(W/2,lY+lS*0.45,40,['#ffffff','#fff1d6','#ffe3ec']);const sp=iconPos('lCountBox');pourPearls(earn,sp.x,sp.y,performance.now()+500);},700);
+  setTimeout(()=>{$('doneEarn').textContent='+'+earn+' coins';$('doneKick').textContent=perfect?'Perfect run · coins doubled':'Level complete';$('done').classList.toggle('perfect',perfect);$('doneTitle').textContent=perfect?['Flawless','Not a single slip','Perfectly done'][Math.random()*3|0]:['Beautifully done','So lovely','Calm and clear','Wonderful'][Math.random()*4|0];setLabels();$('done').classList.add('show');},3000);
 }
 function drawLogic(t){
   if(!LG)return;
@@ -2129,7 +2130,7 @@ $('prizeKeep').addEventListener('click',()=>$('prize').classList.remove('show'))
 $('prizeSee').addEventListener('click',()=>{$('prize').classList.remove('show');if(lastWon){DB.sess={drops:0,spent:0,won:[]};save.current=lastWon.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);}});
 const HELP={
   grab:()=>['Coin Grab',['Coins rain down from the sky. Tap them before they fall off the screen.','Every coin you grab is worth 1 coin, and it’s yours to keep.','There’s no losing. When time’s up, the mist lifts anyway.']],
-  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Tap a ${th.one} spot that’s wrong and it gently turns into an X — nothing is lost.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins.']];},
+  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Tap a ${th.one} spot that’s wrong and it gently turns into an X — nothing is lost.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
   drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
@@ -2301,8 +2302,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1794885395';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1794885395'/);
+const BUILD='1794885768';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1794885768'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);
