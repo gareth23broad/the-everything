@@ -2132,7 +2132,7 @@ const HELP={
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
   drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
 };
-function showHelp(k){const[h,lines]=HELP[k]();$('helpTitle').textContent=h;$('helpList').innerHTML=lines.map(l=>'<li>'+l.replace(/</g,'&lt;')+'</li>').join('');$('help').classList.add('show');sfx.pick();}
+function showHelp(k){const[h,lines]=HELP[k]();$('helpTitle').textContent=h;$('helpList').innerHTML=lines.map(l=>'<li>'+l.replace(/</g,'&lt;')+'</li>').join('');$('helpList').insertAdjacentHTML('beforeend','<li style="list-style:none;opacity:.45;font-size:11px;margin-top:6px">Version '+(BUILD.startsWith('__')?'dev':BUILD.slice(-4))+'</li>');$('help').classList.add('show');sfx.pick();}
 document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{audio.wake();showHelp(b.dataset.help);}));
 $('helpOk').addEventListener('click',()=>$('help').classList.remove('show'));
 $('pUndo').addEventListener('click',()=>{audio.wake();undoPour();});
@@ -2299,6 +2299,10 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
+const BUILD='1794884111';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1794884111'/);
+  if(m&&m[1]!==BUILD){const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!document.querySelector('.card.show'))location.reload();else setTimeout(go_,3000);};go_();}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);
 window.__grab=()=>GR;window.__BZ=BZ;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
