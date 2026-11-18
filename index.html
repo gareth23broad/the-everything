@@ -2206,9 +2206,9 @@ async function syncMarkers(push){if(MK.busy)return;MK.busy=true;MK.last=performa
       await fetch(SB_URL+'/rest/v1/rpc/upsert_player',{method:'POST',headers:sbH,body:JSON.stringify({p_id:save.me.id,p_secret:save.me.secret,p_name:save.me.name,p_icon:save.me.icon,p_island:a,p_stage:Math.min(20,save.builds[a].stage),p_keeps:Object.values(save.keeps||{}).reduce((n,k)=>n+k.length,0)})});}
     const since=new Date(Date.now()-60*864e5).toISOString();
     const r=await fetch(SB_URL+'/rest/v1/players?select=id,name,icon,island,stage,keeps,updated_at&updated_at=gt.'+since+'&order=updated_at.desc&limit=30',{headers:sbH});
-    if(r.ok){MK.list=(await r.json()).filter(p=>WMAP[p.island]);drawMarkers();}}catch(e){}
+    if(r.ok){const j=await r.json();if(Array.isArray(j)){MK.list=j.filter(p=>WMAP[p.island]);try{localStorage.setItem('mkCache',JSON.stringify(MK.list));}catch(_){}drawMarkers();}}}catch(e){}
   MK.busy=false;}
-function drawMarkers(){const box=$('players');const seen={};
+function drawMarkers(){const box=$('players');const seen={};if(save.me&&!MK.list.some(p=>p.id===save.me.id))MK.list.push({id:save.me.id,name:save.me.name,icon:save.me.icon,island:activeWorld(),stage:save.builds[activeWorld()].stage,keeps:0});
   MK.list.forEach(p=>{seen[p.id]=1;let e=MK.els[p.id];
     if(!e){e=document.createElement('div');e.className='pmark';e.innerHTML='<canvas></canvas><span></span>';box.appendChild(e);MK.els[p.id]=e;
       e.addEventListener('click',ev=>{ev.stopPropagation();const q=MK.list.find(x=>x.id===p.id);if(!q)return;if(save.me&&q.id===save.me.id){openMarker();return;}
@@ -2225,6 +2225,7 @@ function placeMarkers(op){const box=$('players');box.style.opacity=op;box.style.
       e.style.transform=`translate(${(x+i*78-bw/2).toFixed(1)}px,${(s.y-46+Math.sin(t*0.0015+i)*2.5).toFixed(1)}px)`;});}
 
   if(mode==='hub'&&!trans&&op>0.98&&!save.me&&!save.meSkip&&!MK.asked&&!document.querySelector('.card.show')&&!GR.on){MK.asked=true;setTimeout(()=>{if(mode==='hub'&&!document.querySelector('.card.show'))openMarker();},1200);}}
+try{const c=JSON.parse(localStorage.getItem('mkCache')||'[]');if(Array.isArray(c)){MK.list=c.filter(p=>WMAP[p.island]);setTimeout(drawMarkers,0);}}catch(_){}
 function openMarker(){$('pName').value=save.me?save.me.name:'';MK.pick=save.me?save.me.icon:'paw';
   const box=$('pIcons');if(!box.children.length)PICONS.forEach(k=>{const b=document.createElement('button');b.dataset.k=k;const c=document.createElement('canvas');b.appendChild(c);box.appendChild(b);
     b.addEventListener('click',()=>{MK.pick=k;[...box.children].forEach(x=>x.classList.toggle('on',x.dataset.k===k));sfx.pick();});
@@ -2637,8 +2638,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795035045';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795035045'/);
+const BUILD='1795035141';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795035141'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
