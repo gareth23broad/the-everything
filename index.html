@@ -60,6 +60,13 @@ body:not([data-mode=pour]) #ptools .pill,body:not([data-mode=logic]) #tools .pil
 body[data-mode=logic] #logicHud .ibtn,body[data-mode=pour] #pourHud .ibtn,body[data-mode=block] #blockHud .ibtn,body[data-mode=build] #buildHud .ibtn,body[data-mode=hub] #hubHud .ibtn,body[data-mode=drop] #dropHud .ibtn{pointer-events:auto!important}
 #hud .ibtn,.ibtn{pointer-events:auto;width:30px;height:30px;padding:0;font:italic 700 16px Georgia,serif;color:#6f84a1;display:flex;align-items:center;justify-content:center;flex:none}
 .crow{display:flex;align-items:center;gap:8px}
+.lives{position:relative;overflow:visible!important;gap:3px!important;padding:4px 10px 4px 12px!important}
+.lives .lvt{font-size:11px;font-weight:800;letter-spacing:.12em;color:#c27a2a;margin-right:3px}
+.lives canvas{width:30px;height:30px;transition:filter .4s,opacity .4s,transform .4s}
+.lives canvas.lost{filter:grayscale(1);opacity:.28;transform:scale(.82)}
+.lives.hit{animation:lshake .45s}
+@keyframes lshake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+#fail .inner h1{color:#c8405a}
 #help ul{text-align:left;margin:0 0 18px;padding-left:20px;color:#55657f;font-weight:500;line-height:1.45;font-size:15px}
 #help li{margin-bottom:6px}
 #dfill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;background:linear-gradient(90deg,#ffe2a8,#f2a6c0);box-shadow:inset 0 1px 0 rgba(255,255,255,.6);transition:width .4s}
@@ -231,7 +238,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   </div>
   <div class="stack">
     <div id="logicHud">
-      <div class="crow"><div class="counter" id="lCountBox"><canvas data-ic="piece"></canvas><span id="lCount">0/4</span></div><button class="ibtn pill" data-help="logic" aria-label="How to play">i</button></div>
+      <div class="crow"><div class="counter" id="lCountBox"><canvas data-ic="piece"></canvas><span id="lCount">0/4</span></div><div class="counter lives" id="lives"><span class="lvt">LIVES</span><canvas class="lf"></canvas><canvas class="lf"></canvas><canvas class="lf"></canvas></div><button class="ibtn pill" data-help="logic" aria-label="How to play">i</button></div>
       <div class="chips"><span class="chip" id="chip1">1 shell per colour</span><span class="chip">1 per row &amp; column</span><span class="chip" id="chip3">Shells can’t touch</span></div>
     </div>
     <div id="dropHud">
@@ -312,6 +319,10 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <button class="btn" id="go">Begin</button>
 </div></div>
 
+<div class="card" id="fail"><div class="inner">
+  <h1>Failure</h1>
+  <button class="btn" id="failRetry">Try again</button>
+</div></div>
 <div class="card" id="done"><div class="inner">
   <div class="kicker" id="doneKick">Level complete</div>
   <h1 id="doneTitle">Beautifully done</h1>
@@ -1640,9 +1651,23 @@ function logicSize(){const k=save.solved||0;return k<2?4:k<6?5:k<12?6:k<20?7:k<3
 function newLogic(){$('hintBox').classList.remove('show');document.body.classList.remove('hinting');
   const n=logicSize(),seed=hashStr(save.current)+save.level*1009+(save.solved||0)*7919;
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
-  LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null};
+  LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null,lives:3};drawLives();
   setLabels();updateHud(true);
 }
+function drawLives(hit){const L=LG?LG.lives:3;document.querySelectorAll('#lives canvas').forEach((c,k)=>{if(!c._p){const d=Math.min(devicePixelRatio||1,3);c.width=c.height=30*d;const g=c.getContext('2d');g.scale(d,d);paintFishGold(g,15,15.5,12);c._p=1;}c.classList.toggle('lost',k>=L);});
+  if(hit){const e=$('lives');e.classList.remove('hit');void e.offsetWidth;e.classList.add('hit');breakFish(L);}}
+function breakFish(k){const box=$('lives'),c=box.querySelectorAll('canvas')[k];if(!c)return;const crack=[[52,0],[44,22],[58,40],[46,58],[57,78],[48,100]];
+  c.classList.remove('lost');c.style.opacity='0';
+  const mk=(poly,dir)=>{const cv=document.createElement('canvas');cv.width=c.width;cv.height=c.height;const g=cv.getContext('2d');g.drawImage(c,0,0);
+    g.globalCompositeOperation='source-atop';g.strokeStyle='rgba(110,45,5,.9)';g.lineWidth=cv.width*0.06;g.lineJoin='round';g.beginPath();crack.forEach(([x,y],j)=>{const X=x/100*cv.width,Y=y/100*cv.height;j?g.lineTo(X,Y):g.moveTo(X,Y);});g.stroke();
+    Object.assign(cv.style,{position:'absolute',left:c.offsetLeft+'px',top:c.offsetTop+'px',width:'30px',height:'30px',clipPath:'polygon('+poly+')',pointerEvents:'none',zIndex:3});box.appendChild(cv);
+    cv.animate([{transform:'translate(0,0) rotate(0)',opacity:1},{transform:'translate(0,0) rotate(0)',opacity:1,offset:0.22},{transform:`translate(${dir*3}px,-2px) rotate(${dir*8}deg)`,opacity:1,offset:0.35},{transform:`translate(${dir*12}px,16px) rotate(${dir*55}deg)`,opacity:0}],{duration:900,easing:'cubic-bezier(.3,.1,.5,1)'}).onfinish=()=>cv.remove();};
+  const L_=crack.map(([x,y])=>x+'% '+y+'%');mk(['0 0',...L_,'0 100%'].join(','),-1);mk([...L_,'100% 100%','100% 0'].join(','),1);
+  for(let j=0;j<5;j++){const d=document.createElement('div');Object.assign(d.style,{position:'absolute',left:(c.offsetLeft+13+Math.random()*4)+'px',top:(c.offsetTop+10+Math.random()*6)+'px',width:'4px',height:'4px',borderRadius:'50%',background:j%2?'#f6b26a':'#e8873e',pointerEvents:'none',zIndex:3});box.appendChild(d);
+    const dx=(Math.random()-0.5)*30,dy=14+Math.random()*14;d.animate([{transform:'translate(0,0)',opacity:0},{transform:'translate(0,0)',opacity:1,offset:0.25},{transform:`translate(${dx}px,${dy}px)`,opacity:0}],{duration:800,easing:'ease-in'}).onfinish=()=>d.remove();}
+  setTimeout(()=>{c.style.opacity='';c.classList.add('lost');},760);}
+function logicFail(){LG.done=true;setTimeout(()=>{$('fail').classList.add('show');sfx.wrong();},700);}
+function retryLogic(){const L=LG;$('fail').classList.remove('show');L.st.fill(0);L.anim={};L.hist=[];L.done=false;L.hint=null;L.lives=3;L.wrong=0;L.bad=new Set();voice.last=-1;clearHint();drawLives();setLabels();updateHud(true);}
 const lPlaced=()=>LG?LG.st.filter(v=>v===2).length:0;
 function cellAt(x,y){if(!LG)return -1;const n=LG.n,cs=lS/n,c=Math.floor((x-lX)/cs),r=Math.floor((y-lY)/cs);return r>=0&&c>=0&&r<n&&c<n?r*n+c:-1;}
 function setCell(i,v,batch,delay=0){batch.push({i,prev:LG.st[i]});LG.st[i]=v;LG.anim[i]={t0:performance.now()+delay,type:v===1?'x':v===2?'pop':'clear'};}
@@ -1653,7 +1678,7 @@ function tapCell(i){
 }
 function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
-  if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;(LG.bad=LG.bad||new Set()).add(i);sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
+  if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;(LG.bad=LG.bad||new Set()).add(i);sfx.wrong();LG.lives=Math.max(0,(LG.lives??3)-1);drawLives(true);if(LG.lives<=0){logicFail();return;}if(!hintShown){hintShown=true;toast('Not quite · that costs a life',1800);}return;}
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();
   LG.hist.push(b);
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);if(!LG.wrong){let vi=3;if(placed<n){do{vi=Math.random()*3|0;}while(vi===voice.last);voice.last=vi;}else voice.last=-1;voice.play(vi);}burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',vividPal(TH().pal)[k%TH().pal.length]]);
@@ -1785,6 +1810,10 @@ function pp(g,cx,cy,r,sh,fn){g.save();g.translate(cx,cy);g.shadowColor=sh;g.shad
 function lg(g,r,a,b){const gr=g.createLinearGradient(0,-r,0,r);gr.addColorStop(0,a);gr.addColorStop(1,b);return gr;}
 function paintCloud(g,cx,cy,r){pp(g,cx,cy,r,'rgba(110,130,190,0.35)',g=>{g.fillStyle=lg(g,r,'#ffffff','#dfe8fb');g.beginPath();g.arc(-r*0.42,r*0.12,r*0.38,0,7);g.arc(0,-r*0.12,r*0.5,0,7);g.arc(r*0.45,r*0.12,r*0.36,0,7);g.fill();g.fillRect(-r*0.42,r*0.1,r*0.87,r*0.4);});}
 function paintDrop(g,cx,cy,r){pp(g,cx,cy,r,'rgba(70,120,200,0.35)',g=>{g.fillStyle=lg(g,r,'#bfe0ff','#6fa6e6');g.beginPath();g.moveTo(0,-r*0.85);g.bezierCurveTo(r*0.2,-r*0.45,r*0.62,-r*0.05,r*0.62,r*0.3);g.arc(0,r*0.3,r*0.62,0,Math.PI);g.bezierCurveTo(-r*0.62,-r*0.05,-r*0.2,-r*0.45,0,-r*0.85);g.fill();g.shadowColor='transparent';g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.ellipse(-r*0.22,r*0.2,r*0.1,r*0.2,0.3,0,7);g.fill();});}
+function paintFishGold(g,cx,cy,r){pp(g,cx,cy,r,'rgba(200,120,20,0.45)',g=>{const gr=g.createLinearGradient(0,-r*0.5,0,r*0.5);gr.addColorStop(0,'#ffe08a');gr.addColorStop(0.55,'#f7a93a');gr.addColorStop(1,'#e07b1e');g.fillStyle=gr;
+  g.beginPath();g.ellipse(-r*0.1,0,r*0.62,r*0.44,0,0,7);g.fill();g.beginPath();g.moveTo(r*0.38,0);g.lineTo(r*0.92,-r*0.42);g.quadraticCurveTo(r*0.78,0,r*0.92,r*0.42);g.closePath();g.fill();
+  g.shadowColor='transparent';g.fillStyle='rgba(255,250,220,.7)';g.beginPath();g.ellipse(-r*0.2,-r*0.2,r*0.3,r*0.1,-0.2,0,7);g.fill();g.strokeStyle='rgba(190,95,15,.6)';g.lineWidth=r*0.06;g.beginPath();g.arc(-r*0.05,0,r*0.26,-1.1,1.1);g.stroke();
+  g.fillStyle='#4b3a58';g.beginPath();g.arc(-r*0.42,-r*0.08,r*0.08,0,7);g.fill();});}
 function paintFish(g,cx,cy,r){pp(g,cx,cy,r,'rgba(220,120,80,0.35)',g=>{g.fillStyle=lg(g,r,'#ffc6a0','#f08a5a');g.beginPath();g.ellipse(-r*0.1,0,r*0.62,r*0.42,0,0,7);g.fill();g.beginPath();g.moveTo(r*0.4,0);g.lineTo(r*0.9,-r*0.4);g.lineTo(r*0.9,r*0.4);g.closePath();g.fill();g.shadowColor='transparent';g.fillStyle='#4b3a58';g.beginPath();g.arc(-r*0.42,-r*0.08,r*0.08,0,7);g.fill();});}
 function paintBell(g,cx,cy,r){pp(g,cx,cy,r,'rgba(190,140,40,0.4)',g=>{g.fillStyle=lg(g,r,'#ffe9a0','#e0a83a');g.beginPath();g.moveTo(-r*0.7,r*0.45);g.quadraticCurveTo(-r*0.55,-r*0.75,0,-r*0.75);g.quadraticCurveTo(r*0.55,-r*0.75,r*0.7,r*0.45);g.closePath();g.fill();g.fillRect(-r*0.78,r*0.4,r*1.56,r*0.14);g.beginPath();g.arc(0,r*0.62,r*0.13,0,7);g.fill();});}
 function paintCrown(g,cx,cy,r){pp(g,cx,cy,r,'rgba(190,140,40,0.4)',g=>{g.fillStyle=lg(g,r,'#ffe9a0','#e0a83a');g.beginPath();g.moveTo(-r*0.8,r*0.5);g.lineTo(-r*0.8,-r*0.4);g.lineTo(-r*0.4,r*0.05);g.lineTo(0,-r*0.65);g.lineTo(r*0.4,r*0.05);g.lineTo(r*0.8,-r*0.4);g.lineTo(r*0.8,r*0.5);g.closePath();g.fill();g.shadowColor='transparent';[['#f6a6c0',-0.4],['#8fc0e8',0],['#a8e0cc',0.4]].forEach(([c,x])=>{g.fillStyle=c;g.beginPath();g.arc(x*r,r*0.28,r*0.1,0,7);g.fill();});});}
@@ -2249,6 +2278,7 @@ $('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0
   save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();syncMarkers(true);toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
 $('lmap').addEventListener('click',()=>{audio.wake();goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
+$('failRetry').addEventListener('click',()=>{audio.wake();sfx.pick();retryLogic();});
 $('share').addEventListener('click',async()=>{audio.wake();sfx.pick();const url='https://gareth23broad.github.io/the-everything/',data={title:'The Everything',text:'Come build islands with me in The Everything 🏝️',url};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(url);toast('Link copied · paste it to share',2200);}catch(_){toast(url,4000);}});
@@ -2478,7 +2508,7 @@ $('prizeKeep').addEventListener('click',()=>$('prize').classList.remove('show'))
 $('prizeSee').addEventListener('click',()=>{$('prize').classList.remove('show');if(lastWon){DB.sess={drops:0,spent:0,won:[]};save.current=lastWon.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);}});
 const HELP={
   grab:()=>['Coin Grab',['Coins rain down from the sky. Tap them before they fall off the screen.','Every coin you grab is worth 1 coin, and it’s yours to keep.','There’s no losing. When time’s up, the mist lifts anyway.']],
-  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Tap a ${th.one} spot that’s wrong and it gently turns into an X — nothing is lost.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
+  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Place a ${th.one} in the wrong spot and it becomes a red X and costs one of your 3 lives. Lose all 3 and the puzzle starts again.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
   drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
@@ -2656,8 +2686,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795036225';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795036225'/);
+const BUILD='1795036740';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795036740'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
