@@ -1643,7 +1643,7 @@ function placePiece(i){
   if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;sfx.wrong();if(!hintShown){hintShown=true;toast('Not quite · that one becomes an X',1800);}return;}
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();
   LG.hist.push(b);
-  const placed=lPlaced(),cs=lS/n;sfx.piece(placed);voice.play(placed>=n?3:Math.min(2,Math.floor((placed-1)/Math.max(1,n-1)*3)));burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',vividPal(TH().pal)[k%TH().pal.length]]);
+  const placed=lPlaced(),cs=lS/n;sfx.piece(placed);{let vi=3;if(placed<n){do{vi=Math.random()*3|0;}while(vi===voice.last);voice.last=vi;}else voice.last=-1;voice.play(vi);}burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',vividPal(TH().pal)[k%TH().pal.length]]);
   if(placed===n)logicWin();
 }
 function undo(){if(!LG||LG.done||!LG.hist.length)return;clearHint();const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
@@ -2635,8 +2635,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795033260';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795033260'/);
+const BUILD='1795033475';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795033475'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);
