@@ -208,6 +208,11 @@ body.grabbing #hubHud,body.grabbing #labels,body.grabbing #dropLabel,body.grabbi
 #pIcons canvas{width:34px;height:34px;display:block;margin:auto}
 #toast{position:fixed;left:50%;top:30%;z-index:3;transform:translate(-50%,10px);background:rgba(255,255,255,.85);border:1px solid #fff;border-radius:999px;padding:11px 22px;font-weight:700;color:#55657f;box-shadow:0 12px 30px rgba(80,90,140,.2);opacity:0;pointer-events:none;transition:opacity .45s,transform .45s;white-space:nowrap}
 #toast.show{opacity:1;transform:translate(-50%,0)}
+#insane{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0}
+#insane span{font-weight:800;font-size:min(22vw,120px);letter-spacing:.02em;background:linear-gradient(180deg,#fff6c9 0%,#ffd45a 45%,#f09a2a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.9);filter:drop-shadow(0 6px 0 #c9682a) drop-shadow(0 14px 26px rgba(200,110,40,.45))}
+#insane.go{animation:insZoom 1.9s cubic-bezier(.2,.8,.25,1) forwards}
+@keyframes insZoom{0%{opacity:0;transform:scale(2.8) rotate(-6deg)}14%{opacity:1;transform:scale(1.05) rotate(-3deg)}22%{transform:scale(.96) rotate(-2deg)}30%{transform:scale(1) rotate(-3deg)}78%{opacity:1;transform:scale(.88) rotate(-3deg)}100%{opacity:0;transform:scale(.55) rotate(-3deg)}}
+#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:6;pointer-events:none}
 .card{position:fixed;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(236,224,232,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s}
 .card.show{opacity:1;pointer-events:auto}
 #done.perfect .kicker{color:#c8962a}#done .earn{padding:8px 18px;border-radius:999px;transition:background .4s}#done.perfect .earn{background:linear-gradient(180deg,#fff6d8,#ffe7a8);box-shadow:0 0 0 2px #f2cf6a,0 8px 22px rgba(220,170,60,.35)}
@@ -323,6 +328,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <h1>Failure</h1>
   <button class="btn" id="failRetry">Try again</button>
 </div></div>
+<div id="insane"><span>Insane!</span></div><canvas id="confetti"></canvas>
 <div class="card" id="done"><div class="inner">
   <div class="kicker" id="doneKick">Level complete</div>
   <h1 id="doneTitle">Beautifully done</h1>
@@ -1787,11 +1793,33 @@ function hint(){
   if(best)showHint([best.i],'place',`This one takes a few steps of thinking, so here’s a little peek: the ${nm(best.k)} area’s ${P} belongs here${tapNote(best.i)}.`);
 }
 const LOGIC_PEARLS=40,logicReward=n=>[40,40,44,48,52,56,60][Math.max(0,Math.min(6,n-4))];
+const confetti={cv:null,cx:null,ps:[],raf:0,
+  fire(x,y,n,ang,spread,speed){if(!this.cv){this.cv=document.getElementById('confetti');this.cx=this.cv.getContext('2d');}
+    const C=['#ff6b8b','#ffd45a','#5ec8ff','#7be08a','#b98cff','#ff9f43','#ffffff'];
+    for(let i=0;i<n;i++){const a=ang+(Math.random()-.5)*spread,v=speed*(.55+Math.random()*.6);
+      this.ps.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:6+Math.random()*7,h:9+Math.random()*9,r:Math.random()*6,vr:(Math.random()-.5)*14,f:Math.random()*6,vf:6+Math.random()*8,c:C[Math.random()*C.length|0],t:0,life:3.2+Math.random()*1.6,round:Math.random()<.2});}
+    if(!this.raf){this.last=performance.now();this.raf=requestAnimationFrame(t=>this.step(t));}},
+  step(t){const dt=Math.min(.05,(t-this.last)/1000);this.last=t;const cv=this.cv,x=this.cx,d=Math.min(2,devicePixelRatio||1);
+    if(cv.width!==innerWidth*d){cv.width=innerWidth*d;cv.height=innerHeight*d;}
+    x.setTransform(d,0,0,d,0,0);x.clearRect(0,0,innerWidth,innerHeight);
+    this.ps=this.ps.filter(p=>(p.t+=dt)<p.life&&p.y<innerHeight+40);
+    for(const p of this.ps){p.vx*=Math.pow(.35,dt);p.vy=p.vy*Math.pow(.5,dt)+900*dt*.55;p.x+=p.vx*dt+Math.sin(p.f)*30*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;p.f+=p.vf*dt;
+      const fade=Math.min(1,(p.life-p.t)/.6);x.save();x.globalAlpha=fade;x.translate(p.x,p.y);x.rotate(p.r);x.scale(1,Math.cos(p.f));x.fillStyle=p.c;
+      if(p.round){x.beginPath();x.arc(0,0,p.w*.5,0,7);x.fill();}else x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore();}
+    if(this.ps.length)this.raf=requestAnimationFrame(t=>this.step(t));else{this.raf=0;x.clearRect(0,0,innerWidth,innerHeight);}}
+};
+window.__confetti=confetti;window.__insane=()=>insaneFx();
+function insaneFx(){const el=document.getElementById('insane');el.classList.remove('go');void el.offsetWidth;el.classList.add('go');
+  const w=innerWidth,h=innerHeight,v=Math.max(900,h*1.35);
+  setTimeout(()=>{confetti.fire(-10,h*.92,70,-Math.PI*.30,.55,v);confetti.fire(w+10,h*.92,70,-Math.PI*.70,.55,v);},2300);
+  setTimeout(()=>{confetti.fire(w/2,h*.45,90,-Math.PI/2,Math.PI*1.6,v*.75);},3050);
+  setTimeout(()=>{for(let i=0;i<6;i++)confetti.fire(w*(i+.5)/6,-20,14,Math.PI/2,.8,200);},3300);}
 function logicWin(){
   LG.done=true;const t=performance.now(),n=LG.n;
   for(let i=0;i<n*n;i++)if(LG.st[i]===2)LG.anim[i]={t0:t+300+((i/n|0)+(i%n))*60,type:'dance'};
   const perfect=!LG.wrong,earn=logicReward(n)*(perfect?2:1);save.pearls+=earn;save.level++;save.solved=(save.solved||0)+1;persist();
-  setTimeout(()=>{fx.push({type:'text',text:'Level complete',x:W/2,y:lY+lS*0.45,t0:performance.now(),dur:1900,size:Math.max(30,lS*0.1),big:true,layer:'logic'});sfx.win();
+  if(perfect)insaneFx();
+  setTimeout(()=>{if(!perfect)fx.push({type:'text',text:'Level complete',x:W/2,y:lY+lS*0.45,t0:performance.now(),dur:1900,size:Math.max(30,lS*0.1),big:true,layer:'logic'});sfx.win();
     burst(W/2,lY+lS*0.45,40,['#ffffff','#fff1d6','#ffe3ec']);const sp=iconPos('lCountBox');pourPearls(earn,sp.x,sp.y,performance.now()+500);},700);
   setTimeout(()=>{$('doneEarn').textContent='+'+earn+' coins';$('doneKick').textContent=perfect?'Perfect run · coins doubled':'Level complete';$('done').classList.toggle('perfect',perfect);$('doneTitle').textContent=perfect?['Flawless','Not a single slip','Perfectly done'][Math.random()*3|0]:['Beautifully done','So lovely','Calm and clear','Wonderful'][Math.random()*4|0];setLabels();$('done').classList.add('show');},3000);
 }
@@ -2845,8 +2873,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795041646';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795041646'/);
+const BUILD='1795041897';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795041897'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
