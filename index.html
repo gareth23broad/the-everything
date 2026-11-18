@@ -367,7 +367,7 @@ const SHAPES=[
 ];
 const WORDS=['Lovely','Beautiful','Serene','Wonderful','Dreamy','So calm','Gorgeous'];
 const SPIN_COST=20;
-const SLICES=[{v:100},{v:40},{kind:'pearls',v:40},{v:80},{kind:'free'},{v:150},{v:60},{kind:'treasure',v:1000},{v:200},{v:300}];
+const SLICES=[{v:100},{v:40},{kind:'pearls',v:40},{v:80},{kind:'free',v:50},{v:150},{v:60},{kind:'treasure',v:1000},{v:200},{v:300}];
 const SLICE_COLS=['#fdf8f3','#e8e0f7','#d6efea','#fbe2dc'];
 
 /* ---------- save ---------- */
@@ -2316,8 +2316,8 @@ function updateSpin(t){
 }
 function reward(k,m){
   const s=SLICES[k],t=performance.now(),px=wcx,py=wcy-R*1.15;
-  if(s.kind==='free'){save.free++;fx.push({type:'text',text:'Free spin!',x:px,y:py-20,t0:t,dur:1600,size:30,big:false});sfx.reward(1);}
-  else if(s.kind==='pearls'){const v=s.v*m;save.pearls+=v;fx.push({type:'text',text:'+'+v+' coins',x:px,y:py-20,t0:t,dur:1600,size:28});pourPearls(v,px,py,t+150);}
+  if(s.kind==='free'){save.free++;fx.push({type:'text',text:'Free spin!',x:px,y:py-62,t0:t+250,dur:1600,size:26,big:false});}
+  if(s.kind==='pearls'){const v=s.v*m;save.pearls+=v;fx.push({type:'text',text:'+'+v+' coins',x:px,y:py-20,t0:t,dur:1600,size:28});pourPearls(v,px,py,t+150);}
   else{
     const v=s.v*m,tre=s.kind==='treasure';
     fx.push({type:'text',text:(tre?'Treasure! ':'')+'+'+v,x:px,y:py-24,t0:t,dur:1700,size:tre?36:32});
@@ -2362,7 +2362,7 @@ function drawWheel(t,off){
   const m=spin?spin.mult:save.mult,maxW=2*R*0.66*Math.sin(seg/2)*0.86,F='Quicksand,ui-rounded,system-ui,sans-serif';
   const fit=(txt,size)=>{ctx.font=`700 ${size}px ${F}`;const w=ctx.measureText(txt).width;if(w>maxW){size*=maxW/w;ctx.font=`700 ${size}px ${F}`;}return size;};
   for(let i=0;i<n;i++){const s=SLICES[i];ctx.save();ctx.rotate((i+0.5)*seg);ctx.translate(R*0.68,0);ctx.rotate(Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';
-    if(s.kind==='free'){fit('FREE',R*0.14);ctx.fillStyle='#3f8a6c';ctx.fillText('FREE',0,0);}
+    if(s.kind==='free'){const tx=String(s.v*m);fit(tx,R*0.14);ctx.fillStyle='#3f8a6c';ctx.fillText(tx,0,-R*0.07);fit('+FREE',R*0.1);ctx.fillText('+FREE',0,R*0.08);fit('SPIN',R*0.075);ctx.fillText('SPIN',0,R*0.18);}
     else if(s.kind==='pearls'){paintPearl(ctx,0,-R*0.085,R*0.07);const tx='+'+s.v*m;fit(tx,R*0.13);ctx.fillStyle='#a8762a';ctx.fillText(tx,0,R*0.09);}
     else{const tx=String(s.v*m);fit(tx,R*0.17);if(s.kind==='treasure'){ctx.save();ctx.shadowColor='rgba(120,70,0,0.55)';ctx.shadowBlur=6;ctx.shadowOffsetY=2;ctx.fillStyle='#ffffff';ctx.fillText(tx,0,0);ctx.restore();ctx.lineWidth=1.2;ctx.strokeStyle='rgba(150,95,10,0.6)';ctx.strokeText(tx,0,0);ctx.fillStyle='#fffbe8';star(0,-R*0.17,R*0.055);}
       else{ctx.fillStyle='#53627f';ctx.fillText(tx,0,0);}}
@@ -2635,8 +2635,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795031807';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795031807'/);
+const BUILD='1795033260';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795033260'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);
