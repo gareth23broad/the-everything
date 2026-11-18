@@ -32,7 +32,12 @@ canvas#gl{z-index:0}canvas#c{z-index:1}
 #mute,#map,#share{width:46px;height:46px;display:flex;align-items:center;justify-content:center;padding:0}
 #mute svg,#map svg{width:24px;height:24px}#share svg{width:22px;height:22px}
 .rgrp{display:flex;gap:8px;min-width:100px;justify-content:flex-end}
-body[data-mode=hub] #map{display:none}
+body[data-mode=hub] #map,body[data-mode=logic] #map,body[data-mode=build] #map{display:none}
+#lmap{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:2;font-size:16px;padding:10px 16px;opacity:0;pointer-events:none!important;transition:opacity .5s}
+body[data-mode=logic] #lmap{opacity:1;pointer-events:auto!important}
+body.hinting #lmap{opacity:0!important;pointer-events:none!important}
+#bmap{font-size:16px;padding:10px 18px}
+body.viewing #bmap{opacity:0;pointer-events:none!important}
 body:not([data-mode=hub]) #share{display:none}
 .stack{display:grid;margin-top:10px}
 .stack>*{align-self:start;grid-area:1/1;display:flex;flex-direction:column;align-items:center;transition:opacity .7s ease,transform .9s ease,visibility 0s linear .7s;visibility:hidden}
@@ -260,9 +265,11 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div id="tools"><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint</button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
 <button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
 
+<button id="lmap" class="pill">‹ Map</button>
 <button id="visit" class="pill"><span id="visitIco" style="display:flex"></span><span id="visitTxt">Lighthouse</span><span class="arr">›</span></button>
 <div id="bottom">
   <button id="back" class="pill">‹ Puzzle</button>
+  <button id="bmap" class="pill">Map</button>
   <div class="mwrap"><div class="mlabel">Multiplier</div><button id="mult" class="pill">×1</button></div>
 </div>
 <div id="grab"><canvas id="g3d"></canvas><canvas id="gcv"></canvas>
@@ -2235,6 +2242,7 @@ function openMarker(){$('pName').value=save.me?save.me.name:'';MK.pick=save.me?s
 $('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pName').focus();return;}
   save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();syncMarkers(true);toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
+$('lmap').addEventListener('click',()=>{audio.wake();goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
 $('share').addEventListener('click',async()=>{audio.wake();sfx.pick();const url='https://gareth23broad.github.io/the-everything/',data={title:'The Everything',text:'Come build islands with me in The Everything 🏝️',url};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(url);toast('Link copied · paste it to share',2200);}catch(_){toast(url,4000);}});
@@ -2642,8 +2650,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795035888';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795035888'/);
+const BUILD='1795036018';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795036018'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
