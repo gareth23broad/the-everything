@@ -302,7 +302,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <button id="dropLabel" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-6 6c0 3.5 3.5 6.5 6 8 2.5-1.5 6-4.5 6-8a6 6 0 0 0-6-6z"/><path d="M10 17.5l.5 2.5h3l.5-2.5"/></svg><span><b>Prize Drop</b><i id="dropSub">Win keepsakes</i></span><svg class="dlBal" viewBox="0 0 40 60"><defs><radialGradient id="bg1" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".55" stop-color="#f7a9bf"/><stop offset="1" stop-color="#e57f9b"/></radialGradient></defs><path d="M20 2C9 2 3 10 3 19c0 10 9 18 14 22h6c5-4 14-12 14-22C37 10 31 2 20 2z" fill="url(#bg1)" stroke="#fff" stroke-width="2"/><path d="M20 2c-5 6-6 26-3 39M20 2c5 6 6 26 3 39" fill="none" stroke="#fff" stroke-width="1.6" opacity=".85"/><path d="M17 41l-2 9M23 41l2 9" stroke="#b98a64" stroke-width="1.4"/><rect x="13.5" y="49" width="13" height="9" rx="2" fill="#c8a27c" stroke="#fff" stroke-width="1.5"/></svg></button>
 <div id="dropBubble">You’ve got coins to spare — try the Prize Drop!</div>
 <div id="ptools"><button id="pUndo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button><button id="pRestart" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e98c80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button></div>
-<div id="tools"><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint<span class="hx">×3</span></button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
+<div id="tools"><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint<span class="hx">×4</span></button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
 <button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
 
 <button id="lmap" class="pill">‹ Map</button>
@@ -2798,7 +2798,7 @@ function logicSize(){const k=save.solved||0;if(k>=48)return (k-48)%5===4?7:10;re
 function newLogic(){$('hintBox').classList.remove('show');document.body.classList.remove('hinting');
   const n=logicSize(),seed=hashStr(save.current)+save.level*1009+(save.solved||0)*7919;
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
-  LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null,lives:3,hints:3};drawLives();updHint();
+  LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null,lives:3,hints:4};drawLives();updHint();
   setLabels();updateHud(true);
 }
 function drawLives(hit){const L=LG?LG.lives:3;document.querySelectorAll('#lives canvas').forEach((c,k)=>{if(!c._p){const d=Math.min(devicePixelRatio||1,3);c.width=c.height=30*d;const g=c.getContext('2d');g.scale(d,d);paintFishGold(g,15,15.5,12);c._p=1;}c.classList.toggle('lost',k>=L);});
@@ -2814,7 +2814,7 @@ function breakFish(k){const box=$('lives'),c=box.querySelectorAll('canvas')[k];i
     const dx=(Math.random()-0.5)*30,dy=14+Math.random()*14;d.animate([{transform:'translate(0,0)',opacity:0},{transform:'translate(0,0)',opacity:1,offset:0.25},{transform:`translate(${dx}px,${dy}px)`,opacity:0}],{duration:800,easing:'ease-in'}).onfinish=()=>d.remove();}
   setTimeout(()=>{c.style.opacity='';c.classList.add('lost');},760);}
 function logicFail(){LG.done=true;setTimeout(()=>{$('fail').classList.add('show');sfx.wrong();},700);}
-function retryLogic(){const L=LG;$('fail').classList.remove('show');L.st.fill(0);L.anim={};L.hist=[];L.done=false;L.hint=null;L.lives=3;L.hints=3;updHint();L.wrong=0;L.bad=new Set();voice.last=-1;clearHint();drawLives();setLabels();updateHud(true);}
+function retryLogic(){const L=LG;$('fail').classList.remove('show');L.st.fill(0);L.anim={};L.hist=[];L.done=false;L.hint=null;L.lives=3;L.hints=4;updHint();L.wrong=0;L.bad=new Set();voice.last=-1;clearHint();drawLives();setLabels();updateHud(true);}
 const lPlaced=()=>LG?LG.st.filter(v=>v===2).length:0;
 function cellAt(x,y){if(!LG)return -1;const n=LG.n,cs=lS/n,c=Math.floor((x-lX)/cs),r=Math.floor((y-lY)/cs);return r>=0&&c>=0&&r<n&&c<n?r*n+c:-1;}
 function setCell(i,v,batch,delay=0){batch.push({i,prev:LG.st[i]});LG.st[i]=v;LG.anim[i]={t0:performance.now()+delay,type:v===1?'x':v===2?'pop':'clear'};}
@@ -2833,11 +2833,11 @@ function placePiece(i){
   if(placed===n)logicWin();
 }
 function undo(){if(!LG||LG.done||!LG.hist.length)return;clearHint();const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
-function updHint(){const h=LG?(LG.hints??3):3,b=$('hint');b.classList.toggle('spent',h<=0);const c=b.querySelector('.hx');if(c)c.textContent='×'+h;}
-function showHint(cells,kind,text){LG.hint={cells,kind,t0:performance.now()};LG.hints=(LG.hints??3)-1;updHint();$('hintText').textContent=text;$('hintBox').classList.add('show');document.body.classList.add('hinting');clearTimeout(showHint.t);sfx.tide();}
+function updHint(){const h=LG?(LG.hints??4):3,b=$('hint');b.classList.toggle('spent',h<=0);const c=b.querySelector('.hx');if(c)c.textContent='×'+h;}
+function showHint(cells,kind,text){LG.hint={cells,kind,t0:performance.now()};LG.hints=(LG.hints??4)-1;updHint();$('hintText').textContent=text;$('hintBox').classList.add('show');document.body.classList.add('hinting');clearTimeout(showHint.t);sfx.tide();}
 function clearHint(){if(LG)LG.hint=null;$('hintBox').classList.remove('show');document.body.classList.remove('hinting');}
 function hint(){
-  if(!LG||LG.done||(LG.hints??3)<=0)return;
+  if(!LG||LG.done||(LG.hints??4)<=0)return;
   const n=LG.n,st=LG.st,reg=LG.reg,th=TH(),P=th.one,vp=vividPal(th.pal),CN=['pink','orange','yellow','green','teal','blue','purple','magenta','red','lime'],nm=k=>{const j=BOLD.indexOf(vp[k%vp.length]);return j>=0?CN[j]:th.names[k%th.names.length];};
   const R=i=>i/n|0,C=i=>i%n,K=i=>reg[R(i)][C(i)];
   const pcs=[];for(let i=0;i<n*n;i++)if(st[i]===2)pcs.push(i);
@@ -4039,8 +4039,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795055244';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055244'/);
+const BUILD='1795055363';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055363'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
