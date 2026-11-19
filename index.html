@@ -502,7 +502,7 @@ R3W.slice(0,R3_ON).forEach((w,i)=>{const b=WORLDS[i];w.region=3;w.pos=b.pos.slic
 /*</R2:W>*/
 const MISTS=[];
 const REGIONS={1:{name:'The Bay',top:[.776,.831,.941],mid:[.918,.847,.902],hor:[.984,.890,.824],deep:[.50,.72,.79],smid:[.66,.83,.86],skyc:[.98,.89,.83],lag:[.64,.90,.87]},
-  3:{name:'The Sunset',top:[.98,.80,.66],mid:[.99,.86,.78],hor:[1.0,.90,.74],deep:[.36,.66,.74],smid:[.58,.80,.82],skyc:[1.0,.88,.78],lag:[.56,.88,.82]},
+  3:{name:'The Sunset',top:[.70,.89,.74],mid:[.85,.95,.83],hor:[.96,.97,.82],deep:[.96,.62,.44],smid:[.99,.75,.56],skyc:[.95,.93,.80],lag:[1.0,.84,.64]},
   2:{name:'The Lilac Sea',top:[.745,.735,.945],mid:[.935,.835,.925],hor:[.990,.880,.860],deep:[.55,.60,.83],smid:[.71,.73,.91],skyc:[.97,.885,.905],lag:[.73,.84,.95]}};
 const REG=w=>(w&&w.region)||1;const regWorlds=r=>WORLDS.filter(w=>REG(w)===r);
 const WMAP=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
@@ -4132,8 +4132,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795059168';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795059168'/);
+const BUILD='1795059552';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795059552'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
