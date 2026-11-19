@@ -339,7 +339,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
   <h1>The Everything</h1>
   <p>Place one shell in every colour, row and column. Shells can’t touch, not even corners.</p>
   <div class="gl">
-    <div><canvas data-ic="piece"></canvas>Tap for an X, again for a shell</div>
+    <div><canvas data-ic="piece"></canvas>Tap for an X · double tap for a cat</div>
     <div><canvas data-ic="piece"></canvas>Swipe to mark lots of Xs</div>
     <div><canvas data-ic="pearl"></canvas>Every puzzle earns coins · double for a perfect run</div>
     <div><canvas data-ic="pearl"></canvas>Spend coins to build your islands</div>
@@ -2435,8 +2435,9 @@ function cellAt(x,y){if(!LG)return -1;const n=LG.n,cs=lS/n,c=Math.floor((x-lX)/c
 function setCell(i,v,batch,delay=0){batch.push({i,prev:LG.st[i]});LG.st[i]=v;LG.anim[i]={t0:performance.now()+delay,type:v===1?'x':v===2?'pop':'clear'};}
 function tapCell(i){
   const s=LG.st[i];if(s===2)return;if(LG.hint&&!LG.hint.cells.includes(i))clearHint();
-  if(s===0){const b=[];setCell(i,1,b);LG.hist.push(b);sfx.mark();return;}
-  placePiece(i);
+  const t=performance.now(),lt=LG.lastTap;
+  if(lt&&lt.i===i&&t-lt.t<340){LG.lastTap=null;for(let k=lt.b.length-1;k>=0;k--)LG.st[lt.b[k].i]=lt.b[k].prev;delete LG.anim[i];if(LG.hist[LG.hist.length-1]===lt.b)LG.hist.pop();placePiece(i);return;}
+  const b=[];if(s===0){setCell(i,1,b);sfx.mark();}else{setCell(i,0,b);sfx.mark(true);}LG.hist.push(b);LG.lastTap={i,t,b};
 }
 function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
@@ -2460,7 +2461,7 @@ function hint(){
   const touches=i=>pcs.some(j=>Math.abs(R(j)-R(i))<=1&&Math.abs(C(j)-C(i))<=1);
   const why=i=>st[i]===2?'piece':rowHas[R(i)]?'row':colHas[C(i)]?'col':regHas[K(i)]?'reg':touches(i)?'touch':null;
   const cand=[];for(let i=0;i<n*n;i++)if(!why(i))cand.push(i);
-  const tapNote=i=>st[i]===1?' (it’s marked X — tap it to place the '+P+')':' — tap it twice to place it';
+  const tapNote=i=>' — double tap it to place the '+P;
   for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);
     if(cs.length===1)return showHint(cs,'place',`This is the only square left in the ${nm(k)} area that can hold a ${P}${tapNote(cs[0])}.`);}
   for(let r=0;r<n;r++){if(rowHas[r])continue;const cs=cand.filter(i=>R(i)===r);
@@ -3430,7 +3431,7 @@ $('prizeKeep').addEventListener('click',()=>$('prize').classList.remove('show'))
 $('prizeSee').addEventListener('click',()=>{$('prize').classList.remove('show');if(lastWon){DB.sess={drops:0,spent:0,won:[]};save.current=lastWon.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);}});
 const HELP={
   grab:()=>['Coin Grab',['Coins rain down from the sky. Tap them before they fall off the screen.','Every coin you grab is worth 1 coin, and it’s yours to keep.','There’s no losing. When time’s up, the mist lifts anyway.']],
-  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X, tap again for a ${th.one}. Place a ${th.one} in the wrong spot and it becomes a red X and costs one of your 3 lives. Lose all 3 and the puzzle starts again.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
+  logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X and tap again to remove it. Double tap a square to place a ${th.one}. Place a ${th.one} in the wrong spot and it becomes a red X and costs one of your 3 lives. Lose all 3 and the puzzle starts again.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
   drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
@@ -3624,12 +3625,12 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795049074';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795049074'/);
+const BUILD='1795049357';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795049357'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
-window.__grab=()=>GR;window.__cat=paintCatFace;window.__voice=voice;window.__BZ=BZ;window.__game={goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
+window.__grab=()=>GR;window.__cat=paintCatFace;window.__voice=voice;window.__BZ=BZ;window.__game={tapCell,goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();makeWorldLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
 requestAnimationFrame(frame);
