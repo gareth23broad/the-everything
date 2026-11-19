@@ -2845,7 +2845,7 @@ const VPAL=new Map();
 const BOLD=['#ff9ec7','#ff8c42','#ffd23f','#62d26f','#1fc8c0','#4d96ff','#8f6bff','#e46bdc','#a8714a','#b5e33b'];
 function hsl_(hex){const n=parseInt(hex.slice(1),16);let r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;
   if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6;}return[h*360,s,l];}
-function lgPal(pal){const v=vividPal(pal);return LG&&LG.metal&&LG.metal.type==='bronze'?v.map(c=>c==='#a8714a'?'#8592ad':c):v;}
+function lgPal(pal){const v=vividPal(pal);return LG&&LG.metal&&LG.metal.type==='bronze'?v.map(c=>c==='#a8714a'?'#e0434b':c):v;}
 function vividPal(pal){const k=pal.join();if(VPAL.has(k))return VPAL.get(k);const B=BOLD.map(hsl_),used=new Set();
   const cost=(p,q)=>Math.abs(((p[0]-q[0])%360+540)%360-180)/180;
   const P=pal.map(hsl_),idx=P.map((_,i)=>i).sort((i,j)=>P[j][1]-P[i][1]),out=[];
@@ -2924,7 +2924,7 @@ function showHint(cells,kind,text){LG.hint={cells,kind,t0:performance.now()};LG.
 function clearHint(){if(LG)LG.hint=null;$('hintBox').classList.remove('show');document.body.classList.remove('hinting');}
 function hint(){
   if(!LG||LG.done||(LG.hints??4)<=0)return;
-  const n=LG.n,st=LG.st,reg=LG.reg,th=TH(),P=th.one,vp=lgPal(th.pal),CN=['pink','orange','yellow','green','teal','blue','purple','magenta','brown','lime'],nm=k=>{if(LG.metal&&k===LG.metal.k)return LG.metal.type;const cc=vp[k%vp.length];if(cc==='#8592ad')return 'grey';const j=BOLD.indexOf(cc);return j>=0?CN[j]:th.names[k%th.names.length];};
+  const n=LG.n,st=LG.st,reg=LG.reg,th=TH(),P=th.one,vp=lgPal(th.pal),CN=['pink','orange','yellow','green','teal','blue','purple','magenta','brown','lime'],nm=k=>{if(LG.metal&&k===LG.metal.k)return LG.metal.type;const cc=vp[k%vp.length];if(cc==='#e0434b')return 'red';const j=BOLD.indexOf(cc);return j>=0?CN[j]:th.names[k%th.names.length];};
   const R=i=>i/n|0,C=i=>i%n,K=i=>reg[R(i)][C(i)];
   const pcs=[];for(let i=0;i<n*n;i++)if(st[i]===2)pcs.push(i);
   const rowHas=Array(n).fill(false),colHas=Array(n).fill(false),regHas=Array(n).fill(false);
@@ -4151,8 +4151,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795061800';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795061800'/);
+const BUILD='1795061943';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795061943'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
