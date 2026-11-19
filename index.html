@@ -2441,7 +2441,7 @@ function tapCell(i){
 }
 function placePiece(i){
   const n=LG.n,r=i/n|0,c=i%n,t=performance.now();
-  if(LG.sol[r]!==c){LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;(LG.bad=LG.bad||new Set()).add(i);sfx.crunch();voice.play(5);LG.lives=Math.max(0,(LG.lives??3)-1);drawLives(true);if(LG.lives<=0){logicFail();return;}if(!hintShown){hintShown=true;toast('Not quite · that costs a life',1800);}return;}
+  if(LG.sol[r]!==c){LG.st[i]=1;LG.anim[i]={t0:t,type:'wrong'};LG.wrong=(LG.wrong||0)+1;(LG.bad=LG.bad||new Set()).add(i);sfx.crunch();voice.play(5);LG.lives=Math.max(0,(LG.lives??3)-1);drawLives(true);if(LG.lives<=0){logicFail();return;}if(!hintShown){hintShown=true;toast('Not quite · that costs a life',1800);}return;}
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();
   LG.hist.push(b);
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);if(!LG.wrong){let vi=3;if(placed===n-1&&n>2){vi=4;voice.last=-1;}else if(placed<n){do{vi=Math.random()*3|0;}while(vi===voice.last);voice.last=vi;}else voice.last=-1;voice.play(vi);}burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',vividPal(TH().pal)[k%TH().pal.length]]);
@@ -3625,8 +3625,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795049868';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795049868'/);
+const BUILD='1795050473';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795050473'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
