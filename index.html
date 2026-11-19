@@ -468,7 +468,7 @@ const R2W=[
 R2W.slice(0,R2_ON).forEach((w,i)=>{const b=WORLDS[i];w.region=2;w.pos=b.pos.slice();if(b.scale)w.scale=b.scale;if(b.cam)w.cam=b.cam;
   const base=w.mega?[950,1150,1300,1450,1600,1750,2000,2400]:[880,1060,1260,1460,1760,2300],add=i*22;w.costs=base.map(c=>Math.round((c+add)/10)*10);WORLDS.push(w);});
 /*</R2:W>*/
-const MISTS=[{pos:[10,-756],seed:91},{pos:[-7,-786],seed:97}];
+const MISTS=[];
 const REGIONS={1:{name:'The Bay',top:[.776,.831,.941],mid:[.918,.847,.902],hor:[.984,.890,.824],deep:[.50,.72,.79],smid:[.66,.83,.86],skyc:[.98,.89,.83],lag:[.64,.90,.87]},
   2:{name:'The Lilac Sea',top:[.745,.735,.945],mid:[.935,.835,.925],hor:[.990,.880,.860],deep:[.55,.60,.83],smid:[.71,.73,.91],skyc:[.97,.885,.905],lag:[.73,.84,.95]}};
 const REG=w=>(w&&w.region)||1;const regWorlds=r=>WORLDS.filter(w=>REG(w)===r);
@@ -3589,8 +3589,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795046343';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795046343'/);
+const BUILD='1795047446';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795047446'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
