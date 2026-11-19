@@ -3338,7 +3338,7 @@ function updateHud(force){
   if(shownScore<score)shownScore=Math.min(score,shownScore+Math.max(1,Math.ceil((score-shownScore)*0.12)));
   const s=Math.min(dShells,goal.shells),d=Math.min(dSand,goal.sand),cost=dStage<NSC()?W_().costs[dStage]:1;
   const keyS=[PG?pSorted():'',LG?lPlaced()+'/'+LG.n:'',shownScore,s,d,dPearls,dStage,Math.round(dPts),save.mult,goal.shells,goal.sand].join('|');if(keyS===lastHud&&!force)return;lastHud=keyS;
-  $('score').textContent=shownScore;$('tPearl').textContent=Math.max(0,Math.round(dPearls));
+  $('score').textContent=shownScore;{const v=Math.max(0,Math.round(dPearls)),tx=v>=1e7?(v/1e6).toFixed(1).replace(/\.0$/,'')+'M':v.toLocaleString('en-US'),e=$('tPearl');e.textContent=tx;e.style.fontSize=tx.length>7?'15px':tx.length>5?'17px':'';}
   $('tShell').textContent=s+'/'+goal.shells;$('tSand').textContent=d+'/'+goal.sand;
   $('gShell').classList.toggle('done',s>=goal.shells);$('gSand').classList.toggle('done',d>=goal.sand);
   if(dStage>=NSC()){$('bfill').style.width='100%';$('btext').textContent='Complete';$('bstage').textContent='All built ✓';}
@@ -4054,8 +4054,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795056987';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795056987'/);
+const BUILD='1795057141';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795057141'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
