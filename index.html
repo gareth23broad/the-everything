@@ -2875,7 +2875,7 @@ function tileSprite(col,s){
 }
 let LG=null,ld=null,lX=0,lY=0,lS=300,lShore=0,logicTop=0,hintShown=false;
 const hashStr=s=>{let h=2166136261;for(const ch of s)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;};
-function logicSize(){const k=save.solved||0;if(k>=48)return (k-48)%5===4?7:10;return k<2?4:k<6?5:k<12?6:k<20?7:k<32?8:k<48?9:10;}
+function logicSize(){const k=save.solved||0;if(k>=48){const c=(k-48)%5;return c===4?7:c===2?8:10;}return k<2?4:k<6?5:k<12?6:k<20?7:k<32?8:k<48?9:10;}
 function newLogic(){$('hintBox').classList.remove('show');document.body.classList.remove('hinting');
   const n=logicSize(),seed=hashStr(save.current)+save.level*1009+(save.solved||0)*7919;
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
@@ -4150,8 +4150,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795061341';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795061341'/);
+const BUILD='1795061655';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795061655'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
