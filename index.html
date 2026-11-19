@@ -2819,7 +2819,7 @@ const lPlaced=()=>LG?LG.st.filter(v=>v===2).length:0;
 function cellAt(x,y){if(!LG)return -1;const n=LG.n,cs=lS/n,c=Math.floor((x-lX)/cs),r=Math.floor((y-lY)/cs);return r>=0&&c>=0&&r<n&&c<n?r*n+c:-1;}
 function setCell(i,v,batch,delay=0){batch.push({i,prev:LG.st[i]});LG.st[i]=v;LG.anim[i]={t0:performance.now()+delay,type:v===1?'x':v===2?'pop':'clear'};}
 function tapCell(i){
-  const s=LG.st[i];if(s===2)return;if(LG.hint&&LG.hint.cells.includes(i))clearHint();
+  const s=LG.st[i];if(s===2)return;if(LG.hint&&LG.hint.cells.includes(i)&&LG.hint.kind==='x'&&s===0){LG.hint.cells=LG.hint.cells.filter(j=>j!==i);if(!LG.hint.cells.length)clearHint();}
   const t=performance.now(),lt=LG.lastTap;
   if(lt&&lt.i===i&&t-lt.t<340){LG.lastTap=null;for(let k=lt.b.length-1;k>=0;k--)LG.st[lt.b[k].i]=lt.b[k].prev;delete LG.anim[i];if(LG.hist[LG.hist.length-1]===lt.b)LG.hist.pop();placePiece(i);return;}
   const b=[];if(s===0){setCell(i,1,b);sfx.mark();}else{setCell(i,0,b);sfx.mark(true);}LG.hist.push(b);LG.lastTap={i,t,b};
@@ -4039,8 +4039,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795055363';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055363'/);
+const BUILD='1795055596';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055596'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
