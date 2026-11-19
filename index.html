@@ -419,7 +419,7 @@ const SHAPES=[
   [[0,0],[1,0],[2,0],[2,1]],[[0,0],[0,1],[0,2],[1,0]],[[0,0],[0,1],[1,1],[2,1]],[[0,2],[1,0],[1,1],[1,2]],
 ];
 const WORDS=['Lovely','Beautiful','Serene','Wonderful','Dreamy','So calm','Gorgeous'];
-const SPIN_COST=20;
+const SPIN_COST=20;const WMULTS=[1,2,3,5,10];const bestWMult=a=>WMULTS.filter(m=>m<=Math.max(1,a)).pop();
 const SLICES=[{v:100},{v:40},{kind:'pearls',v:40},{v:80},{kind:'free',v:50},{v:150},{v:60},{kind:'treasure',v:1000},{v:200},{v:300}];
 const SLICE_COLS=['#fdf8f3','#e8e0f7','#d6efea','#fbe2dc'];
 
@@ -2796,16 +2796,16 @@ function drawPour(t){
   if(PG.anim&&t-PG.anim.t0>=PG.anim.dur){const b_=PG.anim.b;(PG.waveAt=PG.waveAt||{})[b_]=t;finishPour();}
 }
 /* ---------- prize drop (plinko) ---------- */
-const DW=7,DH=8.4,SLOTV=[1,2,3,5,3,2,1],PRIZE_PTS=500,MULTS=[1,2,5,10,20,50],BR=0.34,CUP_T=7.15,LIP_T=7.75;
-const DWORLD=(()=>{const pegs=[],bump=[{x:2.2,y:4.15,r:0.44,f:0},{x:4.8,y:4.15,r:0.44,f:0}];
+const DW=7,DH=8.4,SLOTV=[1,2,3,5,3,2,1],PRIZE_PTS=500,MULTS=[1,2,5,10,20,50,100],BR=0.34,CUP_T=7.15,LIP_T=7.75;
+const DWORLD=(()=>{const pegs=[],bump=[{x:2.2,y:4.15,r:0.38,f:0},{x:4.8,y:4.15,r:0.38,f:0}];
   for(let r=0;r<5;r++){const y=1.75+r*1.2,odd=(r+1)%2;for(let k=0;k<(odd?6:7);k++){const x=odd?1+k:0.5+k;if(x<0.9||x>6.1||bump.some(b=>Math.hypot(b.x-x,b.y-y)<1.25))continue;pegs.push({x,y,r:0.11});}}
   pegs.push({x:3.5,y:4.15,r:0.11},{x:0.88,y:4.15,r:0.11},{x:6.12,y:4.15,r:0.11});for(let k=1;k<7;k++)pegs.push({x:k,y:CUP_T,r:0.08,div:1});return{pegs,bump,chutes:[1.4,2.8,4.2,5.6]};})();
 function stepBall(b,dt){b.vy+=26*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.age=(b.age||0)+dt;
   if(b.x<BR){b.x=BR;b.vx=Math.abs(b.vx)*0.75+1.2;}if(b.x>DW-BR){b.x=DW-BR;b.vx=-Math.abs(b.vx)*0.75-1.2;}if(b.x<0.8)b.vx+=5*dt;if(b.x>DW-0.8)b.vx-=5*dt;
   const col=(o,rest,bump)=>{const dx=b.x-o.x,dy=b.y-o.y,d=Math.hypot(dx,dy),m=o.r+BR;if(d<m&&d>0){const nx=dx/d,ny=dy/d;b.x=o.x+nx*m;b.y=o.y+ny*m;const vn=b.vx*nx+b.vy*ny;
     if(vn<0){b.vx-=(1+rest)*vn*nx;b.vy-=(1+rest)*vn*ny;const j=(Math.random()-0.5)*(bump?2.4:1.6);b.vx+=-ny*j;b.vy+=nx*j;
-      if(bump){b.vx+=(b.x<o.x?-1:1)*2;if(!b.hit.has(o)||b.age-b.hit.get(o)>0.35){b.hit.set(o,b.age);bumpHit(b,o);}}else if(-vn>2.5)sfx.peg();}}};
-  if(b.age<9)for(const p of DWORLD.pegs)col(p,p.div?0.35:0.62,false);for(const q of DWORLD.bump)col(q,1.05,true);if(Math.abs(b.vx)>8)b.vx=Math.sign(b.vx)*8;
+      if(bump){b.vx+=(b.x<o.x?-1:1)*3.2;b.vy=Math.max(b.vy,0.6);if(!b.hit.has(o)){b.hit.set(o,b.age);bumpHit(b,o);}}else if(-vn>2.5)sfx.peg();}}};
+  if(b.age<9)for(const p of DWORLD.pegs)col(p,p.div?0.35:0.62,false);for(const q of DWORLD.bump)col(q,0.8,true);if(Math.abs(b.vx)>8)b.vx=Math.sign(b.vx)*8;
   const sp=Math.hypot(b.vx,b.vy);if(sp<1.4){b.still=(b.still||0)+dt;if(b.still>0.45){b.vx=(Math.random()<0.5?-1:1)*3;b.vy=-1.5;b.still=0;}}else b.still=0;
   if(b.y>CUP_T+0.02){if(b.slot===undefined)b.slot=Math.max(0,Math.min(DW-1,Math.floor(b.x)));const lo=b.slot+BR+0.1,hi=b.slot+1-BR-0.1;if(b.x<lo){b.x=lo;b.vx=Math.abs(b.vx)*0.3;}if(b.x>hi){b.x=hi;b.vx=-Math.abs(b.vx)*0.3;}b.vx*=0.9;}
   if(b.age>6){b.vx*=0.9;b.x+=(Math.round(b.x-0.5)+0.5-b.x)*0.05;b.vy=Math.max(b.vy,4);}}
@@ -2824,7 +2824,7 @@ function dropBall(x){if(DB.balls.some(b=>!b.done))return;
   save.pearls-=cost;dPearls-=cost;persist();updateHud(true);DB.sess.drops++;DB.sess.spent+=cost;
   DB.balls.push({x:DWORLD.chutes[ci]+(Math.random()-0.5)*0.2,y:0.35,vx:(Math.random()-0.5)*0.6,vy:0,hit:new Map(),m,ci,t0:now_});DB.chuteFx={i:ci,t:now_};sfx.pick();
 }
-function bumpHit(b,o){const v=1;o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
+function bumpHit(b,o){const v=Math.max(1,Math.round((b.m||1)*0.5));o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
 function awardDrop(v,x,y){save.dropPts=(save.dropPts||0)+v;fx.push({type:'text',text:'+'+v,x,y,t0:performance.now(),dur:1000,size:Math.max(15,dS*0.6),layer:'drop'});
   while(save.dropPts>=PRIZE_PTS){save.dropPts-=PRIZE_PTS;winPrize();}persist();updateDropHud();}
 function winPrize(){const tg=dropTarget();
@@ -2882,7 +2882,7 @@ function drawDrop(t){
     ctx.fillStyle='#c9616c';ctx.beginPath();ctx.arc(x,y+r*0.08,rr*1.06,0,7);ctx.fill();
     g=ctx.createRadialGradient(x-rr*0.35,y-rr*0.4,rr*0.05,x,y,rr);g.addColorStop(0,'#fff0ea');g.addColorStop(0.45,'#f6a7a0');g.addColorStop(1,'#d9707c');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,rr,0,7);ctx.fill();
     ctx.fillStyle='rgba(255,255,255,0.85)';ctx.beginPath();ctx.ellipse(x-rr*0.35,y-rr*0.45,rr*0.3,rr*0.16,-0.5,0,7);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font=`800 ${r*0.6}px Quicksand,ui-rounded,system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(150,50,60,0.5)';ctx.shadowBlur=3;ctx.fillText('+1',x,y+r*0.08);ctx.shadowBlur=0;}
+    ctx.fillStyle='#fff';ctx.font=`800 ${r*0.6}px Quicksand,ui-rounded,system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='rgba(150,50,60,0.5)';ctx.shadowBlur=3;{const bv='+'+Math.max(1,Math.round(dMult()*0.5));ctx.font=`800 ${r*(bv.length>3?0.48:0.6)}px Quicksand,ui-rounded,system-ui,sans-serif`;ctx.fillText(bv,x,y+r*0.08);}ctx.shadowBlur=0;}
   // cups: dark inside, back wall
   const cupT=dY+CUP_T*dS,cupB=dY+DH*dS,lipT=dY+LIP_T*dS;
   SLOTV.forEach((v,sI)=>{const x=dX+sI*dS;g=ctx.createLinearGradient(0,cupT,0,cupB);const big=v>=25;
@@ -3052,7 +3052,7 @@ function go(target,opts={}){
 const arriveBuild=()=>{if(save.stage<NSC()&&!canSpin())toast('Earn coins in the puzzle to spin',2200);};
 function goBuild(){
   if((mode!=='logic'&&mode!=='hub'&&mode!=='drop')||trans)return;
-  const afford=Math.floor(save.pearls/SPIN_COST);if(save.mult>afford)save.mult=Math.max(1,Math.min(3,afford));
+  const afford=Math.floor(save.pearls/SPIN_COST);if(save.mult>afford)save.mult=bestWMult(afford);
   go('build',{done:arriveBuild});
 }
 function goLogic(){
@@ -3299,7 +3299,7 @@ function reward(k,m){
     if(save.stage>=NSC())save.pts=0;
   }
   persist();
-  setTimeout(()=>{if(mode==='build'&&!spin&&save.stage<NSC()&&!canSpin()){if(save.pearls>=SPIN_COST){save.mult=Math.max(1,Math.min(3,Math.floor(save.pearls/SPIN_COST)));updateHud(true);toast('×'+save.mult+' to fit your coins',1600);}else outOfPearls();}},2200);
+  setTimeout(()=>{if(mode==='build'&&!spin&&save.stage<NSC()&&!canSpin()){if(save.pearls>=SPIN_COST){save.mult=bestWMult(Math.floor(save.pearls/SPIN_COST));updateHud(true);toast('×'+save.mult+' to fit your coins',1600);}else outOfPearls();}},2200);
 }
 function updateBar(t){
   if(t<barHold)return;
@@ -3425,7 +3425,7 @@ $('sSee').addEventListener('click',()=>{$('dsum').classList.remove('show');const
   (I.keeps||[]).forEach(g=>{if(g.userData.keep===KEEPS[tg.id][tg.k]){g.userData.animate=true;g.userData.t0=performance.now()+1900;}});
   save.current=tg.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);});
 $('dInfo').addEventListener('click',()=>{audio.wake();showHelp('drop');});
-$('dmult').addEventListener('click',()=>{const cur=dMult(),i=MULTS.indexOf(cur),nx=MULTS[i+1];let m=(nx&&nx<=save.pearls)?nx:1;if(m===1&&cur===1&&!(nx&&nx<=save.pearls))toast('Earn more coins to unlock ×'+(nx||50),1800);save.dropMult=m;persist();updateDropHud();sfx.pick();});
+$('dmult').addEventListener('click',()=>{const cur=dMult(),i=MULTS.indexOf(cur),nx=MULTS[i+1];let m=(nx&&nx<=save.pearls)?nx:1;if(m===1&&cur===1&&!(nx&&nx<=save.pearls))toast('Earn more coins to unlock ×'+(nx||100),1800);save.dropMult=m;persist();updateDropHud();sfx.pick();});
 
 $('prizeKeep').addEventListener('click',()=>$('prize').classList.remove('show'));
 $('prizeSee').addEventListener('click',()=>{$('prize').classList.remove('show');if(lastWon){DB.sess={drops:0,spent:0,won:[]};save.current=lastWon.id;persist();dStage=save.stage;dPts=save.pts;setTimeout(()=>go('build'),250);}});
@@ -3434,7 +3434,7 @@ const HELP={
   logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X and tap again to remove it. Double tap a square to place a ${th.one}. Place a ${th.one} in the wrong spot and it becomes a red X and costs one of your 3 lives. Lose all 3 and the puzzle starts again.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
-  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers always add +1 point, whatever the multiplier.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
+  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers add half your multiplier (×10 gives +5), once per coin.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
 };
 function showHelp(k){const[h,lines]=HELP[k]();$('helpTitle').textContent=h;$('helpList').innerHTML=lines.map(l=>'<li>'+l.replace(/</g,'&lt;')+'</li>').join('');$('helpList').insertAdjacentHTML('beforeend','<li style="list-style:none;opacity:.45;font-size:11px;margin-top:6px">Version '+(BUILD.startsWith('__')?'dev':BUILD.slice(-4))+(localStorage.getItem('lastErr')?' · last issue: '+localStorage.getItem('lastErr').replace(/</g,''):'')+'</li>');$('help').classList.add('show');sfx.pick();}
 document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{audio.wake();showHelp(b.dataset.help);}));
@@ -3445,7 +3445,7 @@ $('hint').addEventListener('click',()=>{audio.wake();hint();});
 $('undo').addEventListener('click',()=>{audio.wake();undo();});
 $('visit').addEventListener('click',()=>{audio.wake();goBuild();});
 $('back').addEventListener('click',()=>{audio.wake();if(isDone(save.current))goHub();else goLogic();});
-$('mult').addEventListener('click',()=>{if(spin)return;let m=save.mult%3+1;if(SPIN_COST*m>save.pearls)m=1;if(m===save.mult&&m===1&&save.pearls<SPIN_COST*2){toast('Need more coins for ×2',1400);}save.mult=m;persist();updateHud(true);sfx.pick();});
+$('mult').addEventListener('click',()=>{if(spin)return;const L=WMULTS,i=L.indexOf(save.mult),nx=L[(i+1)%L.length];let m=nx;if(SPIN_COST*m>save.pearls){if(m!==1)toast('Need '+SPIN_COST*m+' coins for ×'+m,1500);m=1;}save.mult=m;persist();updateHud(true);sfx.pick();});
 $('toBuild').addEventListener('click',()=>{$('done').classList.remove('show');setTimeout(goBuild,250);});
 $('keep').addEventListener('click',()=>{$('done').classList.remove('show');fx.push({type:'wipe',t0:performance.now(),dur:1300,fn:()=>newLogic()});sfx.whoosh(0.6);});
 $('toMap').addEventListener('click',()=>{$('complete').classList.remove('show');const id=pendingReveal;pendingReveal=null;
@@ -3625,8 +3625,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795050473';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795050473'/);
+const BUILD='1795050903';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795050903'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
