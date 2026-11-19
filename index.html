@@ -3189,8 +3189,9 @@ function stepBall(b,dt){b.vy+=26*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.age=(b.age||0)+d
   if(b.x<BR){b.x=BR;b.vx=Math.abs(b.vx)*0.75+1.2;}if(b.x>DW-BR){b.x=DW-BR;b.vx=-Math.abs(b.vx)*0.75-1.2;}if(b.x<0.8)b.vx+=5*dt;if(b.x>DW-0.8)b.vx-=5*dt;
   const col=(o,rest,bump)=>{const dx=b.x-o.x,dy=b.y-o.y,d=Math.hypot(dx,dy),m=o.r+BR;if(d<m&&d>0){const nx=dx/d,ny=dy/d;b.x=o.x+nx*m;b.y=o.y+ny*m;const vn=b.vx*nx+b.vy*ny;
     if(vn<0){b.vx-=(1+rest)*vn*nx;b.vy-=(1+rest)*vn*ny;const j=(Math.random()-0.5)*(bump?2.4:1.6);b.vx+=-ny*j;b.vy+=nx*j;
-      if(bump){b.vx+=(b.x<o.x?-1:1)*3.2;b.vy=Math.max(b.vy,0.6);if(!b.hit.has(o)){b.hit.set(o,b.age);bumpHit(b,o);}}else if(-vn>2.5)sfx.peg();}}};
+      if(bump){b.vx+=(b.x<o.x?-1:1)*1.4;b.vy=Math.max(b.vy,1.8);if(!b.hit.has(o)||b.age-b.hit.get(o)>=1.0){b.hit.set(o,b.age);bumpHit(b,o);}}else if(-vn>2.5)sfx.peg();}}};
   if(b.age<9)for(const p of DWORLD.pegs)col(p,p.div?0.35:0.62,false);for(const q of DWORLD.bump)col(q,0.8,true);if(Math.abs(b.vx)>8)b.vx=Math.sign(b.vx)*8;
+  if(b.prog===undefined){b.prog=b.y;b.progT=b.age;}if(b.y>b.prog+0.35){b.prog=b.y;b.progT=b.age;}else if(b.age-b.progT>1.1&&b.y<CUP_T-0.2){b.vy=3.2;b.vx=(Math.random()-0.5)*2.4;b.y+=0.05;b.progT=b.age;}
   const sp=Math.hypot(b.vx,b.vy);if(sp<1.4){b.still=(b.still||0)+dt;if(b.still>0.45){b.vx=(Math.random()<0.5?-1:1)*3;b.vy=-1.5;b.still=0;}}else b.still=0;
   if(b.y>CUP_T+0.02){if(b.slot===undefined)b.slot=Math.max(0,Math.min(DW-1,Math.floor(b.x)));const lo=b.slot+BR+0.1,hi=b.slot+1-BR-0.1;if(b.x<lo){b.x=lo;b.vx=Math.abs(b.vx)*0.3;}if(b.x>hi){b.x=hi;b.vx=-Math.abs(b.vx)*0.3;}b.vx*=0.9;}
   if(b.age>6){b.vx*=0.9;b.x+=(Math.round(b.x-0.5)+0.5-b.x)*0.05;b.vy=Math.max(b.vy,4);}}
@@ -3209,7 +3210,7 @@ function dropBall(x){if(DB.balls.some(b=>!b.done))return;
   save.pearls-=cost;dPearls-=cost;persist();updateHud(true);DB.sess.drops++;DB.sess.spent+=cost;
   DB.balls.push({x:DWORLD.chutes[ci]+(Math.random()-0.5)*0.2,y:0.35,vx:(Math.random()-0.5)*0.6,vy:0,hit:new Map(),m,ci,t0:now_});DB.chuteFx={i:ci,t:now_};sfx.pick();
 }
-function bumpHit(b,o){const v=Math.max(1,Math.round((b.m||1)*0.5));o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
+function bumpHit(b,o){window.__bumps=(window.__bumps||0)+1;const v=Math.max(1,Math.round((b.m||1)*0.5));o.f=performance.now();awardDrop(v,dX+o.x*dS,dY+o.y*dS-dS*0.7);sfx.collect();}
 function awardDrop(v,x,y){save.dropPts=(save.dropPts||0)+v;fx.push({type:'text',text:'+'+v,x,y,t0:performance.now(),dur:1000,size:Math.max(15,dS*0.6),layer:'drop'});
   while(save.dropPts>=PRIZE_PTS){save.dropPts-=PRIZE_PTS;winPrize();}persist();updateDropHud();}
 function winPrize(){const tg=dropTarget();
@@ -3847,7 +3848,7 @@ const HELP={
   logic:()=>{const th=TH();return['How to play',[`Place one ${th.one} in every colour area, every row and every column.`,`${th.many} can’t touch each other — not even corners.`,`Tap a square once for an X and tap again to remove it. Double tap a square to place a ${th.one}. Place a ${th.one} in the wrong spot and it becomes a red X and costs one of your 3 lives. Lose all 3 and the puzzle starts again.`,'Swipe across squares to mark lots of Xs at once.','Stuck? Hint shows the next step and explains why.','Every puzzle earns 40 coins, rising to 60 on the biggest boards.','Perfect run: finish without placing a piece in a wrong spot and your coins are doubled. Hints and Xs never count against you.']];},
   block:()=>['Clear the mist',['Drag a piece from the sand onto the board.','Fill a whole row or column to clear it.','Clear rows with shells to collect them, and rows with sand blocks to wash them away.','Collect all the shells and sand shown at the top to lift the mist.','You can’t lose — if nothing fits, the tide brings new pieces.']],
   pour:()=>['Sort the bottles',['Tap a bottle, then tap another to pour.','You can pour onto the same colour or into an empty bottle.','“?” colours are hidden until they reach the top.','Fill every bottle with a single colour to lift the mist.','Undo steps back, Restart starts fresh — every puzzle can be solved.']],
-  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers add half your multiplier (×10 gives +5), once per coin.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
+  drop:()=>['Prize Drop',['Tap a DROP button to drop a coin. Each drop costs 1 coin, times the multiplier.','Tap the multiplier to step up: ×1, ×2, ×5, ×10, ×20, ×50. You can only pick a multiplier you have enough coins for.','Coins bounce down and land in a slot. Slot values grow with the multiplier.','The pink bumpers add half your multiplier (×10 gives +5), and can score again after a second.','Every '+PRIZE_PTS+' points wins the next prize, shown at the bottom.','Keepsakes glow on their island forever.']],
 };
 function showHelp(k){const[h,lines]=HELP[k]();$('helpTitle').textContent=h;$('helpList').innerHTML=lines.map(l=>'<li>'+l.replace(/</g,'&lt;')+'</li>').join('');$('helpList').insertAdjacentHTML('beforeend','<li style="list-style:none;opacity:.45;font-size:11px;margin-top:6px">Version '+(BUILD.startsWith('__')?'dev':BUILD.slice(-4))+(localStorage.getItem('lastErr')?' · last issue: '+localStorage.getItem('lastErr').replace(/</g,''):'')+'</li>');$('help').classList.add('show');sfx.pick();}
 document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{audio.wake();showHelp(b.dataset.help);}));
@@ -4039,12 +4040,12 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795055874';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055874'/);
+const BUILD='1795055937';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795055937'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
-window.__grab=()=>GR;window.__cat=paintCatFace;window.__voice=voice;window.__BZ=BZ;window.__game={tapCell,goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
+window.__grab=()=>GR;window.__cat=paintCatFace;window.__voice=voice;window.__BZ=BZ;window.__game={tapCell,stepBall,goDrop,dropBall,get DB(){return DB},winPrize,get PG(){return PG},tapBottle,undoPour,restartPour,get hubZ(){return hubZt},setHubZ(z){hubZt=clampZ(z)},get LG(){return LG},placePiece,tapCell,newLogic,startGate,goLogic,get board(){return board},get tray(){return tray},place,fits,goBuild,goBlock,goHub,go,selectWorld,islands,L,trySpin,save,get state(){return{score,shells,sand,won,mode,dStage,dPearls}},win(){shells=goal.shells;sand=goal.sand;won=true;levelComplete();}};
 initPedestal();makeBalloon();document.body.dataset.mode=mode;layout();makeLabels();makeWorldLabels();newLevel(1);newLogic();setLabels();paintIcons();
 if(save.intro){started=true;}else $('intro').classList.add('show');
 requestAnimationFrame(frame);
