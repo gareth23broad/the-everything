@@ -190,7 +190,10 @@ body[data-mode=build] #bottom{opacity:1;transform:none}
 body:not([data-mode=build]) #bottom .pill{pointer-events:none}
 #bottom .pill{font-size:15px;padding:10px 18px}
 #mult{min-width:84px;font-size:20px!important;padding:7px 18px!important}
-.mwrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mwrap{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.catC{position:absolute;width:56px;height:60px;pointer-events:none}
+.mwrap .catC{bottom:100%;left:50%;margin-left:-28px;margin-bottom:-6px}
+.mcoins{position:relative}.mcoins canvas.catC{width:56px;height:60px;left:100%;top:50%;margin-top:-32px;margin-left:2px}
 .mlabel{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#4f6683;text-shadow:0 1px 6px rgba(255,255,255,.8)}
 #bottom{align-items:flex-end}
 body.viewing #bottom .mwrap{opacity:0;pointer-events:none}
@@ -301,7 +304,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div id="dropBar"><button id="dBack" class="pill">‹ Map</button>
   <div id="ped"><div class="pedMid"><div id="pedKick">NEXT PRIZE</div><canvas id="pedCanvas"></canvas><div id="pedName">—</div><div id="pedIsl"></div></div></div>
   <button id="dInfo" class="pill" aria-label="How to play"><span>i</span></button></div>
-<div id="mTop"><div class="mcoins"><canvas data-ic="pearl"></canvas><span id="mCoins">0</span></div><div id="mProg"><div id="mFill"></div><span id="mPT">0/500</span></div><div class="mmul"><span id="dcost">25 per drop</span><button id="dmult" class="pill">×1</button></div></div>
+<div id="mTop"><div class="mcoins"><canvas data-ic="pearl"></canvas><span id="mCoins">0</span><canvas class="catC" id="dcatC" width="112" height="120"></canvas></div><div id="mProg"><div id="mFill"></div><span id="mPT">0/500</span></div><div class="mmul"><span id="dcost">25 per drop</span><button id="dmult" class="pill">×1</button></div></div>
 <button id="dropLabel" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0-6 6c0 3.5 3.5 6.5 6 8 2.5-1.5 6-4.5 6-8a6 6 0 0 0-6-6z"/><path d="M10 17.5l.5 2.5h3l.5-2.5"/></svg><span><b>Prize Drop</b><i id="dropSub">Win keepsakes</i></span><svg class="dlBal" viewBox="0 0 40 60"><defs><radialGradient id="bg1" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffe0ea"/><stop offset=".55" stop-color="#f7a9bf"/><stop offset="1" stop-color="#e57f9b"/></radialGradient></defs><path d="M20 2C9 2 3 10 3 19c0 10 9 18 14 22h6c5-4 14-12 14-22C37 10 31 2 20 2z" fill="url(#bg1)" stroke="#fff" stroke-width="2"/><path d="M20 2c-5 6-6 26-3 39M20 2c5 6 6 26 3 39" fill="none" stroke="#fff" stroke-width="1.6" opacity=".85"/><path d="M17 41l-2 9M23 41l2 9" stroke="#b98a64" stroke-width="1.4"/><rect x="13.5" y="49" width="13" height="9" rx="2" fill="#c8a27c" stroke="#fff" stroke-width="1.5"/></svg></button>
 <div id="dropBubble">You’ve got coins to spare — try the Prize Drop!</div>
 <div id="ptools"><button id="pUndo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button><button id="pRestart" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e98c80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button></div>
@@ -313,7 +316,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div id="bottom">
   <button id="back" class="pill">‹ Puzzle</button>
   <button id="bmap" class="pill">Map</button>
-  <div class="mwrap"><div class="mlabel">Multiplier</div><button id="mult" class="pill">×1</button></div>
+  <div class="mwrap"><canvas class="catC" id="wcatC" width="112" height="120"></canvas><div class="mlabel">Multiplier</div><button id="mult" class="pill">×1</button></div>
 </div>
 <div id="grab"><canvas id="g3d"></canvas><canvas id="gcv"></canvas>
   <div id="gTop"><div class="gcount pill"><canvas data-ic="pearl"></canvas><span id="gN">0</span></div><div id="gBar"><div id="gFill"></div></div><button class="ibtn pill" id="gInfo" aria-label="How to play">i</button></div>
@@ -3328,8 +3331,8 @@ function updateDrop(t,dtms){const dt=Math.min(0.05,dtms/1000)*0.58,n=Math.ceil(d
   for(const b of DB.balls){if(b.done)continue;for(let k=0;k<n;k++){stepBall(b,dt/n);if(b.y>LIP_T){b.done=t;const s=b.slot!==undefined?b.slot:Math.max(0,Math.min(DW-1,Math.floor(b.x))),v=SLOTV[s]*b.m;DB.slotFx.push({s,t,big:s===3});DCAT.t0=t;DCAT.big=s===3;awardDrop(v,dX+(s+0.5)*dS,dY+(CUP_T-0.2)*dS);if(s===3)bigWinFx('BIG WIN!',dX+(s+0.5)*dS,dY+(CUP_T-0.2)*dS);else sfx.piece(Math.min(8,Math.round(v/b.m/10)));break;}}}
   DB.balls=DB.balls.filter(b=>!b.done||t-b.done<400);DB.slotFx=DB.slotFx.filter(f=>t-f.t<(f.big?1800:700));}
 const mcEl=()=>drawDropCat.el||(drawDropCat.el=document.querySelector('#mTop .mcoins'));
-function drawDropCat(t,dsh){const el=mcEl();if(!el)return;const b=el.getBoundingClientRect();if(!b.width)return;const CS=dCatState(t),cr=Math.min(22,Math.max(15,dS*0.48)),k=cr/(dS*0.62);
-  paintCatFace(ctx,b.right+cr*1.05+4,b.top+b.height/2-dsh+cr*0.12+CS.oy*k,cr,{smile:CS.sm,blink:CS.bl,lx:CS.lx+CS.yaw*0.5,ly:CS.ly,tilt:CS.tl,yaw:CS.yaw,tux:1});}
+function drawDropCat(t){const c=$('dcatC'),g2=c.getContext('2d'),CS=dCatState(t),cr=21,k=cr/(dS*0.62);g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,56,60);
+  paintCatFace(g2,28,36+CS.oy*k*0.6,cr,{smile:CS.sm,blink:CS.bl,lx:CS.lx+CS.yaw*0.5,ly:CS.ly,tilt:CS.tl,yaw:CS.yaw,tux:1});}
 function drawDrop(t){
   const m=dMult(),fx0=dX-dS*0.42,fw=DW*dS+dS*0.84,top=dY-2.5*dS,fy0=top+0.85*dS,fh=dY+DH*dS+dS*0.4-fy0;
   // cabinet
@@ -4126,7 +4129,7 @@ function frame(t){
   if(hubZ!==null&&hubZt!==null)hubZ+=(hubZt-hubZ)*0.12;
   const fdt=Math.min(60,t-(frame.lt||t));frame.lt=t;if(L.drop>0.01)updateDrop(t,fdt);
   const dsh=(1-L.drop)*H*0.95;
-  if(L.drop>0.01){ctx.save();ctx.translate(0,dsh);drawShore(t,dY+DH*dS+dS*0.6,dS*0.9);drawDrop(t);drawDropCat(t,dsh);drawFx(t,'drop',dsh);ctx.restore();}else drawFx(t,'drop',dsh);
+  if(L.drop>0.01){ctx.save();ctx.translate(0,dsh);drawShore(t,dY+DH*dS+dS*0.6,dS*0.9);drawDrop(t);drawDropCat(t);drawFx(t,'drop',dsh);ctx.restore();}else drawFx(t,'drop',dsh);
   renderPedestal(t);
   const psh=(1-L.pour)*H*0.95;
   if(L.pour>0.01&&PG){ctx.save();ctx.translate(0,psh);drawShore(t,PG.bottom+4,PG.bw*0.8);drawPour(t);drawFx(t,'pour',psh);ctx.restore();}else drawFx(t,'pour',psh);
@@ -4137,7 +4140,7 @@ function frame(t){
   else drawFx(t,'block',shift);
   if(mode==='build'&&!trans)vT+=((isDone(save.current)?1:0)-vT)*0.05;document.body.classList.toggle('viewing',vT>0.5);
   if(vT<0.98)drawWheel(t,(1-L.build)*H*0.7+vT*H*0.75);
-  if(L.build>0.02&&vT<0.5){const el=drawWheelCat.el||(drawWheelCat.el=document.querySelector('.mwrap .mlabel'));if(el){const b=el.getBoundingClientRect();if(b.width){const WS=wCatState(t),wr=21;ctx.save();ctx.globalAlpha=Math.min(1,L.build)*(1-vT*2);paintCatFace(ctx,b.left+b.width/2,b.top-wr*0.95+WS.oy*wr*0.5,wr,{smile:WS.sm,blink:WS.bl,lx:WS.lx+WS.yaw*0.5,ly:WS.ly,tilt:WS.tl,yaw:WS.yaw,tab:1});ctx.restore();}}}
+  if(L.build>0.01){const c=$('wcatC'),g2=c.getContext('2d'),WS=wCatState(t),wr=21;g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,56,60);paintCatFace(g2,28,34+WS.oy*wr*0.5,wr,{smile:WS.sm,blink:WS.bl,lx:WS.lx+WS.yaw*0.5,ly:WS.ly,tilt:WS.tl,yaw:WS.yaw,tab:1});}
   drawFx(t,'top',0);
   updateLabels();updateHud();
   {const ph=(t%5000)/5000,k=ph<0.3?Math.pow(Math.sin(ph/0.3*Math.PI),1.5):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.06*k).toFixed(3));j.style.setProperty('--glow',(0.35*k).toFixed(3));shimmerCoins(t);
@@ -4153,8 +4156,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795062073';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795062073'/);
+const BUILD='1795062386';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795062386'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
