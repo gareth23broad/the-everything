@@ -3311,7 +3311,7 @@ function layoutDrop(){const sm=H<760;document.body.classList.toggle('dsmall',sm)
   const mt=$('mTop');mt.style.top=(top+1.17*dS)+'px';mt.style.left=(dX-dS*0.1)+'px';mt.style.width=(DW*dS+dS*0.2)+'px';mt.style.height=(0.98*dS)+'px';
   $('dcost').style.display=dS<30?'none':'';}
 function dropTarget(){const av=keepsAvailable();if(!av.length)return null;const t=save.prizeTarget;if(t&&av.some(a=>a.id===t.id&&a.k===t.k))return t;return av[0];}
-function dropBall(x){if(DB.balls.some(b=>!b.done))return;
+function dropBall(x){if(DB.balls.some(b=>!b.done))return;if(moonOpen()){toast('Every keepsake is yours ✦ The Prize Drop is resting',2600);return;}
   const m=dMult(),cost=m;if(save.pearls<cost){toast('Out of coins · solve a puzzle to earn more',2200);return;}
   const now_=performance.now();if(now_-DB.last<180)return;DB.last=now_;
   let ci=0,bd=1e9;DWORLD.chutes.forEach((c,i)=>{const d=Math.abs(dX+c*dS-x);if(d<bd){bd=d;ci=i;}});
@@ -3595,7 +3595,7 @@ function startGate(id){
   if(WMAP[id].mega){newPour(id);if(go('pour'))setTimeout(()=>toast('Sort the colours to lift the mist',2400),2700);return;}newLevel(Math.min(3,WORLDS.findIndex(w=>w.id===id)+1));
   if(go('block')){const t=performance.now();trayBorn=[t+2300,t+2400,t+2500];setTimeout(()=>toast('Clear the sea glass to lift the mist',2200),2700);}
 }
-function goDrop(){if(trans||spin)return;if(!dropUnlocked()){toast('Finish an island to open the Prize Drop',2200);return;}refreshPedestal();updateDropHud();go('drop');}
+function goDrop(){if(trans||spin)return;if(!dropUnlocked()){toast('Finish an island to open the Prize Drop',2200);return;}if(moonOpen()){toast('Every keepsake is yours ✦ The Prize Drop is resting',2600);return;}refreshPedestal();updateDropHud();go('drop');}
 function dropSummary(){const S=DB.sess;if(!S.drops)return;const p=save.dropPts||0,tg=dropTarget();
   $('sKick').textContent=S.won.length?'You won':'Nothing won this time';{const cnt=new Map();S.won.forEach(w=>cnt.set(w,(cnt.get(w)||0)+1));const L2=[...cnt].map(([w,c])=>c>1?w+' ×'+c:w);$('sTitle').textContent=!L2.length?'So close!':L2.length>4?L2.slice(0,4).join(', ')+' & '+(L2.length-4)+' more':L2.join(' & ');}
   $('sText').textContent=(S.won.length?'Your keepsakes are glowing on their islands. ':'')+`You dropped ${S.drops} coin${S.drops>1?'s':''}. You’re ${p} / ${PRIZE_PTS} towards ${tg?'the '+KEEPS[tg.id][tg.k].name.toLowerCase():'your next prize'}.`;
@@ -3777,7 +3777,7 @@ function updateLabels(){
         const ex=tx-p0.x,ey=ty-p0.y;bx+=(ex*by-ey*bx2)/det;bz+=(ax*ey-ay*ex)/det;}
       bTarget={x:bx,z:bz};}
     dl.style.transform=`translate(${placeDrop.cx.toFixed(1)}px,${placeDrop.cy.toFixed(1)}px) translate(-50%,0)`;dl.style.opacity=op;
-    dl.classList.toggle('lock',!dropUnlocked());$('dropSub').textContent=dropUnlocked()?'Win keepsakes':'Finish an island';
+    dl.classList.toggle('lock',!dropUnlocked()||moonOpen());$('dropSub').textContent=moonOpen()?'All prizes won ✓':dropUnlocked()?'Win keepsakes':'Finish an island';
     const bb=$('dropBubble'),bw_=Math.min(210,bb.offsetWidth||210),bx=Math.max(10,Math.min(W-bw_-10,placeDrop.cx-bw_/2));bb.style.transform=`translate(${bx.toFixed(1)}px,${(placeDrop.cy-58).toFixed(1)}px) translate(0,-100%)`;
     if(!bubbleShown&&mode==='hub'&&!trans&&save.pearls>=500&&dropUnlocked()){bubbleShown=true;bb.classList.add('show');setTimeout(()=>bb.classList.remove('show'),7000);}}
   for(const id in labelEls){
@@ -4157,8 +4157,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795126933';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795126933'/);
+const BUILD='1795127160';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795127160'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
