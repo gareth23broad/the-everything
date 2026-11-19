@@ -3597,7 +3597,7 @@ function startGate(id){
 }
 function goDrop(){if(trans||spin)return;if(!dropUnlocked()){toast('Finish an island to open the Prize Drop',2200);return;}refreshPedestal();updateDropHud();go('drop');}
 function dropSummary(){const S=DB.sess;if(!S.drops)return;const p=save.dropPts||0,tg=dropTarget();
-  $('sKick').textContent=S.won.length?'You won':'Nothing won this time';$('sTitle').textContent=S.won.length?S.won.join(' & '):'So close!';
+  $('sKick').textContent=S.won.length?'You won':'Nothing won this time';{const cnt=new Map();S.won.forEach(w=>cnt.set(w,(cnt.get(w)||0)+1));const L2=[...cnt].map(([w,c])=>c>1?w+' ×'+c:w);$('sTitle').textContent=!L2.length?'So close!':L2.length>4?L2.slice(0,4).join(', ')+' & '+(L2.length-4)+' more':L2.join(' & ');}
   $('sText').textContent=(S.won.length?'Your keepsakes are glowing on their islands. ':'')+`You dropped ${S.drops} coin${S.drops>1?'s':''}. You’re ${p} / ${PRIZE_PTS} towards ${tg?'the '+KEEPS[tg.id][tg.k].name.toLowerCase():'your next prize'}.`;
   const kp=S.keeps||[];sumKeep=kp.length?kp[kp.length-1]:null;$('sSee').style.display=sumKeep?'':'none';$('sOk').textContent=sumKeep?'Back to the map':'Lovely';$('sOk').classList.toggle('soft',!!sumKeep);
   if(sumKeep)$('sText').textContent=(kp.length>1?'They’re':'It’s')+' now glowing on '+(new Set(kp.map(k=>WMAP[k.id].name)).size>1?'their islands':WMAP[sumKeep.id].name)+`. You dropped ${S.drops} coin${S.drops>1?'s':''}.`;
@@ -4157,8 +4157,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795123156';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795123156'/);
+const BUILD='1795126933';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795126933'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
