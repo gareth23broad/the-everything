@@ -24,6 +24,7 @@ canvas#gl{z-index:0}canvas#c{z-index:1}
 #hud{position:fixed;left:0;right:0;top:0;z-index:2;padding:calc(env(safe-area-inset-top) + 12px) 16px 0;display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .top{width:min(100%,460px);display:flex;align-items:center;justify-content:space-between}
 .hx{margin-left:5px;font-size:.85em;color:#c8962a}#hint.spent{opacity:.42;filter:grayscale(1);pointer-events:none}
+.pNeed{color:#d9707a;font-weight:700;font-size:13px;margin:-4px 0 6px;min-height:1px}
 .lgrp{display:flex;gap:8px;align-items:center;min-width:100px}
 #worldBtn{width:46px;height:46px;padding:0;display:none;align-items:center;justify-content:center;border:1px solid rgba(233,215,255,.9);background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.9) 0 1px,transparent 1.5px),radial-gradient(circle at 22% 70%,rgba(255,255,255,.8) 0 .8px,transparent 1.3px),radial-gradient(circle at 80% 78%,rgba(255,230,250,.8) 0 .8px,transparent 1.3px),radial-gradient(circle at 40% 35%,#6b4fb8,#2e2470 70%,#1d1650);box-shadow:0 6px 16px rgba(60,40,140,.35),0 0 0 2px rgba(190,160,255,.25)}
 #worldBtn svg{width:30px;height:30px}
@@ -324,7 +325,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div class="card" id="pcard"><div class="inner">
   <div class="kicker">On the map</div>
   <h1>Your marker</h1>
-  <p>Pick a name and an icon. Everyone playing will see which island you’re on.</p>
+  <p>Pick a name and an icon. Everyone playing will see which island you’re on.</p><p class="pNeed" id="pNeed"></p>
   <input id="pName" maxlength="16" placeholder="Your name" autocomplete="off">
   <div id="pIcons"></div>
   <button class="btn" id="pSave">Save my marker</button>
@@ -3182,14 +3183,14 @@ function placeMarkers(op){const box=$('players');box.style.opacity=op;box.style.
     let x=s.x-(arr.length-1)*0.5*78;arr.forEach((p,i)=>{const e=MK.els[p.id];if(!e)return;const bw=e.offsetWidth||70;
       e.style.transform=`translate(${(x+i*78-bw/2).toFixed(1)}px,${(s.y-46+Math.sin(t*0.0015+i)*2.5).toFixed(1)}px)`;});}
 
-  if(mode==='hub'&&!trans&&op>0.98&&!save.me&&!save.meSkip&&!MK.asked&&!document.querySelector('.card.show')&&!GR.on){MK.asked=true;setTimeout(()=>{if(mode==='hub'&&!document.querySelector('.card.show'))openMarker();},1200);}}
+  if(mode==='hub'&&!trans&&op>0.98&&!save.me&&!MK.asked&&!document.querySelector('.card.show')&&!GR.on){MK.asked=true;setTimeout(()=>{if(mode==='hub'&&!document.querySelector('.card.show')&&!save.me)openMarker();else MK.asked=false;},1200);}}
 try{const c=JSON.parse(localStorage.getItem('mkCache')||'[]');if(Array.isArray(c)){MK.list=c.filter(p=>WMAP[p.island]);setTimeout(drawMarkers,0);}}catch(_){}
 function openMarker(){$('pName').value=save.me?save.me.name:'';MK.pick=save.me?save.me.icon:'paw';
   const box=$('pIcons');if(!box.children.length)PICONS.forEach(k=>{const b=document.createElement('button');b.dataset.k=k;const c=document.createElement('canvas');b.appendChild(c);box.appendChild(b);
     b.addEventListener('click',()=>{MK.pick=k;[...box.children].forEach(x=>x.classList.toggle('on',x.dataset.k===k));sfx.pick();});
     requestAnimationFrame(()=>{const d=Math.min(devicePixelRatio||1,3);c.width=c.height=34*d;const g=c.getContext('2d');g.scale(d,d);paintPiece(g,k,17,17.5,12.5);});});
-  [...box.children].forEach(x=>x.classList.toggle('on',x.dataset.k===MK.pick));$('pcard').classList.add('show');}
-$('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pName').focus();return;}
+  [...box.children].forEach(x=>x.classList.toggle('on',x.dataset.k===MK.pick));$('pSkip').style.display=save.me?'':'none';$('pSkip').textContent='Cancel';$('pcard').classList.add('show');}
+$('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pNeed').textContent='Please type a name to continue';$('pName').focus();return;}$('pNeed').textContent='';
   save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();syncMarkers(true);toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
 $('lmap').addEventListener('click',()=>{audio.wake();goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
@@ -3197,7 +3198,7 @@ $('failRetry').addEventListener('click',()=>{audio.wake();sfx.pick();retryLogic(
 $('share').addEventListener('click',async()=>{audio.wake();sfx.pick();const url='https://gareth23broad.github.io/the-everything/',data={title:'The Everything',text:'Come build islands with me in The Everything 🏝️',url};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}
   try{await navigator.clipboard.writeText(url);toast('Link copied · paste it to share',2200);}catch(_){toast(url,4000);}});
-$('pSkip').addEventListener('click',()=>{save.meSkip=true;persist();$('pcard').classList.remove('show');$('pName').blur();toast('Add a marker any time from How to play',2400);});
+$('pSkip').addEventListener('click',()=>{if(!save.me)return;$('pcard').classList.remove('show');$('pName').blur();});
 function selectWorld(id){
   if(trans||mode!=='hub')return;
   if(!WMAP[id]){toast('More islands are coming soon',1800);return;}
@@ -3623,8 +3624,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795048990';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795048990'/);
+const BUILD='1795049074';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795049074'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=sessionStorage.getItem('upd')||'';}catch(_){}if(tried===m[1])return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{sessionStorage.setItem('upd',m[1]);}catch(_){}location.replace(location.pathname+'?v='+m[1]+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
