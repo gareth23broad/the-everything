@@ -3359,18 +3359,21 @@ function hint(){
   const why=i=>st[i]===2?'piece':rowHas[R(i)]?'row':colHas[C(i)]?'col':regHas[K(i)]?'reg':touches(i)?'touch':null;
   const cand=[];for(let i=0;i<n*n;i++)if(!why(i))cand.push(i);
   const tapNote=i=>' — double tap it to place the '+P;
-  for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);
-    if(cs.length===1)return showHint(cs,'place',`This is the only square left in the ${nm(k)} area that can hold a ${P}${tapNote(cs[0])}.`);}
-  for(let r=0;r<n;r++){if(rowHas[r])continue;const cs=cand.filter(i=>R(i)===r);
-    if(cs.length===1)return showHint(cs,'place',`Every other square in this row is ruled out, so the ${P} for this row goes here${tapNote(cs[0])}.`);}
-  for(let c=0;c<n;c++){if(colHas[c])continue;const cs=cand.filter(i=>C(i)===c);
-    if(cs.length===1)return showHint(cs,'place',`Every other square in this column is ruled out, so the ${P} for this column goes here${tapNote(cs[0])}.`);}
+  {const blocks=(i,k)=>!cand.some(j=>K(j)===k&&j!==i&&R(j)!==R(i)&&C(j)!==C(i)&&!(Math.abs(R(j)-R(i))<=1&&Math.abs(C(j)-C(i))<=1));
+    for(let k=0;k<n;k++){if(regHas[k]||!cand.some(j=>K(j)===k))continue;const o=cand.filter(i=>st[i]===0&&K(i)!==k&&blocks(i,k));
+      if(o.length)return showHint(o,'x',o.length===1?`A ${P} here would block every square of the ${nm(k)} area, leaving it with nowhere to go — so this one is an X.`:`A ${P} on any of these squares would block every square of the ${nm(k)} area, leaving it with nowhere to go — so they’re all X’s.`);}}
   for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);if(!cs.length)continue;
     const rows=new Set(cs.map(R)),cols=new Set(cs.map(C));
     if(rows.size===1){const r=cs[0]/n|0,o=cand.filter(i=>R(i)===r&&K(i)!==k&&st[i]===0);
       if(o.length)return showHint(o,'x',`The ${nm(k)} area can only fit its ${P} in this row — so the row’s ${P} must be ${nm(k)}, and these other squares in the row can be X’d.`);}
     if(cols.size===1){const c=cs[0]%n,o=cand.filter(i=>C(i)===c&&K(i)!==k&&st[i]===0);
       if(o.length)return showHint(o,'x',`The ${nm(k)} area can only fit its ${P} in this column — so these other squares in the column can be X’d.`);}}
+  for(let k=0;k<n;k++){if(regHas[k])continue;const cs=cand.filter(i=>K(i)===k);
+    if(cs.length===1)return showHint(cs,'place',`This is the only square left in the ${nm(k)} area that can hold a ${P}${tapNote(cs[0])}.`);}
+  for(let r=0;r<n;r++){if(rowHas[r])continue;const cs=cand.filter(i=>R(i)===r);
+    if(cs.length===1)return showHint(cs,'place',`Every other square in this row is ruled out, so the ${P} for this row goes here${tapNote(cs[0])}.`);}
+  for(let c=0;c<n;c++){if(colHas[c])continue;const cs=cand.filter(i=>C(i)===c);
+    if(cs.length===1)return showHint(cs,'place',`Every other square in this column is ruled out, so the ${P} for this column goes here${tapNote(cs[0])}.`);}
   {const groups={row:[],col:[],reg:[],touch:[]};for(let i=0;i<n*n;i++){if(st[i]!==0)continue;const w=why(i);if(w&&groups[w])groups[w].push(i);}
     const pick=(g,txt)=>{if(!groups[g].length)return false;const first=groups[g][0];let cells=groups[g];
       if(g==='row')cells=cells.filter(i=>R(i)===R(first));else if(g==='col')cells=cells.filter(i=>C(i)===C(first));else if(g==='reg')cells=cells.filter(i=>K(i)===K(first));
@@ -3379,9 +3382,6 @@ function hint(){
     if(pick('row',()=>`This row already has its ${P}, so the rest of the row can be X’d.`))return;
     if(pick('col',()=>`This column already has its ${P}, so the rest of the column can be X’d.`))return;
     if(pick('reg',f=>`The ${nm(K(f))} area already has its ${P}, so the rest of it can be X’d.`))return;}
-  for(const i of cand){if(st[i]!==0)continue;
-    for(let k=0;k<n;k++){if(regHas[k]||k===K(i))continue;const left=cand.filter(j=>K(j)===k&&j!==i&&R(j)!==R(i)&&C(j)!==C(i)&&!(Math.abs(R(j)-R(i))<=1&&Math.abs(C(j)-C(i))<=1));
-      if(!left.length)return showHint([i],'x',`A ${P} here would block every square of the ${nm(k)} area, leaving it with nowhere to go — so this one is an X.`);}}
   let best=null;for(let r=0;r<n;r++){const i=r*n+LG.sol[r];if(st[i]===2)continue;const k=K(i),sz=cand.filter(j=>K(j)===k).length;if(!best||sz<best.sz)best={i,sz,k};}
   if(best)showHint([best.i],'place',`This one takes a few steps of thinking, so here’s a little peek: the ${nm(best.k)} area’s ${P} belongs here${tapNote(best.i)}.`);
 }
@@ -4623,8 +4623,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795198839';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795198839'/);
+const BUILD='1795199121';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795199121'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
