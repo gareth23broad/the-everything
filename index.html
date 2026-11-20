@@ -196,6 +196,7 @@ body:not([data-mode=build]) #bottom .pill{pointer-events:none}
 .catC{position:absolute;width:56px;height:60px;pointer-events:none}
 .mwrap .catC{bottom:100%;left:50%;margin-left:-28px;margin-bottom:-6px}
 .mcoins{position:relative}.mcoins canvas.catC{width:56px;height:60px;left:100%;top:50%;margin-top:-32px;margin-left:2px}
+#mCoins{display:inline-block;min-width:3.4em;font-variant-numeric:tabular-nums}
 .mlabel{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#4f6683;text-shadow:0 1px 6px rgba(255,255,255,.8)}
 #bottom{align-items:flex-end}
 body.viewing #bottom .mwrap{opacity:0;pointer-events:none}
@@ -4643,8 +4644,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795210841';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795210841'/);
+const BUILD='1795211304';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795211304'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
