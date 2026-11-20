@@ -170,8 +170,8 @@ body[data-mode=logic] #tools .pill{pointer-events:auto}
 #cont{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);z-index:2;transform:translate(-50%,24px);display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 40px 9px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(214,240,236,.95));opacity:0;pointer-events:none;transition:opacity .6s ease .4s,transform .8s ease .4s}
 body[data-mode=hub] #cont{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #cont .ct{font-size:19px;color:#25596a}
-#bonus{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:2;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:1px;padding:7px 26px 6px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,236,214,.95))}
-#bonus .ct{font-size:16px;color:#8a5a2a;font-weight:800}#bonus .cs{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#a08a70}
+#bonus{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:2;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:1px;padding:7px 30px 6px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(214,240,236,.95))}
+#bonus .ct{font-size:16px;color:#25596a;font-weight:800}#bonus .cs{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7a8aa3}
 body[data-mode=hub].allbuilt:not(.grabbing) #bonus{display:flex}
 .tpz{display:inline-block;margin-top:8px;padding:8px 18px;font:inherit;font-size:15px;border:0;pointer-events:auto;cursor:pointer;border-radius:999px;background:linear-gradient(180deg,#ffd27a,#f2a83a);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(242,168,58,.35)}
 #toast:not(.show) .tpz{pointer-events:none}
@@ -326,7 +326,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div id="dropBubble">You’ve got coins to spare — try the Prize Drop!</div>
 <div id="ptools"><button id="pUndo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button><button id="pRestart" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e98c80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button></div>
 <div id="tools"><button id="reveal" class="pill"><canvas id="rvC" width="56" height="56"></canvas>Reveal<span class="hx rx">×1</span></button><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint<span class="hx">×4</span></button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
-<button id="bonus" class="pill"><span class="ct">🧩 Bonus puzzle</span><span class="cs">Earn more coins</span></button><button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
+<button id="bonus" class="pill"><span class="ct">Puzzle</span><span class="cs">Earn more coins</span></button><button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
 
 <button id="lmap" class="pill">‹ Map</button>
 <button id="visit" class="pill"><span id="visitIco" style="display:flex"></span><span id="visitTxt">Lighthouse</span><span class="arr">›</span></button>
@@ -3747,7 +3747,7 @@ function layoutDrop(){const sm=H<760;document.body.classList.toggle('dsmall',sm)
 const dropBusy=()=>{const act=DB.balls.filter(b=>!b.done);return act.length>=2||act.some(b=>b.y<DH*0.68);};
 function dropTarget(){const av=keepsAvailable();if(!av.length)return null;const t=save.prizeTarget;if(t&&av.some(a=>a.id===t.id&&a.k===t.k))return t;return av[0];}
 function dropBall(x){if(dropBusy())return;if(moonOpen()){toast('Every keepsake is yours ✦ The Prize Drop is resting',2600);return;}
-  const m=dMult(),cost=m;if(save.pearls<cost){toast('Out of coins · solve a puzzle to earn more',4500,'Out of coins<br><button class="tpz">🧩 Play a puzzle</button>');return;}
+  const m=dMult(),cost=m;if(save.pearls<cost){toast('Out of coins · solve a puzzle to earn more',4500,'Out of coins<br><button class="tpz">Play a puzzle</button>');return;}
   const now_=performance.now();if(now_-DB.last<180)return;DB.last=now_;
   let ci=0,bd=1e9;DWORLD.chutes.forEach((c,i)=>{const d=Math.abs(dX+c*dS-x);if(d<bd){bd=d;ci=i;}});
   save.pearls-=cost;dPearls-=cost;persist();updateHud(true);DB.sess.drops++;DB.sess.spent+=cost;
@@ -4652,7 +4652,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795218924';
+const BUILD='1795219003';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
