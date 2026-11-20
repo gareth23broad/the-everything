@@ -533,7 +533,9 @@ try{
 const W_=()=>WMAP[save.current],B=()=>save.builds[save.current],NS=id=>WMAP[id].stages.length,NSC=()=>W_().stages.length;
 ['stage','pts','level'].forEach(k=>Object.defineProperty(save,k,{enumerable:false,get:()=>B()[k],set:v=>{B()[k]=v;}}));
 WORLDS.forEach((w,i)=>{if(i>0&&(save.builds[w.id].stage>0||save.builds[w.id].pts>0))save.gates[w.id]=true;});
-const prevDone=id=>{const i=WORLDS.findIndex(w=>w.id===id);return i===0||save.builds[WORLDS[i-1].id].stage>=NS(WORLDS[i-1].id);};
+const KEEP_NEED=40,regionKeeps=r=>regWorlds(r).reduce((n,w)=>n+keepsOwned(w.id).length,0);
+const keepLock=id=>{const w=WMAP[id],r=REG(w);if(r<=1||save.gates[id])return false;const f=regWorlds(r)[0];if(!f||f.id!==id)return false;return regionKeeps(r-1)<KEEP_NEED;};
+const prevDone=id=>{const i=WORLDS.findIndex(w=>w.id===id);if(i===0)return true;if(save.builds[WORLDS[i-1].id].stage<NS(WORLDS[i-1].id))return false;return !keepLock(id);};
 const unlocked=id=>{const i=WORLDS.findIndex(w=>w.id===id);return i===0||(prevDone(id)&&!!save.gates[id]);};
 const gateOpen=id=>!unlocked(id)&&prevDone(id);
 const isDone=id=>save.builds[id].stage>=NS(id);
@@ -2631,7 +2633,7 @@ function updateWorldLabels(){{const b=$('sunBub');if(L.world<0.9)b.classList.rem
     let name,sub,cls='';const RG=REGIONS[r]&&regWorlds(r).length?REGIONS[r]:null;
     if(!RG){name='Coming soon';sub='A new world is forming';cls='lock';}
     else{const p=regionProgress(r),first=regWorlds(r)[0];
-      if(!unlocked(first.id)&&!gateOpen(first.id)){name=RG.name;sub='Finish '+REGIONS[r-1].name;cls='lock';}
+      if(!unlocked(first.id)&&!gateOpen(first.id)){const pd=regionProgress(r-1);name=RG.name;sub=(pd.done>=pd.n&&keepLock(first.id))?'🔒 '+Math.min(regionKeeps(r-1),KEEP_NEED)+' / '+KEEP_NEED+' keepsakes':'Finish '+REGIONS[r-1].name;cls='lock';}
       else if(gateOpen(first.id)){name='✦ '+RG.name;sub='New world · tap to visit';cls='new';}
       else{name=RG.name;sub=p.done>=p.n?'All '+p.n+' islands ✓':p.done+' of '+p.n+' islands';if(r===VR)cls='cur';}}
     const txt=name+'|'+sub+'|'+cls;if(e.dataset.t!==txt){e.dataset.t=txt;e.querySelector('b').textContent=name;e.querySelector('span').textContent=sub;e.className='wlabel pill '+cls;}}}
@@ -2657,7 +2659,7 @@ function placeCrownKeep(I,anim){if(I.crownKeep)return;const d={name:'Golden crow
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:'#ffe08a',transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.8}));halo.scale.set(3,3,1);halo.position.y=0.5;g.add(halo);g.userData={keep:d,halo,base:g.position.clone(),t0:performance.now(),animate:anim};I.g.add(g);(I.keeps=I.keeps||[]).push(g);I.crownKeep=g;}
 function pickRegion(r){if(trans||mode!=='world')return;const RG=REGIONS[r]&&regWorlds(r).length?REGIONS[r]:null;
   if(!RG){sfx.pick();toast('More worlds are on their way',2000);return;}
-  const first=regWorlds(r)[0];if(!unlocked(first.id)&&!gateOpen(first.id)){toast('Finish '+REGIONS[r-1].name+' to reach this world',2200);return;}
+  const first=regWorlds(r)[0];if(!unlocked(first.id)&&!gateOpen(first.id)){const pd=regionProgress(r-1);if(pd.done>=pd.n&&keepLock(first.id))toast('Collect '+KEEP_NEED+' keepsakes in '+REGIONS[r-1].name+' to reach this world · '+regionKeeps(r-1)+' / '+KEEP_NEED,3000);else toast('Finish '+REGIONS[r-1].name+' to reach this world',2200);return;}
   sfx.pick();UNI.st.r=r;goHubRegion(r);}
 function goHubRegion(r){if(trans)return;UNI.st.r=r;go('hub',{region:r,dur:2600,done:()=>{const f=regWorlds(r)[0];if(gateOpen(f.id))setTimeout(()=>toast('Tap the misty island to begin',2400),400);}});}
 function openWorld(){if(trans||(mode!=='hub'&&mode!=='build'))return;if(!worldOpen()){toast('Finish all 20 islands of the bay to open the universe',2400);return;}
@@ -3759,7 +3761,7 @@ function selectWorld(id){
   if(trans||mode!=='hub')return;
   if(!WMAP[id]){toast('More islands are coming soon',1800);return;}
   if(gateOpen(id)){sfx.pick();if(WMAP[id].mega)startGate(id);else startGrab(id);return;}
-  if(!unlocked(id)){const i=WORLDS.findIndex(w=>w.id===id);toast('Finish '+WORLDS[i-1].name.toLowerCase()+' to open this island',2200);return;}
+  if(!unlocked(id)){const i=WORLDS.findIndex(w=>w.id===id);if(keepLock(id)){const r=REG(WMAP[id]);toast('Collect '+KEEP_NEED+' keepsakes in '+REGIONS[r-1].name+' to open this world · '+regionKeeps(r-1)+' / '+KEEP_NEED,3000);return;}toast('Finish '+WORLDS[i-1].name.toLowerCase()+' to open this island',2200);return;}
   if(save.current!==id){save.current=id;persist();dStage=save.stage;dPts=save.pts;}
   sfx.pick();zoomHint();go('build',{done:arriveBuild});
 }
@@ -4183,8 +4185,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795147428';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795147428'/);
+const BUILD='1795147926';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795147926'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
