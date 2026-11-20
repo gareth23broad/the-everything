@@ -4113,7 +4113,7 @@ function grabLoop(now){if(!GR.on)return;const dt=Math.min(0.05,(now-GR.last)/100
       for(let j=0;j<6;j++){const a=j/6*Math.PI*2+f.a;gx.fillStyle='#fff8dc';gx.beginPath();gx.arc(f.x+Math.cos(a)*f.r*(0.6+k*1.6),f.y+Math.sin(a)*f.r*(0.6+k*1.6),3.2*(1-k),0,7);gx.fill();}gx.restore();}
     else{gx.save();gx.globalAlpha=1-k*k;gx.font=`800 ${26}px Quicksand,ui-rounded,system-ui,sans-serif`;gx.textAlign='center';gx.fillStyle='#fff';gx.shadowColor='rgba(170,110,30,.6)';gx.shadowBlur=8;gx.fillText('+1',f.x,f.y-k*50);gx.restore();}}
   requestAnimationFrame(grabLoop);}
-function grabAt(x,y){if(!GR.on||GR.phase==='ready'||GR.fin)return;let best=null,bd=1e9;for(const c of GR.coins){const d=Math.hypot(c.x-x,c.y+c.vy*0.03-y);if(d<c.r*1.9&&d<bd){bd=d;best=c;}}
+function grabAt(x,y){if(!GR.on||GR.phase==='ready'||GR.fin)return;let best=null,bd=1e9;for(const c of GR.coins){const back=c.vy*0.14,dy=y>c.y?y-c.y:y<c.y-back?c.y-back-y:0,d=Math.hypot(c.x-x,dy);if(d<c.r*2.0&&d<bd){bd=d;best=c;}}
   if(!best)return;GR.coins.splice(GR.coins.indexOf(best),1);GR.n++;if(!GR.test){save.pearls++;dPearls++;persist();updateHud(true);}
   const cb=document.querySelector('#gTop .gcount canvas').getBoundingClientRect(),now=performance.now();
   GR.fx.push({type:'ring',x:best.x,y:best.y,r:best.r,t0:now,dur:450,a:Math.random()*6},{type:'txt',x:best.x,y:best.y-best.r,t0:now,dur:800},);GR.fly.push({g:best.g,x:best.x,y:best.y,tx:cb.left+cb.width/2,ty:cb.top+cb.height/2,r:best.r,t0:now,dur:520,q:best.q,ax:best.ax});
@@ -4623,8 +4623,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795192305';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795192305'/);
+const BUILD='1795194204';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795194204'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
