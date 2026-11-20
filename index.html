@@ -3329,7 +3329,7 @@ function tapCell(i){
   const s=LG.st[i];if(s===2)return;if(LG.hint&&LG.hint.cells.includes(i)&&LG.hint.kind==='x'&&s===0){(LG.hx=LG.hx||new Set()).add(i);LG.hint.cells=LG.hint.cells.filter(j=>j!==i);if(!LG.hint.cells.length)clearHint();}
   const t=performance.now(),lt=LG.lastTap;
   if(lt&&lt.i===i&&t-lt.t<340){LG.lastTap=null;for(let k=lt.b.length-1;k>=0;k--)LG.st[lt.b[k].i]=lt.b[k].prev;delete LG.anim[i];if(LG.hist[LG.hist.length-1]===lt.b)LG.hist.pop();placePiece(i);return;}
-  const b=[];if(s===0){setCell(i,1,b);sfx.mark();}else{setCell(i,0,b);sfx.mark(true);if(LG.hx)LG.hx.delete(i);}LG.hist.push(b);LG.lastTap={i,t,b};
+  const b=[];if(s===0){setCell(i,1,b);sfx.mark();}else{setCell(i,0,b);sfx.mark(true);}LG.hist.push(b);LG.lastTap={i,t,b};
 }
 const KITTY={bronze:{v:30,name:'BRONZE KITTY!',big:0,bursts:1,cols:['#ffd0a0','#d98a4a','#ffffff'],ring:'#b86a32',glow:'255,190,140',st:'brz'},silver:{v:100,name:'SILVER KITTY!',big:0,bursts:2,cols:['#ffffff','#d4d9e4','#eef2ff'],ring:'#9aa3b8',glow:'230,236,255',st:'silv'},gold:{v:500,name:'GOLDEN KITTY!',big:1,bursts:3,cols:['#fff3b8','#f6cf5a','#ffffff','#ffd76a'],ring:'#e0a21e',glow:'255,236,150',st:'gold'},diamond:{v:1000,name:'DIAMOND KITTY!',big:1,bursts:5,cols:['#ffffff','#c8f0ff','#9fe0ff','#ffd6f6','#fff6c0'],ring:'#7fd0ff',glow:'200,240,255',st:'dia'}};
 function placePiece(i){
@@ -3344,7 +3344,7 @@ function placePiece(i){
   const placed=lPlaced(),cs=lS/n;sfx.piece(placed);if(!LG.wrong){let vi=3;if(placed===n-1&&n>2){vi=4;voice.last=-1;}else if(placed<n){const VP=[0,1,2,6,7,8,9,11,12];do{vi=VP[Math.random()*VP.length|0];}while(vi===voice.last);voice.last=vi;}else voice.last=-1;voice.play(vi);}burst(lX+(c+0.5)*cs,lY+(r+0.5)*cs+(1-L.logic)*H*0.95,14,['#ffffff','#fff1d6',lgPal(TH().pal)[k%TH().pal.length]]);
   if(placed===n)logicWin();
 }
-function undo(){if(!LG||LG.done||!LG.hist.length)return;clearHint();const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;if(b[k].prev!==1&&LG.hx)LG.hx.delete(b[k].i);LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
+function undo(){if(!LG||LG.done||!LG.hist.length)return;clearHint();const b=LG.hist.pop();for(let k=b.length-1;k>=0;k--){LG.st[b[k].i]=b[k].prev;LG.anim[b[k].i]={t0:performance.now(),type:'undo'};}sfx.pick();}
 function updHint(){const h=LG?(LG.hints??4):3,b=$('hint');b.classList.toggle('spent',h<=0);const c=b.querySelector('.hx');if(c)c.textContent='×'+h;}
 function showHint(cells,kind,text){LG.hint={cells,kind,t0:performance.now()};LG.hints=(LG.hints??4)-1;updHint();$('hintText').textContent=text;$('hintBox').classList.add('show');document.body.classList.add('hinting');clearTimeout(showHint.t);sfx.tide();}
 function clearHint(){if(LG)LG.hint=null;$('hintBox').classList.remove('show');document.body.classList.remove('hinting');}
@@ -4393,7 +4393,7 @@ cv.addEventListener('pointerdown',e=>{
   drag={i,x:e.clientX,y:e.clientY,off:e.pointerType==='mouse'?cell*0.9:cell*2.3,t0:performance.now()};
   try{cv.setPointerCapture(e.pointerId)}catch(_){}sfx.pick();updateSnap();
 });
-function dragCell(j){if(!ld.mode)return;if(ld.mode==='mark'&&LG.st[j]===0){setCell(j,1,ld.batch);sfx.mark(true);if(LG.hint&&LG.hint.kind==='x'&&LG.hint.cells.includes(j)){(LG.hx=LG.hx||new Set()).add(j);LG.hint.cells=LG.hint.cells.filter(x=>x!==j);if(!LG.hint.cells.length)clearHint();}}else if(ld.mode==='unmark'&&LG.st[j]===1){setCell(j,0,ld.batch);if(LG.hx)LG.hx.delete(j);}}
+function dragCell(j){if(!ld.mode)return;if(ld.mode==='mark'&&LG.st[j]===0){setCell(j,1,ld.batch);sfx.mark(true);if(LG.hint&&LG.hint.kind==='x'&&LG.hint.cells.includes(j)){(LG.hx=LG.hx||new Set()).add(j);LG.hint.cells=LG.hint.cells.filter(x=>x!==j);if(!LG.hint.cells.length)clearHint();}}else if(ld.mode==='unmark'&&LG.st[j]===1){setCell(j,0,ld.batch);}}
 cv.addEventListener('pointermove',e=>{if(hubDrag){const dy=e.clientY-hubDrag.y;if(Math.abs(dy)>7||Math.abs(e.clientX-hubDrag.x)>7)hubDrag.moved=true;if(hubDrag.moved)hubZt=clampZ(hubDrag.z-dy*130/H);return;}if(ld){const j=cellAt(e.clientX,e.clientY);if(j>=0&&j!==ld.last){if(!ld.moved){ld.moved=true;dragCell(ld.start);}dragCell(j);ld.last=j;}return;}if(!drag)return;drag.x=e.clientX;drag.y=e.clientY;updateSnap();});
 cv.addEventListener('pointerup',e=>{if(hubDrag){const hd=hubDrag;hubDrag=null;if(!hd.moved){let best=null,bd=90;for(const id in labelEls){if(WMAP[id]&&REG(WMAP[id])!==VR)continue;const o=labelEls[id],s2=toScreen(o.pos[0],2,o.pos[1]),d2=Math.hypot(s2.x-e.clientX,s2.y-e.clientY);if(d2<bd){bd=d2;best=id;}}if(best)selectWorld(best);}return;}if(ld){if(!ld.moved)tapCell(ld.start);else if(ld.batch.length)LG.hist.push(ld.batch);ld=null;return;}if(!drag)return;if(snap)place(drag.i,snap.r,snap.c);else trayBorn[drag.i]=performance.now()-120;drag=snap=hi=null;});
 cv.addEventListener('pointercancel',()=>{drag=snap=hi=null;if(ld&&ld.batch.length)LG.hist.push(ld.batch);ld=null;});
@@ -4623,8 +4623,8 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795192222';
-async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795192222'/);
+const BUILD='1795192305';
+async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='1795192305'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate();});setTimeout(checkUpdate,4000);setInterval(()=>{if(document.visibilityState==='visible')checkUpdate();},180000);
