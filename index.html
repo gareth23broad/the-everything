@@ -42,7 +42,7 @@ body[data-mode=world] #map{display:none}
 .wlabel.lock{opacity:.6}
 .wlabel.wNav span{display:none}.wlabel.wNav{padding:8px 14px;background:rgba(255,143,192,.5);border-color:rgba(255,214,232,.8)}.wlabel.moonL.lock{opacity:.85}
 #worldHud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top) + 66px);z-index:2;text-align:center;pointer-events:none;opacity:0}
-.whT{font-size:30px;font-weight:700;color:#fff;text-shadow:0 2px 18px rgba(180,150,255,.7)}.whS{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#d9cff5;margin-top:2px}
+.whT{font-size:30px;font-weight:700;color:#fff;text-shadow:0 2px 18px rgba(180,150,255,.7)}.whS{font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;margin-top:3px;text-shadow:0 1px 3px rgba(40,20,90,.85),0 0 12px rgba(150,120,255,.7)}
 #sunBub{position:fixed;left:0;top:0;z-index:3;pointer-events:none;padding:9px 16px;border-radius:18px;background:#fffaf0;color:#6a3a20;font-weight:700;font-size:15px;white-space:nowrap;box-shadow:0 8px 24px rgba(20,10,60,.35);opacity:0;transition:opacity .35s}
 #sunBub::after{content:'';position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:#fffaf0}
 #sunBub.show{opacity:1}#sunBub.gold{background:linear-gradient(180deg,#fff6d0,#ffe08a);color:#7a4a10;font-size:18px;padding:11px 20px;box-shadow:0 0 0 2px #f2cf6a,0 10px 30px rgba(220,170,60,.45)}#sunBub.gold::after{border-top-color:#ffe8a0}
@@ -3044,8 +3044,8 @@ rays.material.rotation=t*0.00005;rays2.material.rotation=-t*0.00003;halo.materia
     cam.position.copy(P.pos);cam.lookAt(P.tgt);sun.lookAt(cam.position);{const bo=(t-A.bounce)/700,bb=bo>=0&&bo<1?Math.sin(bo*Math.PI)*0.08:0;sun.rotateY(F.lx*0.28);sun.rotateX(F.ly*0.16);sun.rotateZ(Math.sin(t*0.0007)*0.09+(bo>=0&&bo<1?Math.sin(bo*Math.PI*2)*0.1:0));sun.scale.setScalar(1+0.012*Math.sin(t*0.0012)+bb);}fill.position.copy(cam.position);
     cam.aspect=W/H;cam.updateProjectionMatrix();}
   function toScr(p){const v=p.clone().project(cam);return{x:(v.x+1)/2*W,y:(1-v.y)/2*H,z:v.z};}
-  function moonHidden(){const c=toScr(moon.position),s0=toScr(new V3()),e=toScr(new V3(R_.sun*1.15,0,0)),sr=Math.abs(e.x-s0.x),me=toScr(moon.position.clone().add(new V3(MR,0,0))),mr=Math.abs(me.x-c.x);return cam.position.distanceTo(moon.position)>cam.position.length()&&Math.hypot(c.x-s0.x,c.y-s0.y)<sr+mr*0.6;}
-  function pick(x,y){if(!moonHidden()&&yaw<0.8){const c=toScr(moon.position),e=toScr(moon.position.clone().add(new V3(MR,0,0)));if(Math.hypot(c.x-x,c.y-y)<Math.max(44,Math.abs(e.x-c.x)*1.6))return 'moon';}{const c=toScr(new V3()),e=toScr(new V3(R_.sun*1.1,0,0));if(Math.hypot(c.x-x,c.y-y)<Math.max(60,Math.abs(e.x-c.x)*1.2)){meow(performance.now());return 0;}}let best=null,bd=1e9;for(const r in PL){const p=toScr(PL[r].grp.position),s=toScr(PL[r].grp.position.clone().add(new V3(PL[r].size,0,0))),rr=Math.max(46,Math.abs(s.x-p.x)*1.5),d=Math.hypot(p.x-x,p.y-y);if(d<rr&&d<bd){bd=d;best=+r;}}return best;}
+  function moonHidden(){const c=toScr(moon.position),s0=toScr(new V3()),e=toScr(new V3(R_.sun*1.15,0,0)),sr=Math.abs(e.x-s0.x),me=toScr(moon.position.clone().add(new V3(MR,0,0))),mr=Math.abs(me.x-c.x);return cam.position.distanceTo(moon.position)>cam.position.length()&&Math.hypot(c.x-s0.x,c.y-s0.y)<Math.max(0,sr*0.9-mr);}
+  function pick(x,y){if(!moonHidden()&&yaw<0.8){const c=toScr(moon.position),e=toScr(moon.position.clone().add(new V3(MR,0,0)));if(Math.hypot(c.x-x,c.y-y)<Math.max(56,Math.hypot(e.x-c.x,e.y-c.y)*2.0))return 'moon';}{const c=toScr(new V3()),e=toScr(new V3(R_.sun*1.1,0,0));if(Math.hypot(c.x-x,c.y-y)<Math.max(60,Math.abs(e.x-c.x)*1.2)){meow(performance.now());return 0;}}let best=null,bd=1e9;for(const r in PL){const p=toScr(PL[r].grp.position),s=toScr(PL[r].grp.position.clone().add(new V3(PL[r].size,0,0))),rr=Math.max(46,Math.abs(s.x-p.x)*1.5),d=Math.hypot(p.x-x,p.y-y);if(d<rr&&d<bd){bd=d;best=+r;}}return best;}
   return{sc,cam,update,st,PL,toScr,pick,moon,MR,moonHidden,FIN,skyFlash:()=>FIN.flash,sunTop:()=>toScr(new V3(0,R_.sun*1.25,0).applyQuaternion(sun.quaternion)),setYaw:v=>{yawT=Math.max(-0.5,Math.min(Math.PI/2+0.5,v));},get yaw(){return yawT;}};
 })();
 let _cd=0,_cdt=0;const consDone=()=>{const n=performance.now();if(n-_cdt>1000){_cdt=n;try{const c=JSON.parse(localStorage.getItem('cc-v1')||'{}');_cd=(c.done||[]).length>=60;}catch(e){_cd=false;}}return _cd;};
@@ -4774,7 +4774,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795228414';
+const BUILD='1795228617';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
