@@ -693,12 +693,12 @@ const pkey=(p,k)=>k===p.shellAt?'shell':'glass';
 /* ---------- 3D world ---------- */
 const FOV=38,TANH=Math.tan(FOV*Math.PI/360);
 const V3=THREE.Vector3;
-const renderer=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+const renderer=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,powerPreference:'default'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 $('gl').addEventListener('webglcontextlost',e=>{e.preventDefault();try{localStorage.setItem('lastErr','graphics reset '+new Date().toLocaleTimeString());}catch(_){}});$('gl').addEventListener('webglcontextrestored',()=>location.reload());
 addEventListener('error',e=>{try{localStorage.setItem('lastErr',(e.message||'error')+' @'+(e.lineno||'')+' '+new Date().toLocaleTimeString());}catch(_){}});
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(FOV,1,0.5,7000);
 const SUN=new V3(0.42,0.10,-1).normalize();
@@ -4731,12 +4731,16 @@ function drawFx(t,layer,shiftY){
   }
   fx=keep;
 }
+let lastInput=0;['pointerdown','pointermove','touchstart','wheel','keydown'].forEach(ev=>addEventListener(ev,()=>{lastInput=performance.now();},{passive:true,capture:true}));
+function busyNow(t){if(trans||spin||(GR&&GR.on)||fx.length||t-lastInput<2500||mode==='pour'||mode==='drop')return true;if(DB&&DB.balls&&DB.balls.length)return true;
+  for(const id in islands)if(islands[id].drops.length)return true;return false;}
 function frame(t){
+  {const b=busyNow(t);if(!b&&t-(frame.rt||0)<30){requestAnimationFrame(frame);return;}frame.rt=t;if(b||t-(frame.sh||0)>120){renderer.shadowMap.needsUpdate=true;frame.sh=t;}}
   now=t;
   if(trans){const e=ease(Math.min(1,(t-trans.t0)/trans.dur));for(const k in L)L[k]=trans.L0[k]+((k===trans.to?1:0)-trans.L0[k])*e;}
   updateCamera(t);
   if(trans&&t-trans.t0>=trans.dur){const d=trans.done;trans=null;if(mode==='hub')setTimeout(()=>{placeDrop.key=null;},60);for(const k in L)L[k]=k===mode?1:0;d&&d();}
-  if(consOpen&&$('consFrame')){}else if(L.world>0.5){UNI.st.k=Math.min(1,(L.world-0.5)*2);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else{update3D(t);renderer.render(scene,camera);}
+  if(consOpen&&$('consFrame')){}else if(!trans&&frame.rn>3&&document.querySelector('.card.show:not(#done):not(#plist)')){}else if(L.world>0.5){UNI.st.k=Math.min(1,(L.world-0.5)*2);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else{update3D(t);renderer.render(scene,camera);}frame.rn=(frame.rn||0)+1;
   if(!consOpen){const f=$('wfade'),v=(trans&&(trans.to==='world'||trans.from==='world'))?Math.max(0,1-Math.abs(L.world-0.5)*3.2):0;if(f._v!==v){f._v=v;f.style.opacity=v.toFixed(3);}}
   updateWorldLabels();
   if(mode==='hub'&&!trans&&worldOpen()&&!save.worldSeen&&!GR.on&&!document.querySelector('.card.show')){if(!frame.ow)frame.ow=t+2200;else if(t>frame.ow){frame.ow=0;openWorld();}}else frame.ow=0;
@@ -4774,7 +4778,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795229076';
+const BUILD='1795229528';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
