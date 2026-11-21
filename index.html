@@ -34,12 +34,14 @@ body.wopen[data-mode=hub] #worldBtn{animation:wbGlow 3.2s ease-in-out infinite}
 @keyframes wbGlow{50%{box-shadow:0 6px 18px rgba(60,40,140,.4),0 0 0 4px rgba(200,170,255,.35)}}
 body[data-mode=world] #map{display:none}
 #wlabels{position:fixed;inset:0;z-index:2;pointer-events:none;visibility:hidden}
-.wlabel{transition:opacity .35s;position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;padding:6px 14px 5px;white-space:nowrap;line-height:1.2;background:rgba(36,28,86,.55);border:1px solid rgba(220,205,255,.55);box-shadow:0 6px 18px rgba(10,6,40,.35)}
-.wlabel b{font-size:14px;color:#fff}.wlabel span{font-size:11px;color:#d9cff5;letter-spacing:.05em}
+.wlabel{transition:opacity .35s;position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;padding:6px 14px 5px;white-space:nowrap;line-height:1.2;background:rgba(30,22,74,.8);border:1px solid rgba(220,205,255,.65);box-shadow:0 6px 18px rgba(10,6,40,.35)}
+.wlabel b{font-size:14px;color:#fff}.wlabel span{font-size:11.5px;font-weight:700;color:#e8e0ff;letter-spacing:.04em}
 .wlabel.cur{box-shadow:0 0 0 2px rgba(255,225,150,.85),0 6px 18px rgba(10,6,40,.35)}
 .wlabel.new{border-color:#ffe6a6;animation:wlNew 2.2s ease-in-out infinite}.wlabel.new b{color:#ffe8ad}
 @keyframes wlNew{50%{box-shadow:0 0 0 3px rgba(255,220,140,.6),0 0 26px rgba(255,210,130,.55)}}
-.wlabel.lock{opacity:.6}
+.wlabel.pill:not(.wNav){background:rgba(30,22,74,.8);border-color:rgba(220,205,255,.65)}.wlabel.pill b{color:#fff}
+.wlabel.lock{opacity:1;background:rgba(26,18,64,.82);border-color:rgba(220,205,255,.7)}
+.wlabel.lock b{color:#efe8ff}.wlabel.lock span{color:#ffe3a3;font-weight:800;font-size:12px;letter-spacing:.03em}
 .wlabel.wNav span{display:none}.wlabel.wNav{padding:8px 14px;background:rgba(255,143,192,.5);border-color:rgba(255,214,232,.8)}.wlabel.moonL.lock{opacity:.85}
 #worldHud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top) + 66px);z-index:2;text-align:center;pointer-events:none;opacity:0}
 .whT{font-size:30px;font-weight:700;color:#fff;text-shadow:0 2px 18px rgba(180,150,255,.7)}.whS{font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fff;margin-top:3px;text-shadow:0 1px 3px rgba(40,20,90,.85),0 0 12px rgba(150,120,255,.7)}
@@ -4735,7 +4737,7 @@ let lastInput=0;['pointerdown','pointermove','touchstart','wheel','keydown'].for
 function busyNow(t){if(trans||spin||(GR&&GR.on)||fx.length||t-lastInput<2500||mode==='pour'||mode==='drop')return true;if(DB&&DB.balls&&DB.balls.length)return true;
   for(const id in islands)if(islands[id].drops.length)return true;return false;}
 function frame(t){
-  {const b=busyNow(t);if(!b&&t-(frame.rt||0)<30){requestAnimationFrame(frame);return;}frame.rt=t;if(b||t-(frame.sh||0)>120){renderer.shadowMap.needsUpdate=true;frame.sh=t;}}
+  {const b=busyNow(t),deep=!b&&t-lastInput>8000,gap=b?0:deep?48:30;if(gap&&t-(frame.rt||0)<gap){requestAnimationFrame(frame);return;}frame.rt=t;if(b||t-(frame.sh||0)>(deep?300:120)){renderer.shadowMap.needsUpdate=true;frame.sh=t;}frame.slow=!b;}
   now=t;
   if(trans){const e=ease(Math.min(1,(t-trans.t0)/trans.dur));for(const k in L)L[k]=trans.L0[k]+((k===trans.to?1:0)-trans.L0[k])*e;}
   updateCamera(t);
@@ -4761,8 +4763,8 @@ function frame(t){
   else drawFx(t,'block',shift);
   if(mode==='build'&&!trans)vT+=((isDone(save.current)?1:0)-vT)*0.05;document.body.classList.toggle('viewing',vT>0.5);
   if(vT<0.98)drawWheel(t,(1-L.build)*H*0.7+vT*H*0.75);
-  if(L.build>0.01){const c=$('wcatC'),g2=c.getContext('2d'),WS=wCatState(t),wr=21;g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,56,60);paintCatFace(g2,28,34+WS.oy*wr*0.5,wr,{smile:WS.sm,blink:WS.bl,lx:WS.lx+WS.yaw*0.5,ly:WS.ly,tilt:WS.tl,yaw:WS.yaw,tab:1});}
-  if(mode==='logic'||L.logic>0.01){const c=$('rvC'),g2=c.getContext('2d'),r2=11,ph=(t%4200)/4200,bl=ph<0.04?Math.sin(ph/0.04*Math.PI):0,lx=Math.sin(t*0.0009)*0.7,ty=Math.sin(t*0.0006)*0.08;g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,28,28);paintCatFace(g2,14,16,r2,{smile:0.45,blink:bl,lx,ly:Math.sin(t*0.0013)*0.3,tilt:ty,yaw:Math.sin(t*0.0007)*0.25,sand:1});}
+  if(L.build>0.01&&(!frame.slow||t-(frame.wc||0)>66)){frame.wc=t;const c=$('wcatC'),g2=c.getContext('2d'),WS=wCatState(t),wr=21;g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,56,60);paintCatFace(g2,28,34+WS.oy*wr*0.5,wr,{smile:WS.sm,blink:WS.bl,lx:WS.lx+WS.yaw*0.5,ly:WS.ly,tilt:WS.tl,yaw:WS.yaw,tab:1});}
+  if((mode==='logic'||L.logic>0.01)&&(!frame.slow||t-(frame.rv||0)>66)){frame.rv=t;const c=$('rvC'),g2=c.getContext('2d'),r2=11,ph=(t%4200)/4200,bl=ph<0.04?Math.sin(ph/0.04*Math.PI):0,lx=Math.sin(t*0.0009)*0.7,ty=Math.sin(t*0.0006)*0.08;g2.setTransform(2,0,0,2,0,0);g2.clearRect(0,0,28,28);paintCatFace(g2,14,16,r2,{smile:0.45,blink:bl,lx,ly:Math.sin(t*0.0013)*0.3,tilt:ty,yaw:Math.sin(t*0.0007)*0.25,sand:1});}
   drawFx(t,'top',0);
   updateLabels();updateHud();
   {const ph=(t%5000)/5000,k=ph<0.3?Math.pow(Math.sin(ph/0.3*Math.PI),1.5):0;const j=$('jar');j.style.setProperty('--pulse',(1+0.06*k).toFixed(3));j.style.setProperty('--glow',(0.35*k).toFixed(3));shimmerCoins(t);
@@ -4778,7 +4780,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795229528';
+const BUILD='1795230397';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
