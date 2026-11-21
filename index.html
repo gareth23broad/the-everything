@@ -174,7 +174,7 @@ body[data-mode=hub] #cont{opacity:1;transform:translate(-50%,0);pointer-events:a
 #mayoBan.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 #mayoBan .mk{font-weight:800;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#c08a3a}
 #mayoBan .mn{margin:6px 0 4px;font-weight:900;font-size:clamp(30px,9vw,42px);line-height:1.05;background:linear-gradient(100deg,#b8741a 0%,#f2b740 30%,#fff7d8 45%,#f2b740 60%,#b8741a 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:mshim 2.2s linear infinite;filter:drop-shadow(0 2px 0 rgba(255,255,255,.8))}
-#mayoBan .ms{font-weight:700;font-size:15px;color:#7a6a5a}
+#mayoBan .ms{font-weight:700;font-size:15px;color:#7a6a5a;line-height:1.35}
 #mayoBan .mi{font-size:34px;line-height:1;animation:mbob 1.4s ease-in-out infinite}
 @keyframes mshim{0%{background-position:120% 0}100%{background-position:-120% 0}}
 @keyframes mbob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
@@ -334,7 +334,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 <div id="dropBubble">You’ve got coins to spare — try the Prize Drop!</div>
 <div id="ptools"><button id="pUndo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button><button id="pRestart" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e98c80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button></div>
 <div id="tools"><button id="reveal" class="pill"><canvas id="rvC" width="56" height="56"></canvas>Reveal<span class="hx rx">×1</span></button><button id="hint" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#e0a93a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Hint<span class="hx">×4</span></button><button id="undo" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="#6fa9c0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>Undo</button></div>
-<div id="mayoBan"><div class="mi">📬</div><div class="mk">Special delivery!</div><div class="mn" id="mayoName"></div><div class="ms" id="mayoSub"></div></div><button id="bonus" class="pill"><span class="ct">Puzzle</span><span class="cs">Earn more coins</span></button><button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
+<div id="mayoBan"><div class="mi" id="mayoIco">📬</div><div class="mk" id="mayoKick">Special delivery!</div><div class="mn" id="mayoName"></div><div class="ms" id="mayoSub"></div></div><button id="bonus" class="pill"><span class="ct">Puzzle</span><span class="cs">Earn more coins</span></button><button id="cont" class="pill"><span class="ct">Continue</span><span class="cs" id="contSub">Seaside · Level 1</span></button>
 
 <button id="lmap" class="pill">‹ Map</button>
 <button id="visit" class="pill"><span id="visitIco" style="display:flex"></span><span id="visitTxt">Lighthouse</span><span class="arr">›</span></button>
@@ -560,7 +560,7 @@ const REGIONS={1:{name:'The Bay',top:[.776,.831,.941],mid:[.918,.847,.902],hor:[
 const REG=w=>(w&&w.region)||1;const regWorlds=r=>WORLDS.filter(w=>REG(w)===r);
 const WMAP=Object.fromEntries(WORLDS.map(w=>[w.id,w]));
 const SAVE_KEY='everything-v1';
-const save={pearls:0,free:0,mult:1,intro:false,current:'lighthouse',solved:0,gates:{},builds:{},spinN:0};
+const save={pearls:0,free:0,mult:1,intro:false,current:'lighthouse',solved:0,gates:{},builds:{},spinN:0,mayoCyc:-1,mayoAnn:-1};
 WORLDS.forEach(w=>save.builds[w.id]={stage:0,pts:0,level:1});
 try{
   if(location.hash==='#test-grab'||location.hash==='#test-drop')window.__test=location.hash.slice(6);
@@ -569,7 +569,7 @@ try{
     localStorage.setItem(SAVE_KEY,JSON.stringify({pearls:300,free:0,mult:1,intro:false,current:'garden',solved:10,gates:{garden:true},builds:{lighthouse:{stage:6,pts:0,level:9},garden:{stage:3,pts:0,level:5}}}));}}catch(e){}}
   let s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(!s){const o=JSON.parse(localStorage.getItem('seaglass-v1')||'null');if(o)s={pearls:o.pearls,free:o.free,mult:o.mult,intro:o.intro,current:'lighthouse',builds:{lighthouse:{stage:o.stage||0,pts:o.pts||0,level:o.level||1}}};}
-  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed','zoomHint','me','meSkip','worldSeen','crownDone','crownKeep','ccPaid','spinN'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
+  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed','zoomHint','me','meSkip','worldSeen','crownDone','crownKeep','ccPaid','spinN','mayoCyc','mayoAnn'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
   if(!WMAP[save.current])save.current='lighthouse';
 }catch(e){}
 const W_=()=>WMAP[save.current],B=()=>save.builds[save.current],NS=id=>WMAP[id].stages.length,NSC=()=>W_().stages.length;
@@ -4068,7 +4068,7 @@ function go(target,opts={}){
   trans={from,to:target,t0:performance.now(),dur:opts.dur||2600,L0:{...L},done:opts.done};
   setLabels();sfx.whoosh();updateHud(true);return true;
 }
-const arriveBuild=()=>{if(save.stage<NSC()&&!canSpin())toast('Earn coins in the puzzle to spin',2200);};
+const arriveBuild=()=>{if(save.stage<NSC()&&!canSpin())toast('Earn coins in the puzzle to spin',2200);else if(save.stage<NSC())mayoAnnounce(500);};
 function goBuild(){
   if((mode!=='logic'&&mode!=='hub'&&mode!=='drop')||trans)return;
   const afford=Math.floor(save.pearls/SPIN_COST);if(save.mult>afford)save.mult=bestWMult(afford);
@@ -4299,8 +4299,14 @@ function updateLabels(){
 
 /* ---------- wheel ---------- */
 function canSpin(){return save.stage<NSC()&&(save.free>0||save.pearls>=SPIN_COST*save.mult);}
-function mayoBanner(name,sub){setTimeout(()=>{$('mayoName').textContent=name;$('mayoSub').textContent=sub;const b=$('mayoBan');b.classList.add('show');clearTimeout(mayoBanner.t);mayoBanner.t=setTimeout(()=>b.classList.remove('show'),5200);b.onclick=()=>b.classList.remove('show');},1500);}
-const MAYO_I=1,mayoOn=()=>((save.spinN||0)%15)===14;
+function mayoBanner(name,sub,kick='Special delivery!',icon='📬',delay=1500,ms=5200){setTimeout(()=>{$('mayoName').textContent=name;$('mayoSub').textContent=sub;$('mayoKick').textContent=kick;$('mayoIco').textContent=icon;const b=$('mayoBan');b.classList.add('show');clearTimeout(mayoBanner.t);mayoBanner.t=setTimeout(()=>b.classList.remove('show'),ms);b.onclick=()=>b.classList.remove('show');},delay);}
+const MAYO_I=1,MAYO_SPINS=3,mayoCyc=n=>Math.floor(n/15),mayoOn=()=>{const n=save.spinN||0;return n%15>=15-MAYO_SPINS&&save.mayoCyc!==mayoCyc(n);},mayoLeft=()=>15-((save.spinN||0)%15);
+function mayoAnnounce(delay){const n=save.spinN||0;if(!mayoOn()||save.mayoAnn===mayoCyc(n))return;save.mayoAnn=mayoCyc(n);persist();try{const a=audio.ctx;if(a&&!audio.muted)[523.25,659.25,783.99,1046.5].forEach((f,k)=>audio.tone(f,k*0.09,0.6,0.03,'triangle'));}catch(_){}
+  mayoBanner('Pigeon Mayo','has landed on the wheel! Catch it within '+mayoLeft()+' spins before it flies away','It’s arrived!','🕊️',delay,5600);}
+function mayoAfterSpin(s){const n=save.spinN||0;
+  if(s.mayo&&!mayoOn()){mayoBanner('Time’s up!','Pigeon Mayo flew away… it’ll be back in '+(15-MAYO_SPINS)+' spins','Pigeon Mayo','🪶',1800,4800);return;}
+  if(s.mayo&&mayoOn()){const l=mayoLeft();setTimeout(()=>toast(l===1?'🕊️ Last spin to catch Pigeon Mayo!':'🕊️ Pigeon Mayo · '+l+' spins left',2200),1600);return;}
+  mayoAnnounce(1800);}
 function pigeonMayo(){const cv=document.createElement('canvas');cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none';const d=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*d;cv.height=innerHeight*d;document.body.appendChild(cv);const g=cv.getContext('2d');g.scale(d,d);
   const W2=innerWidth,H2=innerHeight,t0=performance.now(),parts=[];let burst=false,awarded=false;
   try{const a=audio.ctx;if(a&&!audio.muted){const coo=(when,f0,f1,len)=>{const o=a.createOscillator(),gg=a.createGain(),tr=a.createOscillator(),tg=a.createGain(),lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=900;o.type='triangle';const t=a.currentTime+when;o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f1,t+len);tr.frequency.value=22;tg.gain.value=0.02;tr.connect(tg);tg.connect(gg.gain);gg.gain.setValueAtTime(0.0001,t);gg.gain.exponentialRampToValueAtTime(0.06,t+0.05);gg.gain.exponentialRampToValueAtTime(0.0001,t+len);o.connect(lp).connect(gg).connect(audio.master);o.start(t);tr.start(t);o.stop(t+len+0.05);tr.stop(t+len+0.05);};
@@ -4359,7 +4365,7 @@ function trySpin(){
   persist();
   const n=SLICES.length,seg=Math.PI*2/n,k=Math.random()*n|0;
   const target=-Math.PI/2-(k+0.2+Math.random()*0.6)*seg,from=wheelRot;
-  spin={from,to:from+Math.PI*2*5+mod(target-from,Math.PI*2),t0:performance.now(),dur:3900,k,idx:-1,mult:save.mult,mayo:mayoOn()};save.spinN=(save.spinN||0)+1;persist();
+  spin={from,to:from+Math.PI*2*5+mod(target-from,Math.PI*2),t0:performance.now(),dur:3900,k,idx:-1,mult:save.mult,mayo:mayoOn(),cyc:mayoCyc(save.spinN||0)};save.spinN=(save.spinN||0)+1;persist();
   sfx.spin();
 }
 function updateSpin(t){
@@ -4367,7 +4373,7 @@ function updateSpin(t){
   const p=Math.min(1,(t-spin.t0)/spin.dur);wheelRot=spin.from+(spin.to-spin.from)*(1-Math.pow(1-p,4));
   const seg=Math.PI*2/SLICES.length,idx=Math.floor(mod(-Math.PI/2-wheelRot,Math.PI*2)/seg);
   if(idx!==spin.idx){if(spin.idx>=0){sfx.tick();pointerWob=1;}spin.idx=idx;}
-  if(p>=1){const s=spin;spin=null;if(s.mayo&&s.k===MAYO_I){pigeonMayo();return;}reward(s.k,s.mult);}
+  if(p>=1){const s=spin;spin=null;if(s.mayo&&s.k===MAYO_I){save.mayoCyc=s.cyc;persist();pigeonMayo();return;}reward(s.k,s.mult);mayoAfterSpin(s);}
 }
 function reward(k,m){
   const s=SLICES[k],t=performance.now(),px=wcx,py=wcy-R*1.15;
@@ -4730,7 +4736,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795222048';
+const BUILD='1795222412';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
