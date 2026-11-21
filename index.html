@@ -4338,11 +4338,11 @@ function updateLabels(){
 /* ---------- wheel ---------- */
 function canSpin(){return save.stage<NSC()&&(save.free>0||save.pearls>=SPIN_COST*save.mult);}
 function mayoBanner(name,sub,kick='Special delivery!',icon='📬',delay=1500,ms=5200){setTimeout(()=>{$('mayoName').textContent=name;$('mayoSub').textContent=sub;$('mayoKick').textContent=kick;$('mayoIco').textContent=icon;const b=$('mayoBan');b.classList.add('show');clearTimeout(mayoBanner.t);mayoBanner.t=setTimeout(()=>b.classList.remove('show'),ms);b.onclick=()=>b.classList.remove('show');},delay);}
-const MAYO_I=1,MAYO_SPINS=3,mayoCyc=n=>Math.floor(n/15),mayoOn=()=>{const n=save.spinN||0;return n%15>=15-MAYO_SPINS&&save.mayoCyc!==mayoCyc(n);},mayoLeft=()=>15-((save.spinN||0)%15);
+const MAYO_I=1,MAYO_GAP=14,MAYO_SPINS=7,MAYO_CYC=MAYO_GAP+MAYO_SPINS,mayoCyc=n=>Math.floor(n/MAYO_CYC),mayoOn=()=>{const n=save.spinN||0;return n%MAYO_CYC>=MAYO_GAP&&save.mayoCyc!==mayoCyc(n);},mayoLeft=()=>MAYO_CYC-((save.spinN||0)%MAYO_CYC);
 function mayoAnnounce(delay){const n=save.spinN||0;if(!mayoOn()||save.mayoAnn===mayoCyc(n))return;save.mayoAnn=mayoCyc(n);persist();try{const a=audio.ctx;if(a&&!audio.muted)[523.25,659.25,783.99,1046.5].forEach((f,k)=>audio.tone(f,k*0.09,0.6,0.03,'triangle'));}catch(_){}
   mayoBanner('Pigeon Mayo','has landed on the wheel! Catch it within '+mayoLeft()+' spins before it flies away','It’s arrived!','🕊️',delay,5600);}
 function mayoAfterSpin(s){const n=save.spinN||0;
-  if(s.mayo&&!mayoOn()){mayoBanner('Time’s up!','Pigeon Mayo flew away… it’ll be back in '+(15-MAYO_SPINS)+' spins','Pigeon Mayo','🪶',1800,4800);return;}
+  if(s.mayo&&!mayoOn()){mayoBanner('Time’s up!','Pigeon Mayo flew away… it’ll be back in '+MAYO_GAP+' spins','Pigeon Mayo','🪶',1800,4800);return;}
   if(s.mayo&&mayoOn()){const l=mayoLeft();setTimeout(()=>toast(l===1?'🕊️ Last spin to catch Pigeon Mayo!':'🕊️ Pigeon Mayo · '+l+' spins left',2200),1600);return;}
   mayoAnnounce(1800);}
 function pigeonMayo(){const cv=document.createElement('canvas');cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none';const d=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*d;cv.height=innerHeight*d;document.body.appendChild(cv);const g=cv.getContext('2d');g.scale(d,d);
@@ -4774,7 +4774,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795228617';
+const BUILD='1795228788';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
