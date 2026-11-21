@@ -293,22 +293,22 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 .wlabel.rocketL{background:linear-gradient(180deg,rgba(255,122,184,.92),rgba(160,60,200,.92))!important;border-color:rgba(255,220,240,.9)!important;box-shadow:0 0 18px rgba(255,122,184,.55)}.wlabel.rocketL b{letter-spacing:.14em}.wlabel.rocketL span{color:#ffe9f4!important}
 #raceView{position:fixed;inset:0;z-index:5;display:none;background:transparent;color:#fff;font-family:inherit;opacity:0;transition:opacity .5s}
 #raceView.vis{opacity:1}
-body.racing #hud,body.racing #wlabels,body.racing #worldHud,body.racing #sunBub{opacity:0!important;pointer-events:none!important}
+body.racing[data-mode=world] #hud,body.racing #wlabels,body.racing[data-mode=world] #worldHud,body.racing #sunBub{opacity:0!important;pointer-events:none!important}
 #raceView.show{display:block}
 #raceCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-#rTop{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 12px);text-align:center;pointer-events:none;padding:0 74px}
+#rTop{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 12px);text-align:center;pointer-events:none;padding:0 70px}
 #rTop .k{font-size:11px;font-weight:800;letter-spacing:.22em;color:#ffd27a}
 #rTop h2{margin:2px 0 0;font-size:28px;letter-spacing:.12em;text-shadow:0 2px 18px rgba(255,122,184,.7)}
 #rSub{margin-top:4px;font-size:14px;font-weight:700;color:#e9e2ff}
-#rBack{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 12px);z-index:2}
+#rBack{position:absolute;left:12px;top:calc(env(safe-area-inset-top) + 12px);z-index:2;width:46px;height:46px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(233,215,255,.9);background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.9) 0 1px,transparent 1.5px),radial-gradient(circle at 22% 70%,rgba(255,255,255,.8) 0 .8px,transparent 1.3px),radial-gradient(circle at 40% 35%,#6b4fb8,#2e2470 70%,#1d1650);box-shadow:0 6px 16px rgba(60,40,140,.35),0 0 0 2px rgba(190,160,255,.25);animation:wbGlow 3.2s ease-in-out infinite}#rBack svg{width:30px;height:30px}
 #rStats{display:none;margin:12px -62px 0;white-space:nowrap;gap:10px;justify-content:center;align-items:center;pointer-events:auto}
 #rFuel{display:flex;align-items:center;gap:4px;padding:8px 16px;border-radius:999px;background:rgba(20,14,52,.85);border:1.5px solid #ffd23f;font-weight:700;font-size:15px;color:#ffe9a8}#rFuel b{font-size:19px;color:#fff}#rFuel.bump{animation:cb .35s}
 #rPuz{padding:9px 18px;border-radius:999px;border:2px solid #fff;background:linear-gradient(180deg,#ffb15a,#ff7a2a);color:#fff;font:inherit;font-weight:800;font-size:16px;box-shadow:0 0 0 5px rgba(255,177,90,.25),0 8px 20px rgba(0,0,0,.4);cursor:pointer;animation:rpz 2.4s ease-in-out infinite}#rPuz small{font-weight:700;font-size:12px;opacity:.95}
 #rCtl{display:flex;gap:12px;align-items:flex-end;justify-content:center;margin:12px 0 8px}#rCtl .rm{display:flex;flex-direction:column;align-items:center;gap:3px}#rCtl .ml{font-size:10px;letter-spacing:.14em;font-weight:800;color:#cfc6f0;text-transform:uppercase}
 #rMult{min-width:72px;background:linear-gradient(180deg,#fff4d0,#ffd27a)!important;color:#7a4a10!important;border:2px solid #fff!important;font-weight:900!important;font-size:20px!important;padding:8px 14px!important}
-#rBlast{flex:1;max-width:210px;display:flex;flex-direction:column;align-items:center;padding:10px 14px;border-radius:22px;border:2px solid #fff;background:linear-gradient(180deg,#ff8fc6,#ff4a98 55%,#d82a7a);color:#fff;font:inherit;font-weight:900;font-size:24px;letter-spacing:.12em;box-shadow:0 6px 0 #9a1a58,0 12px 24px rgba(0,0,0,.4);cursor:pointer}#rBlast small{font-size:11px;letter-spacing:0;font-weight:700;opacity:.95}#rBlast:active{transform:translateY(4px);box-shadow:0 2px 0 #9a1a58}#rBlast.off{filter:grayscale(.7);opacity:.55}#rBlast.p2{background:linear-gradient(180deg,#7fe0ff,#2fb8d8 55%,#1a88b0);box-shadow:0 6px 0 #0e5a78,0 12px 24px rgba(0,0,0,.4)}
+#rBlast{flex:1;max-width:210px;display:flex;flex-direction:column;align-items:center;padding:10px 14px;border-radius:22px;border:2px solid #fff;background:linear-gradient(180deg,#ff8fc6,#ff4a98 55%,#d82a7a);color:#fff;font:inherit;font-weight:900;font-size:24px;letter-spacing:.12em;box-shadow:0 6px 0 #9a1a58,0 12px 24px rgba(0,0,0,.4);cursor:pointer}#rBlast small{font-size:13px;letter-spacing:0;font-weight:700;opacity:.95}#rBlast:active{transform:translateY(4px);box-shadow:0 2px 0 #9a1a58}#rBlast.off{filter:grayscale(.7);opacity:.55}#rBlast.p2{background:linear-gradient(180deg,#7fe0ff,#2fb8d8 55%,#1a88b0);box-shadow:0 6px 0 #0e5a78,0 12px 24px rgba(0,0,0,.4)}
 @keyframes rpz{50%{box-shadow:0 0 0 12px rgba(255,177,90,.12),0 10px 30px rgba(0,0,0,.45)}}
-.rTag{position:absolute;left:0;top:0;display:none;pointer-events:none;padding:4px 10px;border-radius:999px;background:rgba(20,14,52,.85);border:1.5px solid #ff7ab8;font-size:12px;font-weight:800;white-space:nowrap}
+.rTag{position:absolute;left:0;top:0;display:none;pointer-events:none;padding:5px 12px;border-radius:999px;background:rgba(20,14,52,.88);border:1.5px solid #ff7ab8;font-size:14px;font-weight:800;white-space:nowrap}
 #rTag2{border-color:#2fb8d8}
 #rLow{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 14px);display:flex;flex-direction:column;align-items:center;gap:10px}
 #rHow{display:none;width:min(100%,380px);box-sizing:border-box;padding:12px 16px;border-radius:20px;background:rgba(20,14,52,.82);border:1px solid rgba(220,205,255,.45);font-size:14px;line-height:1.5;font-weight:600;color:#e9e2ff}
@@ -322,13 +322,15 @@ body.racing #hud,body.racing #wlabels,body.racing #worldHud,body.racing #sunBub{
 #rBar{display:none;width:min(100%,380px);box-sizing:border-box;padding:10px 12px;border-radius:20px;background:rgba(20,14,52,.86);border:1px solid rgba(220,205,255,.45)}
 #rBar .row{display:flex;gap:6px;align-items:center;justify-content:space-between;font-size:12px;font-weight:800}
 #rBar .lap{padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}
-#rTime{color:#ffd27a;white-space:nowrap}
-#rTip{text-align:center;font-size:13px;font-weight:600;color:#e9e2ff}#rTip b{color:#fff}
+#rTime{flex:1;text-align:center;color:#ffd27a;white-space:nowrap;font-size:22px;font-weight:900;letter-spacing:.02em}
+#rTip{text-align:center;font-size:15px;font-weight:600;color:#e9e2ff}#rTip b{color:#fff}
 #rCool{display:none;width:min(100%,380px);box-sizing:border-box;text-align:center;padding:16px;border-radius:20px;background:rgba(20,14,52,.86);border:1px solid rgba(140,200,255,.6);font-size:30px}
 #rCool b{display:block;font-size:18px;margin-top:4px}#rCool span{display:block;font-size:13px;font-weight:600;color:#cfe6ff;margin-top:2px}
 #done.racewin .earn canvas{display:none}
+#done.racewin .earn canvas{display:none}
+.gshim{background:linear-gradient(100deg,#c8860a 0%,#ffd23f 25%,#fff6c8 40%,#ffd23f 55%,#e0a020 75%,#ffe680 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;animation:gshim 2.6s linear infinite;font-weight:900}@keyframes gshim{from{background-position:100% 0}to{background-position:-150% 0}}
 #rToast{position:absolute;left:50%;top:24%;transform:translateX(-50%);padding:9px 18px;border-radius:999px;background:rgba(20,14,52,.9);border:1px solid rgba(255,210,122,.7);font-weight:800;font-size:15px;white-space:nowrap;opacity:0;transition:opacity .35s;pointer-events:none}#rToast.show{opacity:1}
-body.alienpz #gl{filter:hue-rotate(235deg) saturate(1.3)}
+body.alienpz #visit{display:none!important}body.alienpz #lvl{color:#e9e2ff!important}body.alienpz #lvl *{color:inherit}
 </style>
 </head>
 <body>
@@ -431,14 +433,14 @@ body.alienpz #gl{filter:hue-rotate(235deg) saturate(1.3)}
   <button class="btn" id="failRetry">Try again</button>
 </div></div>
 <div id="raceView"><canvas id="raceCv"></canvas>
-<button class="pill" id="rBack">‹ Universe</button>
+<button id="rBack" aria-label="Back to the universe"><svg viewBox="0 0 32 32"><defs><radialGradient id="wsun2" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#fff2b8"/><stop offset=".6" stop-color="#ffc85a"/><stop offset="1" stop-color="#f39a4a"/></radialGradient></defs><ellipse cx="16" cy="17.5" rx="13.5" ry="4.6" fill="none" stroke="#e9d7ff" stroke-width="1.4" opacity=".85" transform="rotate(-14 16 17.5)"/><path d="M9.6 12.2l-.9-6 4.6 3.4M22.4 12.2l.9-6-4.6 3.4" fill="#ffc85a" stroke="#ffc85a" stroke-width="1.2" stroke-linejoin="round"/><circle cx="16" cy="16" r="7.2" fill="url(#wsun2)"/><path d="M12.6 15.4q1-1.1 2 0M17.4 15.4q1-1.1 2 0" fill="none" stroke="#8a4a2a" stroke-width="1.1" stroke-linecap="round"/><path d="M15 18.2q1 .9 2 0" fill="none" stroke="#8a4a2a" stroke-width="1" stroke-linecap="round"/><circle cx="27" cy="9" r="2" fill="#a9e2f2"/><circle cx="5.5" cy="24" r="1.4" fill="#f6c3d8"/></svg></button>
 <div id="rTop"><div class="k">3 DAYS · MOST LAPS WINS</div><h2>ROCKET RACE</h2><div id="rSub">Connecting…</div>
 <div id="rStats"><span id="rFuel">⛽ <b>0</b> fuel</span><button id="rPuz">🧩 Puzzle <small>· earn fuel</small></button></div></div>
 <div class="rTag" id="rTag1"></div><div class="rTag" id="rTag2"></div>
-<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>✖️ Pick a <b>multiplier</b>, then tap <b>BLAST</b> to fly<br>🌠 Every 3 laps a <b>shooting star</b> brings bonus fuel<br>🏁 Most laps after <b>3 days</b> wins <b>7,000 gold</b> · 2nd gets 2,323<br>🧊 Then the ships cool down for a week</div>
+<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>✖️ Pick a <b>multiplier</b>, then tap <b>BLAST</b> to fly<br>🌠 Every 3 laps a <b>shooting star</b> brings bonus fuel<br>🏁 Most laps after <b>3 days</b> wins <b class="gshim">7,000 gold</b> · 2nd gets <b class="gshim">2,323 gold</b><br>🧊 Then the ships cool down for a week</div>
 <div id="rSeats"><button class="rSeat" id="rs1"><canvas></canvas><b></b><small></small></button><button class="rSeat" id="rs2"><canvas></canvas><b></b><small></small></button></div>
 <div id="rCool"></div>
-<div id="rBar"><div class="row"><span class="lap" id="rL1">You 0/5</span><span id="rTime">⏱</span><span class="lap" id="rL2">Rival 0/5</span></div>
+<div id="rBar"><div class="row"><span class="lap" id="rL1" style="display:none"></span><span id="rTime">⏱</span><span class="lap" id="rL2" style="display:none"></span></div>
 <div id="rCtl"><div class="rm"><div class="ml">Multiplier</div><button class="pill" id="rMult">×1</button></div><button id="rBlast">BLAST<small id="rCost">uses 10 fuel</small></button></div><div id="rTip"></div></div></div>
 <div id="rToast"></div></div>
 <div id="insane"><span>Insane!</span></div><div id="goldFlash"></div><canvas id="confetti"></canvas>
@@ -3107,7 +3109,7 @@ rays.material.rotation=t*0.00005;rays2.material.rotation=-t*0.00003;halo.materia
     const win=new THREE.Mesh(new THREE.CircleGeometry(0.62,28),new THREE.MeshBasicMaterial({map:ft}));win.position.set(0,0.55,1.02);rocket.add(win);const rim=new THREE.Mesh(new THREE.TorusGeometry(0.64,0.09,8,28),new THREE.MeshStandardMaterial({color:'#c8ccd8',metalness:0.7,roughness:0.3}));rim.position.copy(win.position);rocket.add(rim);
     const fl=new THREE.Mesh(new THREE.ConeGeometry(0.7,2.2,16,1,true),new THREE.MeshBasicMaterial({color:'#ffb03a',transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false}));fl.rotation.x=Math.PI;fl.position.y=-3;rocket.add(fl);rocket.userData.fl=fl;
     const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:'#ffb4dc',transparent:true,opacity:0.55,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(9,9,1);rocket.add(gl);
-    rocket.scale.setScalar(1.9);{const o2=(PL[3].orb+PL[4].orb)/2,ra=0.6;rocket.position.set(Math.sin(ra)*o2,6,Math.cos(ra)*o2);}rocket.visible=RACE_ON;rocket.rotation.z=-0.35;sc.add(rocket);}
+    rocket.scale.setScalar(1.9);{const o2=(PL[2].orb+PL[3].orb)/2,ra=Math.PI/4;rocket.position.set(Math.sin(ra)*o2,6,Math.cos(ra)*o2);}rocket.visible=RACE_ON;rocket.rotation.z=-0.35;sc.add(rocket);}
   const _ru=update;update=function(t){_ru(t);rocket.position.y=6+Math.sin(t*0.002)*0.6;rocket.rotation.y=t*0.0006;rocket.userData.fl.scale.y=0.8+Math.random()*0.4;};
   const _rp=pick;pick=function(x,y){if(RACE_ON){const c=toScr(rocket.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<64)return 'rocket';}return _rp(x,y);};
   return{sky:{neb,starsP,starM},rocket,sc,cam,update,st,PL,toScr,pick,moon,MR,moonHidden,FIN,skyFlash:()=>FIN.flash,sunTop:()=>toScr(new V3(0,R_.sun*1.25,0).applyQuaternion(sun.quaternion)),setYaw:v=>{yawT=Math.max(-0.5,Math.min(Math.PI/2+0.5,v));},get yaw(){return yawT;}};
@@ -3124,7 +3126,7 @@ function updateWorldLabels(){{const b=$('sunBub');if(L.world<0.9)b.classList.rem
   {const e=wLabels.moon,hid=UNI.moonHidden()||UNI.yaw>0.8;e.style.opacity=hid?0:'';e.style.pointerEvents=hid?'none':'';const c0=UNI.toScr(UNI.moon.position),ed=UNI.toScr(UNI.moon.position.clone().add(UNI.cam.up.clone().multiplyScalar(UNI.MR))),rad=Math.hypot(ed.x-c0.x,ed.y-c0.y);const lw=e.offsetWidth||170,lx=Math.max(8+lw/2,Math.min(W-8-lw/2,c0.x));e.style.transform=`translate(${lx.toFixed(1)}px,${(c0.y+rad*1.15+4).toFixed(1)}px) translate(-50%,0)`;
     const k=keepTotals(),op=moonOpen(),txt=op?'✦ Cat Constellations|Tap to play|new':'Cat Constellations|'+k.o+' / '+k.n+' keepsakes|lock';if(e.dataset.t!==txt){e.dataset.t=txt;const[a,b,c]=txt.split('|');e.querySelector('b').textContent=a;e.querySelector('span').textContent=b;e.className='wlabel pill moonL '+c;}}
   {const e=wLabels.nav,far=UNI.yaw>0.8,txt=far?'‹ Our worlds|':'Coming soon ›|';if(e.dataset.t!==txt){e.dataset.t=txt;const[a,b]=txt.split('|');e.querySelector('b').textContent=a;e.querySelector('span').textContent=b;}const bw=e.offsetWidth||150;e.style.transform=`translate(${W-10-bw/2}px,${(H*0.4).toFixed(0)}px) translate(-50%,0)`;}
-  {const e=wLabels.rocket,c0=UNI.toScr(UNI.rocket.position),off=!RACE_ON||c0.z>1||c0.x<20||c0.x>W-20||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off)e.style.transform=`translate(${Math.max(80,Math.min(W-80,c0.x)).toFixed(1)}px,${(c0.y+42).toFixed(1)}px) translate(-50%,0)`;const sub=RC.sub();if(e.dataset.t!==sub){e.dataset.t=sub;e.querySelector('span').textContent=sub;}}
+  {const e=wLabels.rocket,c0=UNI.toScr(UNI.rocket.position),off=!RACE_ON||c0.z>1||c0.x<20||c0.x>W-20||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off)e.style.transform=`translate(${Math.max(80,Math.min(W-80,c0.x)).toFixed(1)}px,${(c0.y+42).toFixed(1)}px) translate(-50%,0)`;const sub=RC.sub();if(e.dataset.t!==sub){e.dataset.t=sub;e.querySelector('span').innerHTML=sub.replace(/7,000 gold/,'<b class="gshim">7,000 gold</b>');}}
   let firstLock=0;for(let r=1;r<=9;r++){const e=wLabels[r],P=UNI.PL[r],c0=UNI.toScr(P.grp.position),ed=UNI.toScr(P.grp.position.clone().add(UNI.cam.up.clone().multiplyScalar(P.size))),rad=Math.hypot(ed.x-c0.x,ed.y-c0.y),s={x:c0.x,y:c0.y+rad*1.12+4};
     const RGx=REGIONS[r]&&regWorlds(r).length;if((r>=5)!==(UNI.yaw>0.8)||c0.z>1||c0.x<-90||c0.x>W+90||c0.y<-40||c0.y>H+40){e.style.display='none';continue;}if(!RGx&&r<5){if(firstLock){e.style.display='none';continue;}firstLock=r;}e.style.display='';e.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,0)`;
     let name,sub,cls='';const RG=REGIONS[r]&&regWorlds(r).length?REGIONS[r]:null;
@@ -4129,7 +4131,7 @@ function setLabels(){
   $('chip1').textContent='1 '+th.one+' per colour';$('chip3').textContent=th.many+' can’t touch';$('keep').textContent='Next puzzle';
   if(lastTheme!==save.current){lastTheme=save.current;paintIcons();}
   $('bname').textContent=w.name;$('visitTxt').textContent=w.short;$('visitIco').innerHTML=ICONS[w.id];
-  $('toBuild').textContent=LG&&LG.race?'Back to the race':isDone(save.current)?'Back to the map':'Build the '+w.short.toLowerCase();
+  $('lmap').textContent=LG&&LG.race?'‹ Race':'‹ Map';$('toBuild').textContent=LG&&LG.race?'Back to the race':isDone(save.current)?'Back to the map':'Build the '+w.short.toLowerCase();
   $('back').textContent=isDone(save.current)?'‹ Map':'‹ Puzzle';
   {const a=activeWorld(),aw=WMAP[a];document.body.classList.remove('allbuilt');if(!isDone(a)){$('contSub').textContent=`${aw.world} · Puzzle ${(save.solved||0)+1}`;$('cont').querySelector('.ct').textContent='Continue';}
    else{const nx=WORLDS[WORLDS.findIndex(x=>x.id===a)+1];if(nx&&gateOpen(nx.id)){$('cont').querySelector('.ct').textContent='Continue';$('contSub').textContent=(nx.mega?'Bottle Sort · ':'Coin Grab · ')+nx.world;}
@@ -4411,7 +4413,7 @@ function mayoAnnounce(delay){const n=save.spinN||0;if(!mayoOn()||save.mayoAnn===
   mayoBanner('Pigeon Mayo','has landed on the wheel! Catch it within '+mayoLeft()+' spins before it flies away','It’s arrived!','🕊️',delay,5600);}
 function mayoAfterSpin(s){const n=save.spinN||0;
   if(s.mayo&&!mayoOn()){mayoBanner('Time’s up!','Pigeon Mayo flew away… it’ll be back in '+MAYO_GAP+' spins','Pigeon Mayo','🪶',1800,4800);return;}
-  if(s.mayo&&mayoOn()){const l=mayoLeft();setTimeout(()=>toast(l===1?'🕊️ Pigeon Mayo lands on your next spin · guaranteed!':'🕊️ Pigeon Mayo · '+l+' spins left',2200),1600);return;}
+  if(s.mayo&&mayoOn()){const l=mayoLeft();setTimeout(()=>toast(l===1?'🕊️ Last spin to catch Pigeon Mayo!':'🕊️ Pigeon Mayo · '+l+' spins left',2200),1600);return;}
   mayoAnnounce(1800);}
 function pigeonMayo(){const cv=document.createElement('canvas');cv.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:8;pointer-events:none';const d=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*d;cv.height=innerHeight*d;document.body.appendChild(cv);const g=cv.getContext('2d');g.scale(d,d);
   const W2=innerWidth,H2=innerHeight,t0=performance.now(),parts=[];let burst=false,awarded=false;
@@ -4808,7 +4810,7 @@ function frame(t){
   if(trans){const e=ease(Math.min(1,(t-trans.t0)/trans.dur));for(const k in L)L[k]=trans.L0[k]+((k===trans.to?1:0)-trans.L0[k])*e;}
   updateCamera(t);
   if(trans&&t-trans.t0>=trans.dur){const d=trans.done;trans=null;if(mode==='hub')setTimeout(()=>{placeDrop.key=null;},60);for(const k in L)L[k]=k===mode?1:0;d&&d();}
-  if(consOpen&&$('consFrame')){}else if(!trans&&frame.rn>3&&document.querySelector('.card.show:not(#done):not(#plist)')){}else if(RC.open){}else if(L.world>0.5){UNI.st.k=Math.min(1,L.world*2-1);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else{update3D(t);renderer.render(scene,camera);}frame.rn=(frame.rn||0)+1;
+  if(consOpen&&$('consFrame')){}else if(!trans&&frame.rn>3&&document.querySelector('.card.show:not(#done):not(#plist)')){}else if(RC.open){}else if(LG&&LG.race&&(mode==='logic'||(trans&&(trans.to==='logic'||trans.from==='logic')))){raceSkyRender(t);}else if(L.world>0.5){UNI.st.k=Math.min(1,L.world*2-1);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else{update3D(t);renderer.render(scene,camera);}frame.rn=(frame.rn||0)+1;
   if(!consOpen){const f=$('wfade'),v=(trans&&(trans.to==='world'||trans.from==='world'))?Math.max(0,1-Math.abs(L.world-0.5)*3.2):0;if(f._v!==v){f._v=v;f.style.opacity=v.toFixed(3);}}
   updateWorldLabels();
   if(mode==='hub'&&!trans&&worldOpen()&&!save.worldSeen&&!GR.on&&!document.querySelector('.card.show')){if(!frame.ow)frame.ow=t+2200;else if(t>frame.ow){frame.ow=0;openWorld();}}else frame.ow=0;
@@ -4823,7 +4825,7 @@ function frame(t){
   const psh=(1-L.pour)*H*0.95;
   if(L.pour>0.01&&PG){ctx.save();ctx.translate(0,psh);drawShore(t,PG.bottom+4,PG.bw*0.8);drawPour(t);drawFx(t,'pour',psh);ctx.restore();}else drawFx(t,'pour',psh);
   const lsh=(1-L.logic)*H*0.95;
-  if(L.logic>0.01&&LG){ctx.save();ctx.translate(0,lsh);drawShore(t,lShore,lS/8);if(LG.race){ctx.save();ctx.globalCompositeOperation='source-atop';ctx.fillStyle='rgba(110,60,210,0.32)';ctx.fillRect(0,-lsh,W,H);ctx.restore();}drawLogic(t);drawFx(t,'logic',lsh);ctx.restore();}else drawFx(t,'logic',lsh);
+  if(L.logic>0.01&&LG){ctx.save();ctx.translate(0,lsh);if(!LG.race)drawShore(t,lShore,lS/8);drawLogic(t);drawFx(t,'logic',lsh);ctx.restore();}else drawFx(t,'logic',lsh);
   const shift=(1-L.block)*H*0.95;
   if(L.block>0.01){ctx.save();ctx.translate(0,shift);drawShore(t);drawBoard(t);drawTray(t);drawFx(t,'block',shift);ctx.restore();}
   else drawFx(t,'block',shift);
@@ -4847,7 +4849,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795274939';
+const BUILD='1795275730';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
@@ -4952,7 +4954,7 @@ function raceUI(){const st=RC.st,r=st&&st.race,cool=RC.cool(),s1=$('rs1'),s2=$('
       $('rL1').textContent='You · '+lapsTxt(Math.floor(md/100));$('rL2').textContent=(on||'Rival')+' · '+lapsTxt(Math.floor(od/100));$('rL1').style.background=me===1?'#ff7ab8':'#2fb8d8';$('rL2').style.background=me===1?'#2fb8d8':'#ff7ab8';
       const f=raceFuel(r),fe=$('rFuel');if(fe._f!==f){if(fe._f!==undefined&&f>fe._f){fe.classList.remove('bump');void fe.offsetWidth;fe.classList.add('bump');}fe._f=f;fe.querySelector('b').textContent=f.toLocaleString();}
       if(raceCost()>f)RC.mult=raceBestMult(f);$('rMult').textContent='×'+RC.mult;$('rCost').textContent='uses '+raceCost()+' fuel';const bl=$('rBlast');bl.classList.toggle('off',f<raceCost());bl.classList.toggle('p2',me===2);
-      $('rTip').innerHTML=f>=10?'Tap <b>BLAST</b> to fly · bigger multiplier, bigger blast':'Out of fuel · tap <b>🧩 Puzzle</b> to earn more';}
+      $('rTip').innerHTML=f>=10?'Bigger multiplier = bigger <b>BLAST</b>':'Out of fuel · tap <b>🧩 Puzzle</b> to earn more';}
     return;}
   if(live&&!r.seat){$('rSub').textContent='A race is underway';}
   if(cool>0&&!(r&&r.seat)){$('rSub').textContent='Ships cooling down';const c=$('rCool');c.style.display='block';c.innerHTML='🚀🧊<b>Ships cooling down</b><span>Your next race opens in '+fmtLeft(cool)+'</span>';return;}
@@ -4968,14 +4970,15 @@ async function raceBlast(){const r=RC.st&&RC.st.race;if(!r||r.status!=='live'||!
   try{const st=await raceRpc('race_blast',{p_race:r.id,p_amt:c});RC.busy=false;if(st.burn){RC.blast[r.seat-1]=performance.now();RC.three&&(RC.three._lt=0);rToast('🔥 BLAST! +'+st.burn,1300);try{sfx.whoosh&&sfx.whoosh(0.4+RC.mult*0.08);}catch(_){}if(navigator.vibrate)try{navigator.vibrate(30);}catch(_){}}raceHandle(st);}catch(_){RC.busy=false;rToast('Couldn’t reach the launch pad · try again',2000);}}
 function openRace(){if(!RACE_ON||trans||mode!=='world'||consOpen||RC.open)return;if(!save.me){toast('Make your map marker first to race',2400);setTimeout(openMarker,400);return;}sfx.pick();
   raceInit();RC.open=true;RC.myLap=0;const r=RC.st&&RC.st.race;if(r){RC.pos=[r.dist1||0,r.dist2||0];if(r.seat)RC.myLap=Math.floor((r.seat===1?r.dist1:r.dist2)/RACE_LAP);}$('raceView').classList.add('show');document.body.classList.add('racing');RC.z0=performance.now();RC.three._cd=0;requestAnimationFrame(()=>$('raceView').classList.add('vis'));raceUI();raceRefresh();RC.three._w=0;requestAnimationFrame(raceLoop);}
-function closeRace(){RC.open=false;$('raceView').classList.remove('show','vis');document.body.classList.remove('racing');}
-function racePuzzle(){const r=RC.st&&RC.st.race;if(!r||r.status!=='live')return;closeRace();save.current=activeWorld();newLogic(true);go('logic');}
-function raceBack(){if(trans)return;go('world',{dur:1400,done:()=>{openRace();}});}
+function closeRace(){RC.open=false;$('raceView').classList.remove('show','vis');}
+function racePuzzle(){const r=RC.st&&RC.st.race;if(!r||r.status!=='live')return;save.current=activeWorld();newLogic(true);closeRace();document.body.classList.add('racing');go('logic',{dur:1100});}
+let RSKY=null;function raceSkyRender(t){if(!RSKY){const sc=new THREE.Scene();sc.add(UNI.sky.neb.clone(),UNI.sky.starsP.clone());const cm=new THREE.PerspectiveCamera(50,1,0.1,4000);cm.position.set(0,0,0);cm.lookAt(0,0.25,-1);RSKY={sc,cm,w:0,h:0};}if(RSKY.w!==innerWidth||RSKY.h!==innerHeight){RSKY.w=innerWidth;RSKY.h=innerHeight;RSKY.cm.aspect=innerWidth/innerHeight;RSKY.cm.updateProjectionMatrix();}const S=UNI.sky;S.neb.material.uniforms.uT.value=t/1000;S.starM.uniforms.uT.value=t/1000;S.starM.uniforms.uPx.value=Math.min(devicePixelRatio||1,2);RSKY.cm.rotation.y=t*0.000012;renderer.render(RSKY.sc,RSKY.cm);}
+function raceBack(){if(trans)return;document.body.classList.add('racing');go('world',{dur:900,done:()=>{openRace();}});}
 async function raceWin(){LG.done=true;const t=performance.now(),n=LG.n;for(let i=0;i<n*n;i++)if(LG.st[i]===2)LG.anim[i]={t0:t+300+((i/n|0)+(i%n))*60,type:'dance'};sfx.win();
   const b=RACE_BURSTS[Math.random()*RACE_BURSTS.length|0],tot=b.c.reduce((a,x)=>a+x,0),r=RC.st&&RC.st.race;try{if(r)raceHandle(await raceRpc('race_fuel',{p_race:r.id,p_cells:b.c}));}catch(_){}
   setTimeout(()=>{$('doneEarn').textContent='+'+tot+' fuel ⛽';$('doneKick').textContent=b.t;$('done').classList.add('racewin');$('doneTitle').textContent='Fuel loaded!';$('done').classList.remove('perfect');setLabels();$('done').classList.add('show');},1600);}
 async function raceFailFuel(){const r=RC.st&&RC.st.race;if(!r)return;try{raceHandle(await raceRpc('race_fuel',{p_race:r.id,p_cells:[],p_fail:true}));setTimeout(()=>toast('Out of lives · −10 fuel',2200),900);}catch(_){}}
-$('rBack').addEventListener('click',()=>{audio.wake();closeRace();});$('rs1').addEventListener('click',()=>{if($('rs1').classList.contains('open'))raceJoin();});$('rs2').addEventListener('click',()=>{if($('rs2').classList.contains('open'))raceJoin();});
+$('rBack').addEventListener('click',()=>{audio.wake();closeRace();document.body.classList.remove('racing');});$('rs1').addEventListener('click',()=>{if($('rs1').classList.contains('open'))raceJoin();});$('rs2').addEventListener('click',()=>{if($('rs2').classList.contains('open'))raceJoin();});
 $('rPuz').addEventListener('click',()=>{audio.wake();racePuzzle();});$('rBlast').addEventListener('click',()=>{audio.wake();raceBlast();});
 $('rMult').addEventListener('click',()=>{const r=RC.st&&RC.st.race,f=raceFuel(r),i=RACE_MULTS.indexOf(RC.mult),nx=RACE_MULTS[i+1];RC.mult=(nx&&nx*10<=f)?nx:1;if(RC.mult===1&&nx&&nx*10>f)rToast('Earn more fuel to unlock ×'+nx,1600);sfx.pick();raceUI();});
 $('raceCv').addEventListener('pointerup',e=>{const r=RC.st&&RC.st.race;if(!r||r.status!=='live'||!r.seat||!RC.three)return;const R_=RC.three.rk[r.seat-1],p=R_.getWorldPosition(new THREE.Vector3()).project(RC.three.cm),x=(p.x+1)/2*innerWidth,y=(1-p.y)/2*innerHeight;if(Math.hypot(x-e.clientX,y-e.clientY)<80)rToast('Tap BLAST to fly your rocket',1500);else{const o=RC.three.rk[2-r.seat],q=o.getWorldPosition(new THREE.Vector3()).project(RC.three.cm);if(Math.hypot((q.x+1)/2*innerWidth-e.clientX,(1-q.y)/2*innerHeight-e.clientY)<70)rToast('That’s your rival’s rocket · tap yours!',1600);}});
