@@ -170,8 +170,8 @@ body[data-mode=logic] #tools .pill{pointer-events:auto}
 #cont{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);z-index:2;transform:translate(-50%,24px);display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 40px 9px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(214,240,236,.95));opacity:0;pointer-events:none;transition:opacity .6s ease .4s,transform .8s ease .4s}
 body[data-mode=hub] #cont{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 #cont .ct{font-size:19px;color:#25596a}
-#bonus{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:2;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:1px;padding:7px 30px 6px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(214,240,236,.95))}
-#bonus .ct{font-size:16px;color:#25596a;font-weight:800}#bonus .cs{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7a8aa3}
+#bonus{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);z-index:2;transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:1px;padding:7px 30px 6px;background:linear-gradient(180deg,#ffc56a,#f2973a);border-color:rgba(255,255,255,.9)!important;box-shadow:0 6px 18px rgba(242,151,58,.4)}
+#bonus .ct{font-size:16px;color:#fff;font-weight:800;text-shadow:0 1px 2px rgba(160,80,20,.35)}#bonus .cs{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#fff4e0}
 body[data-mode=hub].allbuilt:not(.grabbing) #bonus{display:flex}
 .tpz{display:inline-block;margin-top:8px;padding:8px 18px;font:inherit;font-size:15px;border:0;pointer-events:auto;cursor:pointer;border-radius:999px;background:linear-gradient(180deg,#ffd27a,#f2a83a);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(242,168,58,.35)}
 #toast:not(.show) .tpz{pointer-events:none}
@@ -4652,7 +4652,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795219003';
+const BUILD='1795219348';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
