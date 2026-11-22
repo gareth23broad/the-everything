@@ -4470,7 +4470,7 @@ function shimmerCoins(t){const P=4200,ph=(t%P)/P,dur=0.2;
       for(let j=0;j<8;j++){const a=j*Math.PI/4,rr=j%2?r*0.08:r*0.42*sp;g.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}g.closePath();g.fill();g.restore();}
   });}
 let toastT=0;
-document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('#toast .twv');if(!b)return;ev.stopPropagation();const q=MK.list.find(x=>String(x.id)===b.dataset.wv);$('toast').classList.remove('show');if(q)sendWave(q);},true);
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('#toast .twv');if(!b)return;ev.stopPropagation();if(b.classList.contains('ted')){$('toast').classList.remove('show');openMarker();return;}const q=MK.list.find(x=>String(x.id)===b.dataset.wv);$('toast').classList.remove('show');if(q)sendWave(q);},true);
 function toast(msg,ms=2000,html){const e=$('toast');if(html)e.innerHTML=html;else e.textContent=msg;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),ms);}
 
 /* ---------- moving between games ---------- */
@@ -4793,7 +4793,7 @@ function drawMarkers(){const box=$('players');const seen={};
   const score=p=>{const i=WORLDS.findIndex(w=>w.id===p.island);return i*100+Math.min(99,p.stage||0);};if(save.me&&!MK.list.some(p=>p.id===save.me.id))MK.list.push({id:save.me.id,name:save.me.name,icon:save.me.icon,island:activeWorld(),stage:save.builds[activeWorld()].stage,keeps:0});
   MK.list.forEach(p=>{seen[p.id]=1;let e=MK.els[p.id];
     if(!e){e=document.createElement('div');e.className='pmark';e.innerHTML='<canvas></canvas><span></span>';box.appendChild(e);MK.els[p.id]=e;
-      e.addEventListener('click',ev=>{ev.stopPropagation();const q=MK.list.find(x=>x.id===p.id);if(!q)return;if(save.me&&q.id===save.me.id){openMarker();return;}
+      e.addEventListener('click',ev=>{ev.stopPropagation();const q=MK.list.find(x=>x.id===p.id);if(!q)return;if(save.me&&q.id===save.me.id){const kt=keepTotals(),a=activeWorld(),w0=WMAP[a],st=save.builds[a].stage,bl=st>=NS(a)?'all built':st+' of '+NS(a)+' built',nm=String(save.me.name||'You').replace(/[<&]/g,'');toast(nm+' · '+w0.name+'\n'+bl+' · ✦ '+kt.o+' / '+kt.n+' keepsakes',6000,'<b>'+nm+'</b> · '+w0.name+'<br>'+bl+'<br><b style="font-size:1.15em">✦ '+kt.o.toLocaleString()+' / '+kt.n.toLocaleString()+' keepsakes</b><br><button class="twv ted">Edit my marker</button>');return;}
                 const w=WMAP[q.island];toast(q.name+' · '+w.name+'\n'+(q.stage>=NS(q.island)?'all built':q.stage+' of '+NS(q.island)+' built')+' · '+((q.keeps||0)%10000)+' / '+keepTotals().n+' keepsakes',5000,(q.name+' · '+w.name).replace(/[<&]/g,'')+'<br>'+(q.stage>=NS(q.island)?'all built':q.stage+' of '+NS(q.island)+' built')+' · '+((q.keeps||0)%10000)+' / '+keepTotals().n+' keepsakes<br><button class="twv" data-wv="'+String(q.id).replace(/[^\w-]/g,'')+'">Tap to wave 🐾</button>');});}
     e.classList.toggle('me',!!(save.me&&p.id===save.me.id));e.classList.toggle('crowned',(p.keeps||0)>=10000||!!(save.me&&p.id===save.me.id&&save.crownDone));{const sc=score(p),dist=[...new Set(MK.list.map(score))].sort((a,b)=>b-a),rk=MK.list.length>1?dist.indexOf(sc)+1:0;['r1','r2','r3'].forEach((c,k)=>e.classList.toggle(c,rk===k+1));}e.querySelector('span').textContent=p.name;
     {const im=photoFor(p),key=p.icon+'|'+(im?im.src.length+':'+(p.photo_v||'me'):'');if(e.dataset.ic!==key){e.dataset.ic=key;paintTagPic(e.querySelector('canvas'),p);}}});
@@ -4958,7 +4958,7 @@ function pigeonMayo(){const cv=document.createElement('canvas');cv.style.cssText
   const mayoWin=()=>{const el=document.getElementById('insane');el.querySelector('span').textContent='PIGEON MAYO!';el.querySelector('span').style.fontSize='min(15vw,86px)';el.classList.remove('go');void el.offsetWidth;el.classList.add('go');const f=document.getElementById('goldFlash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');sfx.tada&&sfx.tada();if(navigator.vibrate)try{navigator.vibrate([30,40,30]);}catch(_){}
     const tg=dropTarget();
     if(tg){save.keeps=save.keeps||{};(save.keeps[tg.id]=save.keeps[tg.id]||[]).push(tg.k);save.prizeTarget=null;try{placeKeep(islands[tg.id],tg.k,true);}catch(_){}const nm=KEEPS[tg.id][tg.k].name;persist();mayoBanner(nm,'Delivered to '+WMAP[tg.id].name);try{refreshPedestal();}catch(_){}}
-    else{save.pearls+=1;persist();updateHud(true);mayoBanner('1 coin','The pigeon did its best');}};
+    else{save.pearls+=100;persist();updateHud(true);mayoBanner('100 coins','No keepsakes left · the pigeon brought coins instead');}};
   requestAnimationFrame(step);}
 function trySpin(){
   if(spin||mode!=='build'||save.stage>=NSC())return;
@@ -5345,7 +5345,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795366285';
+const BUILD='1795366370';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
