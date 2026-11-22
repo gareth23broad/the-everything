@@ -3195,7 +3195,7 @@ WORLDS.forEach(w=>keepsOwned(w.id).forEach(k=>placeKeep(islands[w.id],k,false)))
 
 function toScreen(x,y,z){const v=new V3(x,y,z).project(camera);return{x:(v.x+1)/2*W,y:(1-v.y)/2*H};}
 function update3D(t){
-  seaMat.uniforms.uT.value=t/1000;seaMat.uniforms.uCam.value.copy(camera.position);sky.position.copy(camera.position);
+  {const dt=Math.min(250,t-(update3D.lt||t));update3D.lt=t;update3D.st=(update3D.st||t)+dt*(frame.deeper?0.35:1);seaMat.uniforms.uT.value=update3D.st/1000;}seaMat.uniforms.uCam.value.copy(camera.position);sky.position.copy(camera.position);
   const f=0.5+0.5*Math.sin(t*0.0011);
   auras.forEach((m,i)=>{m.material.uniforms.uA.value=0.38+0.18*Math.sin(t*0.0008+i);});
   foams.forEach(o=>{if(o.shadow)return;o.a.material.opacity=0.22+0.16*f;o.a.scale.setScalar(o.sc*(1+0.025*f));o.b.material.opacity=0.12+0.1*(1-f);o.b.scale.setScalar(o.sc*(1.12+0.03*(1-f)));});
@@ -5301,7 +5301,7 @@ let lastInput=0;['pointerdown','pointermove','touchstart','wheel','keydown'].for
 function busyNow(t){if(trans||spin||(GR&&GR.on)||fx.length||t-lastInput<2500||mode==='pour'||mode==='drop')return true;if(DB&&DB.balls&&DB.balls.length)return true;
   for(const id in islands)if(islands[id].drops.length)return true;return false;}
 function frame(t){
-  {const b=busyNow(t),deep=!b&&t-lastInput>8000,gap=b?0:deep?48:30;if(gap&&t-(frame.rt||0)<gap){requestAnimationFrame(frame);return;}frame.rt=t;if(b||t-(frame.sh||0)>(deep?300:120)){renderer.shadowMap.needsUpdate=true;frame.sh=t;}frame.slow=!b;}
+  {const b=busyNow(t),deep=!b&&t-lastInput>8000,deeper=!b&&t-lastInput>30000,gap=b?0:deeper?100:deep?48:30;if(gap&&t-(frame.rt||0)<gap){requestAnimationFrame(frame);return;}frame.rt=t;if(b||(!deeper&&t-(frame.sh||0)>(deep?300:120))){renderer.shadowMap.needsUpdate=true;frame.sh=t;}frame.slow=!b;frame.deeper=deeper;{const pr=Math.min(window.devicePixelRatio||1,deeper?1.25:1.75);if(renderer.getPixelRatio()!==pr)renderer.setPixelRatio(pr);}}
   now=t;
   if(trans){const e=ease(Math.min(1,(t-trans.t0)/trans.dur));for(const k in L)L[k]=trans.L0[k]+((k===trans.to?1:0)-trans.L0[k])*e;}
   updateCamera(t);
@@ -5345,7 +5345,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795361755';
+const BUILD='1795364874';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
@@ -5442,7 +5442,7 @@ function raceLoop(t){if(!RC.open)return;requestAnimationFrame(raceLoop);const T3
       const aw=w*0.98,ah=Math.max(120,h-lowH-topH-22);for(let k=0;k<3;k++){bb=box();d*=Math.max((bb[1]-bb[0])/aw,(bb[3]-bb[2])/ah);}bb=box();
       T3._top=topH;T3._d=d;T3._ox=(bb[0]+bb[1])/2-w/2;T3._oy=(bb[2]+bb[3])/2-(topH+(h-lowH-22))/2;cm.setViewOffset(w,h,T3._ox,T3._oy,w,h);cm.updateProjectionMatrix();T3.grp.rotation.y=gy;}T3._lt=0;}
   {const z=Math.min(1,(t-(RC.z0||0))/1500),e=1-Math.pow(1-z,3),d=T3._d*(1+5*(1-e));if(T3._cd!==d){T3._cd=d;T3.cm.position.copy(T3.dir).multiplyScalar(d);T3.cm.lookAt(0,0,0);T3.grp.rotation.y=(1-e)*-1.2;}if(z<1)T3._lt=0;}
-  if(t-(T3._lt||0)<30&&t-RC.blast[0]>1200&&t-RC.blast[1]>1200&&RC.pos[0]===RC.tg0&&RC.pos[1]===RC.tg1){return;}T3._lt=t;
+  if(t-(T3._lt||0)<30&&[0,1,2].every(i=>t-(RC.blast[i]||0)>1200&&(RC['tg'+i]===undefined||RC.pos[i]===RC['tg'+i]))){return;}T3._lt=t;
   T3.planet.rotation.y=t*0.00008;{const S=UNI.sky;S.neb.material.uniforms.uT.value=t/1000;S.starM.uniforms.uT.value=t/1000;S.starM.uniforms.uPx.value=Math.min(devicePixelRatio||1,2);}T3.lights.forEach((l,k)=>l.material.color.set(((k+Math.floor(t/300))%2)?'#ff7ab8':'#5fe0ff'));
   const r=RC.st&&RC.st.race,live=r&&(r.status==='live'||r.status==='done')&&r.p2;
   [0,1,2].forEach(i=>{const R_=T3.rk[i],has=!!(live&&r['p'+(i+1)]);R_.visible=has;if(!has){$('rTag'+(i+1)).style.display='none';return;}const tgt=RD(r,i+1);RC['tg'+i]=tgt;if(RC.pos[i]>tgt)RC.pos[i]=tgt;const sp=RC.pos[i]<tgt;if(sp)RC.pos[i]=Math.min(tgt,RC.pos[i]+Math.max(0.6,(tgt-RC.pos[i])*0.025));
