@@ -4590,7 +4590,7 @@ function levelComplete(){
 function pourPearls(n,x,y,t0){
   const k=Math.max(8,Math.min(18,Math.round(n/6)));let left=n;
   for(let i=0;i<k;i++){const share=i===k-1?left:Math.round(n/k);left-=share;
-    fx.push({type:'fly',kind:'pearl',x0:x+(Math.random()-0.5)*40,y0:y+(Math.random()-0.5)*20,t0:t0+i*70,dur:800+Math.random()*200,target:()=>iconPos('jar',true),arrive:()=>{dPearls+=share;bump('jar');sfx.pearl(i);}});}
+    const o={type:'fly',kind:'pearl',pend:share,x0:x+(Math.random()-0.5)*40,y0:y+(Math.random()-0.5)*20,t0:t0+i*70,dur:800+Math.random()*200,target:()=>iconPos('jar',true)};o.arrive=()=>{o.pend=0;dPearls+=share;bump('jar');sfx.pearl(i);};fx.push(o);}
 }
 
 /* ---------- logic puzzle ---------- */
@@ -5289,6 +5289,8 @@ function iconPos(id,left){const r=$(id).getBoundingClientRect();return left?{x:r
 function bump(id){const e=$(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),260);}
 let lastHud='';
 function updateHud(force){
+  /* keep the coin counter honest: coins added without a flying-coin animation (race prizes, cube, dig page, pigeon) must still show */
+  {let pend=0;for(const f of fx)if(f.kind==='pearl'&&f.pend)pend+=f.pend;const tgt=(save.pearls|0)-pend;if(Math.round(dPearls)!==tgt){if(tgt>dPearls+0.5)try{bump('jar');}catch(_){}dPearls=tgt;}}
   if(shownScore<score)shownScore=Math.min(score,shownScore+Math.max(1,Math.ceil((score-shownScore)*0.12)));
   const s=Math.min(dShells,goal.shells),d=Math.min(dSand,goal.sand),cost=dStage<NSC()?W_().costs[dStage]:1;
   const keyS=[PG?pSorted():'',LG?lPlaced()+'/'+LG.n:'',shownScore,s,d,dPearls,dStage,Math.round(dPts),save.mult,goal.shells,goal.sand].join('|');if(keyS===lastHud&&!force)return;lastHud=keyS;
@@ -6266,7 +6268,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795371122';
+const BUILD='1795371332';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
