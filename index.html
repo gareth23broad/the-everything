@@ -5301,12 +5301,12 @@ let lastInput=0;['pointerdown','pointermove','touchstart','wheel','keydown'].for
 function busyNow(t){if(trans||spin||(GR&&GR.on)||fx.length||t-lastInput<2500||mode==='pour'||mode==='drop')return true;if(DB&&DB.balls&&DB.balls.length)return true;
   for(const id in islands)if(islands[id].drops.length)return true;return false;}
 function frame(t){
-  {const b=busyNow(t),deep=!b&&t-lastInput>8000,deeper=!b&&t-lastInput>30000,gap=b?0:deeper?100:deep?48:30;if(gap&&t-(frame.rt||0)<gap){requestAnimationFrame(frame);return;}frame.rt=t;if(b||(!deeper&&t-(frame.sh||0)>(deep?300:120))){renderer.shadowMap.needsUpdate=true;frame.sh=t;}frame.slow=!b;frame.deeper=deeper;{const pr=Math.min(window.devicePixelRatio||1,deeper?1.25:1.75);if(renderer.getPixelRatio()!==pr)renderer.setPixelRatio(pr);}}
+  {const b=busyNow(t),deep=!b&&t-lastInput>8000,deeper=!b&&t-lastInput>30000,lz=b&&mode==='logic'&&!trans&&!fx.length&&t-lastInput>600,gap=b?(lz?33:0):deeper?100:deep?48:30;if(gap&&t-(frame.rt||0)<gap){requestAnimationFrame(frame);return;}frame.rt=t;let mov=!!(trans||spin||(GR&&GR.on));if(!mov)for(const id in islands)if(islands[id].drops.length){mov=true;break;}if(mov||(!deeper&&t-(frame.sh||0)>(deep?300:120))){renderer.shadowMap.needsUpdate=true;frame.sh=t;}frame.slow=!b;frame.deeper=deeper;{const pr=Math.min(window.devicePixelRatio||1,deeper?1.25:1.75);if(renderer.getPixelRatio()!==pr)renderer.setPixelRatio(pr);}}
   now=t;
   if(trans){const e=ease(Math.min(1,(t-trans.t0)/trans.dur));for(const k in L)L[k]=trans.L0[k]+((k===trans.to?1:0)-trans.L0[k])*e;}
   updateCamera(t);
   if(trans&&t-trans.t0>=trans.dur){const d=trans.done;trans=null;if(mode==='hub')setTimeout(()=>{placeDrop.key=null;},60);for(const k in L)L[k]=k===mode?1:0;d&&d();}
-  if(consOpen&&$('consFrame')){}else if(!trans&&frame.rn>3&&document.querySelector('.card.show:not(#done):not(#plist)')){}else if(RC.open){}else if(LG&&LG.race&&(mode==='logic'||(trans&&(trans.to==='logic'||trans.from==='logic')))){raceSkyRender(t);}else if(L.world>0.5){UNI.st.k=Math.min(1,L.world*2-1);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else{update3D(t);renderer.render(scene,camera);}frame.rn=(frame.rn||0)+1;
+  if(consOpen&&$('consFrame')){}else if(!trans&&frame.rn>3&&document.querySelector('.card.show:not(#done):not(#plist)')){}else if(RC.open){}else if(LG&&LG.race&&(mode==='logic'||(trans&&(trans.to==='logic'||trans.from==='logic')))){raceSkyRender(t);}else if(L.world>0.5){UNI.st.k=Math.min(1,L.world*2-1);UNI.update(t);renderer.render(UNI.sc,UNI.cam);}else if(mode==='logic'&&!trans&&t-(frame.l3||0)<95){}else{frame.l3=t;update3D(t);renderer.render(scene,camera);}frame.rn=(frame.rn||0)+1;
   if(!consOpen){const f=$('wfade'),v=(trans&&(trans.to==='world'||trans.from==='world'))?Math.max(0,1-Math.abs(L.world-0.5)*3.2):0;if(f._v!==v){f._v=v;f.style.opacity=v.toFixed(3);}}
   updateWorldLabels();
   if(mode==='hub'&&!trans&&worldOpen()&&!save.worldSeen&&!GR.on&&!document.querySelector('.card.show')){if(!frame.ow)frame.ow=t+2200;else if(t>frame.ow){frame.ow=0;openWorld();}}else frame.ow=0;
@@ -5345,7 +5345,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795364874';
+const BUILD='1795366285';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
