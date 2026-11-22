@@ -59,9 +59,9 @@ body[data-mode=world] #map{display:none}
 #mute,#map,#share{width:46px;height:46px;display:flex;align-items:center;justify-content:center;padding:0}
 #mute svg,#map svg{width:24px;height:24px}#share svg{width:22px;height:22px}
 .rgrp{display:flex;gap:8px;min-width:100px;justify-content:flex-end}
-body[data-mode=hub] #map,body[data-mode=logic] #map,body[data-mode=build] #map{display:none}
+body[data-mode=hub] #map,body[data-mode=logic] #map,body[data-mode=build] #map,body[data-mode=pour] #map{display:none}
 #lmap{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:2;font-size:16px;padding:10px 16px;opacity:0;pointer-events:none!important;transition:opacity .5s}
-body[data-mode=logic] #lmap{opacity:1;pointer-events:auto!important}
+body[data-mode=logic] #lmap,body[data-mode=pour] #lmap{opacity:1;pointer-events:auto!important}
 body.hinting #lmap{opacity:0!important;pointer-events:none!important}
 #bmap{font-size:16px;padding:10px 18px}
 body.viewing #bmap{opacity:0;pointer-events:none!important}
@@ -4843,7 +4843,7 @@ $('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0
   save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick,photo:MK.pPhoto||null});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();
   if((save.me.photo||'')!==(save.me.photoSent||''))pushPhoto();else syncMarkers(true);drawMarkers();toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
-$('lmap').addEventListener('click',()=>{audio.wake();if(LG&&LG.race)raceBack();else goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
+$('lmap').addEventListener('click',()=>{audio.wake();if(mode==='logic'&&LG&&LG.race)raceBack();else goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
 $('failRetry').addEventListener('click',()=>{audio.wake();sfx.pick();retryLogic();});
 $('share').addEventListener('click',async()=>{audio.wake();sfx.pick();const url='https://gareth23broad.github.io/the-everything/',data={title:'The Everything',text:'Come build islands with me in The Everything 🏝️',url};
   try{if(navigator.share){await navigator.share(data);return;}}catch(e){if(e&&e.name==='AbortError')return;}
@@ -5359,7 +5359,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795366703';
+const BUILD='1795366829';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
