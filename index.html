@@ -502,6 +502,14 @@ body.alienpz #visit{display:none!important}body.alienpz #lvl{color:#e9e2ff!impor
   <button class="btn soft" id="keep">Next puzzle</button>
 </div></div>
 
+<div class="card" id="pStuck"><div class="inner">
+  <div class="kicker">Water puzzle</div>
+  <h1 id="psH">No more moves</h1>
+  <p id="psT">Every bottle is blocked, so there’s nowhere left to pour.</p>
+  <button class="btn" id="psBack">Go back to the last good pour</button>
+  <button class="btn soft" id="psRestart">Restart the puzzle</button>
+</div></div>
+
 <div class="card" id="gate"><div class="inner">
   <div class="kicker">The mist has lifted</div>
   <h1>Well done</h1>
@@ -4161,7 +4169,7 @@ function solvableP(bs0,limit=60000){const seen=new Set();let nodes=0;const key=b
     return false;};return dfs(bs0.map(b=>b.slice()));}
 function genPour(k,seed){const r=rngOf(seed);
   for(let t=0;t<400;t++){const L_=[];for(let c=0;c<k;c++)for(let i=0;i<CAP;i++)L_.push(c);shuf(L_,r);
-    const bs=[];for(let i=0;i<k;i++)bs.push(L_.slice(i*CAP,(i+1)*CAP));bs.push([],[]);
+    const bs=[];for(let i=0;i<k;i++)bs.push(L_.slice(i*CAP,(i+1)*CAP));bs.push([],[]);if(k>=6)bs.push([]);
     if(bs.some(b=>b.length&&(fullOne(b)||topRunP(b)>=3)))continue;if(solvableP(bs)===true)return bs;}return null;}
 let PG=null,pourTop=0;
 function newPour(id){
@@ -4190,8 +4198,12 @@ function finishPour(){const{a,b}=PG.anim;doPourP(PG.bs,a,b);PG.hid[a].length=PG.
   if(PG.hid[a].length)PG.hid[a][PG.hid[a].length-1]=false;PG.anim=null;
   if(fullOne(PG.bs[b])){PG.hid[b]=PG.hid[b].map(()=>false);PG.corks[b]=performance.now();sfx.piece(pSorted());const p=PG.pos[b];burst(p.x+PG.bw/2,p.y+(1-L.pour)*H*0.95,18,['#ffffff','#fff1d6',TH_POUR()[PG.bs[b][0]]]);}
   if(solvedP(PG.bs)){pourWin();return;}
-  let any=false;for(let i=0;i<PG.bs.length&&!any;i++)for(let j=0;j<PG.bs.length;j++)if(canPourP(PG.bs,i,j)){any=true;break;}
-  if(!any)toast('No pours left · tap Undo or Restart',2600);updateHud(true);}
+  pourStuckCheck();updateHud(true);}
+function pourStuckCheck(){if(!PG||PG.done)return;let any=false;for(let i=0;i<PG.bs.length&&!any;i++)for(let j=0;j<PG.bs.length;j++)if(canPourP(PG.bs,i,j)){any=true;break;}
+  if(!any){showStuck(false);return;}const h=PG.hist.length,pg=PG;setTimeout(()=>{if(PG!==pg||PG.done||PG.anim||PG.hist.length!==h)return;if(solvableP(PG.bs,25000)===false)showStuck(true);},60);}
+function showStuck(hasMoves){$('psH').textContent=hasMoves?'This one’s stuck':'No more moves';$('psT').textContent=hasMoves?'There are still pours you could make, but the puzzle can’t be finished from here.':'Every bottle is blocked, so there’s nowhere left to pour.';$('psBack').style.display=PG.hist.length?'':'none';setTimeout(()=>$('pStuck').classList.add('show'),450);}
+function rewindPour(){if(!PG||PG.anim||PG.done)return;let n=0;while(PG.hist.length){const s_=PG.hist.pop();PG.bs=s_.bs;PG.hid=s_.hid;n++;if(solvableP(PG.bs,25000)!==false)break;}
+  PG.sel=-1;PG.corks={};PG.bs.forEach((b,i)=>{if(fullOne(b))PG.corks[i]=0;});sfx.pick();updateHud(true);toast(n===1?'Went back 1 pour':'Went back '+n+' pours',1800);}
 function undoPour(){if(!PG||PG.anim||PG.done||!PG.hist.length)return;const s_=PG.hist.pop();PG.bs=s_.bs;PG.hid=s_.hid;PG.sel=-1;PG.corks={};PG.bs.forEach((b,i)=>{if(fullOne(b))PG.corks[i]=0;});sfx.pick();updateHud(true);}
 function restartPour(){if(!PG||PG.anim||PG.done)return;PG.bs=PG.init.bs.map(b=>b.slice());PG.hid=PG.init.hid.map(h=>h.slice());PG.hist=[];PG.sel=-1;PG.corks={};sfx.whoosh(0.4);updateHud(true);}
 const TH_POUR=()=>BOLD;
@@ -5142,6 +5154,8 @@ document.querySelectorAll('.ibtn').forEach(b=>b.addEventListener('click',()=>{au
 $('helpOk').addEventListener('click',()=>$('help').classList.remove('show'));
 $('pUndo').addEventListener('click',()=>{audio.wake();undoPour();});
 $('pRestart').addEventListener('click',()=>{audio.wake();restartPour();});
+$('psBack').addEventListener('click',()=>{audio.wake();$('pStuck').classList.remove('show');rewindPour();});
+$('psRestart').addEventListener('click',()=>{audio.wake();$('pStuck').classList.remove('show');restartPour();});
 $('hint').addEventListener('click',()=>{audio.wake();hint();});
 $('reveal').addEventListener('click',()=>{audio.wake();revealCat();});
 $('hintBox').addEventListener('click',()=>{clearHint();});
@@ -5345,7 +5359,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795366370';
+const BUILD='1795366703';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build')&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
