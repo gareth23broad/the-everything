@@ -1142,13 +1142,13 @@ function islandBase(g,o){
 }
 const foams=[],auras=[];
 const shTex=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),rg=g.createRadialGradient(64,64,0,64,64,64);rg.addColorStop(0,'rgba(40,70,100,.32)');rg.addColorStop(1,'rgba(40,70,100,0)');g.fillStyle=rg;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c);})();
-function addShadow(x,z,sc){const m=new THREE.Mesh(new THREE.PlaneGeometry(13*sc,13*sc).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false}));m.position.set(x,0.04,z);scene.add(m);foams.push({a:m,b:new THREE.Object3D(),shadow:true});}
-function addAura(x,z,sc){const m=new THREE.Mesh(new THREE.RingGeometry(7.4*sc,9.6*sc,96).rotateX(-Math.PI/2),new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uA:{value:0.5},uR0:{value:7.4*sc},uR1:{value:9.6*sc}},
+function addShadow(x,z,sc){const m=new THREE.Mesh(new THREE.PlaneGeometry(13*sc,13*sc).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:shTex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}));m.position.set(x,0.04,z);m.renderOrder=1;scene.add(m);foams.push({a:m,b:new THREE.Object3D(),shadow:true});}
+function addAura(x,z,sc){const m=new THREE.Mesh(new THREE.RingGeometry(7.4*sc,9.6*sc,96).rotateX(-Math.PI/2),new THREE.ShaderMaterial({transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8,uniforms:{uA:{value:0.5},uR0:{value:7.4*sc},uR1:{value:9.6*sc}},
   vertexShader:`varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
   fragmentShader:`uniform float uA,uR0,uR1;varying vec3 vP;void main(){float r=(length(vP.xz)-uR0)/(uR1-uR0);float a=smoothstep(0.,.25,r)*(1.-smoothstep(.25,1.,r));gl_FragColor=vec4(1.,.9,.62,a*uA);}`}));
-  m.position.set(x,0.05,z);scene.add(m);auras.push(m);}
-function addFoam(x,z,sc=1){const a=new THREE.Mesh(new THREE.RingGeometry(6.5,7.7,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:0.35,depthWrite:false}));a.position.set(x,0.03,z);scene.add(a);
-  const b=a.clone();b.material=a.material.clone();scene.add(b);foams.push({a,b,sc});}
+  m.position.set(x,0.05,z);m.renderOrder=4;scene.add(m);auras.push(m);}
+function addFoam(x,z,sc=1){const a=new THREE.Mesh(new THREE.RingGeometry(6.5,7.7,64).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:0.35,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}));a.position.set(x,0.03,z);scene.add(a);
+  a.renderOrder=3;const b=a.clone();b.material=a.material.clone();b.renderOrder=2;scene.add(b);foams.push({a,b,sc});}
 const mc=document.createElement('canvas');mc.width=mc.height=128;{const g=mc.getContext('2d'),rg=g.createRadialGradient(64,64,0,64,64,64);rg.addColorStop(0,'rgba(255,255,255,1)');rg.addColorStop(0.5,'rgba(255,255,255,0.55)');rg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=rg;g.fillRect(0,0,128,128);}
 const mistTex=new THREE.CanvasTexture(mc);
 function addMist(g){const grp=new THREE.Group();for(let i=0;i<9;i++){const a=i/9*Math.PI*2,s=new THREE.Sprite(new THREE.SpriteMaterial({map:mistTex,transparent:true,opacity:0,depthWrite:false}));
@@ -6338,7 +6338,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795444939';
+const BUILD='1795445727';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
