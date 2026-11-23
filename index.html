@@ -4433,7 +4433,7 @@ function makeWorldLabels(){const box=$('wlabels');{const d=document.createElemen
 /* every player's icon + name orbits the planet they're currently on (universe map) */
 const ORB={els:{}};
 function orbitPlayers(){const box=$('wlabels'),t=performance.now(),seen=new Set(),by={};
-  for(const p of MK.list){const w=WMAP[p.island];if(!w||!w.region)continue;(by[w.region]=by[w.region]||[]).push(p);}
+  for(const p of MK.list){const w=WMAP[p.island];if(!w)continue;const rg=REG(w);(by[rg]=by[rg]||[]).push(p);}
   for(const r in by){const P=UNI.PL[r];if(!P)continue;const c0=UNI.toScr(P.grp.position),ed=UNI.toScr(P.grp.position.clone().add(UNI.cam.up.clone().multiplyScalar(P.size))),rad=Math.hypot(ed.x-c0.x,ed.y-c0.y);
     const hide=((+r>=5)!==(UNI.yaw>0.8))||c0.z>1||c0.x<-90||c0.x>W+90||c0.y<-60||c0.y>H+60;const L=by[r].slice().sort((a,b)=>String(a.id).localeCompare(String(b.id)));
     L.forEach((p,k)=>{seen.add(p.id);let e=ORB.els[p.id];if(!e){e=document.createElement('div');e.className='orbP';e.innerHTML='<canvas width="64" height="64"></canvas><span></span>';box.appendChild(e);ORB.els[p.id]=e;}
@@ -6296,7 +6296,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795406384';
+const BUILD='1795406495';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
