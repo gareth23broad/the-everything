@@ -767,7 +767,7 @@ try{
     localStorage.setItem(SAVE_KEY,JSON.stringify({pearls:300,free:0,mult:1,intro:false,current:'garden',solved:10,gates:{garden:true},builds:{lighthouse:{stage:6,pts:0,level:9},garden:{stage:3,pts:0,level:5}}}));}}catch(e){}}
   let s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(!s){const o=JSON.parse(localStorage.getItem('seaglass-v1')||'null');if(o)s={pearls:o.pearls,free:o.free,mult:o.mult,intro:o.intro,current:'lighthouse',builds:{lighthouse:{stage:o.stage||0,pts:o.pts||0,level:o.level||1}}};}
-  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed','zoomHint','me','meSkip','worldSeen','crownDone','crownKeep','ccPaid','spinN','mayoCyc','mayoAnn','moonAnn','hopped2','hopKeeps','bearPaid','raceN','raceRid','raceK','gift5k'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
+  if(s){['pearls','free','mult','intro','current','solved','gates','keeps','dropPts','dropMult','prizeTarget','pourSeed','zoomHint','me','meSkip','worldSeen','crownDone','crownKeep','ccPaid','spinN','mayoCyc','mayoAnn','moonAnn','hopped2','hopKeeps','bearPaid','raceN','raceRid','raceK','gift5k','gifts'].forEach(k=>{if(s[k]!==undefined)save[k]=s[k];});if(s.builds)for(const id in s.builds)if(save.builds[id])Object.assign(save.builds[id],s.builds[id]);}
   if(!WMAP[save.current])save.current='lighthouse';
   if((location.hash==='#hop-94a3c89432'||(save.me&&save.me.id==='234696f3-e980-40f0-88b9-17d01b567a28'))&&save.me&&save.me.name==='Gareth'&&!save.hopped2){try{localStorage.setItem(SAVE_KEY+'-bak',localStorage.getItem(SAVE_KEY)||'');}catch(_){}regWorlds(1).forEach(w=>{save.builds[w.id].stage=w.stages.length;save.builds[w.id].pts=0;if(w!==WORLDS[0])save.gates[w.id]=true;});const f2=regWorlds(2)[0];if(f2){save.current=f2.id;save.gates[f2.id]=true;}save.hopped2=1;save.hopKeeps=1;try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
 }catch(e){}
@@ -4444,6 +4444,9 @@ function orbitPlayers(){const box=$('wlabels'),t=performance.now(),seen=new Set(
       const a=t*0.00035+k/L.length*Math.PI*2+(+r)*1.3,ox=Math.cos(a)*rad*1.75,oy=Math.sin(a)*rad*0.55-rad*0.15,front=Math.sin(a)>-0.15,sc=0.82+0.18*(Math.sin(a)+1)/2;
       e.style.transform=`translate(${(c0.x+ox).toFixed(1)}px,${(c0.y+oy).toFixed(1)}px) translate(-50%,-50%) scale(${sc.toFixed(3)})`;e.style.zIndex=front?3:0;e.style.opacity=front?1:0.6;});}
   for(const id in ORB.els)if(!seen.has(id)){ORB.els[id].remove();delete ORB.els[id];}}
+/* one-off coin gifts for specific players (each pays once, remembered in save.gifts) */
+const GIFTS=[{id:'1ec0eb95-0d5f-4e7f-abe3-5018f5f3103a',k:'lily2000',amt:2000,msg:'A gift from the game maker · enjoy!'}];
+setInterval(()=>{try{if(!save.me)return;save.gifts=save.gifts||{};for(const g of GIFTS){if(g.id!==save.me.id||save.gifts[g.k])continue;save.gifts[g.k]=1;save.pearls+=g.amt;persist();updateHud(true);try{mayoBanner(g.amt.toLocaleString()+' coins',g.msg,'Special delivery','🎁',300,4600);}catch(_){toast('🎁 +'+g.amt.toLocaleString()+' coins',3000);}break;}}catch(_){}},3000);
 /* one-off gift: 5,000 coins for Gareth's profile only */
 setInterval(()=>{try{if(save.me&&save.me.id==='234696f3-e980-40f0-88b9-17d01b567a28'&&!save.gift5k){save.gift5k=1;save.pearls+=5000;persist();updateHud(true);try{mayoBanner('5,000 coins','A little gift for the game maker','Special delivery','🎁',300,4200);}catch(_){toast('🎁 +5,000 coins',3000);}}}catch(_){}},3000);
 function updateWorldLabels(){{const b=$('sunBub');if(L.world<0.9)b.classList.remove('show');else{const p=UNI.sunTop();b.style.transform=`translate(${Math.max(110,Math.min(W-110,p.x)).toFixed(1)}px,${Math.max(130,p.y-6).toFixed(1)}px) translate(-50%,-100%)`;}}const op=L.world>0.5?Math.min(1,(L.world-0.5)*2):0,box=$('wlabels');box.style.opacity=op;box.style.visibility=op<0.02?'hidden':'visible';$('worldHud').style.opacity=op;
@@ -6300,7 +6303,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795409137';
+const BUILD='1795415185';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
