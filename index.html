@@ -298,7 +298,7 @@ h1{margin:4px 0 6px;font-size:28px;color:#4b5a73;font-weight:700}
 #bTop h2{font-size:31px!important;letter-spacing:.06em!important}#bTop .k{font-size:12px!important}#bSub{margin-top:4px;font-size:17px;font-weight:800;color:#e9e2ff}
 #bLow{position:absolute;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;align-items:center;gap:8px}
 #bGo{width:min(100%,380px);height:78px;border-radius:22px;border:2px solid #fff;background:linear-gradient(180deg,#5ff0a8,#18b46a 55%,#0b7a48);color:#fff;font:inherit;font-weight:900;font-size:27px;letter-spacing:.06em;box-shadow:0 7px 0 #075a34,0 14px 26px rgba(0,0,0,.4);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}#bGo small{font-size:16px;font-weight:800;letter-spacing:.02em;opacity:.95}#bGo.off{font-size:23px;filter:grayscale(.6) brightness(.75);box-shadow:0 4px 0 #2a2a3a}
-#bWarn{font-size:16px;font-weight:700;color:#ffd27a;text-align:center}#bCoins{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 14px;border-radius:999px;background:rgba(20,14,52,.85);border:1.5px solid #ffd27a;font-weight:800;font-size:19px}
+#bWarn{font-size:16px;font-weight:700;color:#ffd27a;text-align:center}#bCoins{display:inline-flex;align-items:center;gap:7px;margin-top:8px;padding:5px 15px 5px 6px;min-width:90px;border-radius:999px;border:1px solid rgba(255,255,255,.95);background:rgba(255,255,255,.6);color:#55657f;font-weight:700;font-size:19px;box-shadow:0 6px 16px rgba(90,100,150,.14);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}#bCoins canvas{width:32px;height:32px}#bCoins b{font-weight:700}
 #bRes{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;text-align:center;transition:opacity .35s,transform .35s;z-index:3;width:90vw}#bRes.show{opacity:1;transform:translate(-50%,-50%) scale(1)}#bRes b{display:block;font-size:min(16vw,76px);font-weight:900;color:#fff;text-shadow:0 4px 0 #0b7a48,0 0 30px rgba(95,240,168,.8)}#bRes span{display:inline-block;margin-top:6px;padding:10px 18px;border-radius:999px;background:rgba(20,14,52,.9);border:1.5px solid #5ff0a8;font-size:21px;font-weight:800}
 .bearL{position:absolute;left:0;top:0;width:66px;height:66px;padding:0;border:none;background:none;cursor:pointer;animation:bHead 4s ease-in-out infinite}.bearL canvas{width:66px;height:66px;filter:drop-shadow(0 4px 10px rgba(120,255,190,.45))}.bearL span{position:absolute;left:50%;top:64px;transform:translateX(-50%);white-space:nowrap;font-size:13px;font-weight:900;letter-spacing:.08em;color:#cfffe4;text-shadow:0 1px 4px #000}@keyframes bHead{0%,100%{margin-top:0}50%{margin-top:-8px}}
 #raceView{position:fixed;inset:0;z-index:5;display:none;background:transparent;color:#fff;font-family:inherit;opacity:0;transition:opacity .5s}
@@ -495,7 +495,7 @@ body.alienpz #visit{display:none!important}body.alienpz #lvl{color:#e9e2ff!impor
 <div id="bearView"><canvas id="bearCv"></canvas><canvas id="bBear" width="380" height="460"></canvas>
 <button id="bBack" aria-label="Back to the universe"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="7.2" fill="#ffc85a"/><ellipse cx="16" cy="17.5" rx="13.5" ry="4.6" fill="none" stroke="#e9d7ff" stroke-width="1.4" opacity=".85" transform="rotate(-14 16 17.5)"/><path d="M12.6 15.4q1-1.1 2 0M17.4 15.4q1-1.1 2 0" fill="none" stroke="#8a4a2a" stroke-width="1.1" stroke-linecap="round"/><path d="M15 18.2q1 .9 2 0" fill="none" stroke="#8a4a2a" stroke-width="1" stroke-linecap="round"/></svg></button>
 <button id="bInfo" aria-label="How it works">i</button>
-<div id="bTop"><h2>SPACE BEAR ROLL</h2><div id="bSub">…</div><div id="bCoins">🪙 <b>0</b></div></div>
+<div id="bTop"><h2>SPACE BEAR ROLL</h2><div id="bSub">…</div><div id="bCoins"><canvas width="64" height="64"></canvas><b>0</b></div></div>
 <div id="bRes"><b></b><span></span></div>
 <div id="bHowCard"></div>
 <div id="bLow"><div id="bWarn">⚠️ It’s a gamble · you could win big or lose it all</div><button id="bGo">🎲 GAMBLE<small>1,000 coins</small></button></div></div>
@@ -6337,7 +6337,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795442658';
+const BUILD='1795443584';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
@@ -6650,8 +6650,9 @@ function bearUI(){const rdy=bearReady();$('bCoins').querySelector('b').textConte
   if(SBR.roll){go.classList.add('off');return;}
   if(!rdy){const ms=bearNext()-new Date(),hh=Math.floor(ms/3600e3),mm=Math.floor(ms%3600e3/60e3);$('bSub').textContent='Next roll in '+(hh?hh+'h ':'')+mm+'m · resets 8am';go.classList.add('off');go.innerHTML='⏰ SEE YOU TOMORROW<small>'+(save.bearLast?'Today you rolled '+save.bearLast:'one roll a day')+'</small>';}
   else{$('bSub').textContent='Your daily roll is ready!';go.classList.toggle('off',save.pearls<BEAR_COST);go.innerHTML='🎲 GAMBLE<small>'+BEAR_COST.toLocaleString()+' coins</small>';}}
+function bearCoinIcon(){const c=$('bCoins').querySelector('canvas');if(c._p)return;c._p=1;const g=c.getContext('2d');g.clearRect(0,0,64,64);paintCoin(g,32,32,28,1);}
 function openBear(){if(trans||mode!=='world'||consOpen||SBR.open||RC.open)return;sfx.pick();bearInit();SBR.anim=null;SBR.t0=performance.now();SBR.open=true;SBR.done=false;$('bRes').classList.remove('show');const bb=$('bBear');paintBear(bb.getContext('2d'),bb.width,bb.height,true);bb.className='';
-  $('bearView').classList.add('show');requestAnimationFrame(()=>$('bearView').classList.add('vis'));SBR.three._w=0;bearUI();SBR.ui=setInterval(()=>{if(SBR.open)bearUI();},15000);requestAnimationFrame(bearLoop);}
+  bearCoinIcon();$('bearView').classList.add('show');requestAnimationFrame(()=>$('bearView').classList.add('vis'));SBR.three._w=0;bearUI();SBR.ui=setInterval(()=>{if(SBR.open)bearUI();},15000);requestAnimationFrame(bearLoop);}
 function closeBear(){SBR.open=false;clearInterval(SBR.ui);$('bearView').classList.remove('show','vis');$('bHowCard').classList.remove('show');}
 function bearRoll(){if(SBR.roll)return;if(!bearReady()){toast('One roll a day · come back after 8am',2200);return;}if(save.pearls<BEAR_COST){toast('You need '+BEAR_COST.toLocaleString()+' coins to gamble',2200);return;}
   save.pearls-=BEAR_COST;save.bearDay=bearDayKey();const n=1+Math.floor(Math.random()*20);save.bearLast=n;persist();updateHud(true);$('bRes').classList.remove('show');SBR.done=false;
