@@ -4448,9 +4448,9 @@ rays.material.rotation=t*0.00005;rays2.material.rotation=-t*0.00003;halo.materia
     const hm=A(new THREE.SphereGeometry(1.48,28,20),new THREE.MeshStandardMaterial({color:'#bfe8ff',transparent:true,opacity:0.22,roughness:0.05,metalness:0.2,depthWrite:false}),0,1.6,0);hm.renderOrder=2;
     A(new THREE.TorusGeometry(1.0,0.14,10,28),GR,0,0.72,0).rotation.x=Math.PI/2;
     const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:'#9fffd0',transparent:true,opacity:0.45,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(8,8,1);gl.position.y=0.8;sbear.add(gl);}
-  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=80,rb=1.33;sbear.position.set(Math.sin(rb)*o3,-12,Math.cos(rb)*o3);}sc.add(sbear);
-  const _ru=update;update=function(t){_ru(t);rocket.position.y=-14+Math.sin(t*0.002)*0.6;rocket.rotation.y=t*0.0006;rocket.userData.fl.scale.y=0.8+Math.random()*0.4;sbear.position.y=-12+Math.sin(t*0.0016+1)*0.8;sbear.rotation.y=Math.sin(t*0.0007)*0.55+yawT*0.6;sbear.rotation.z=Math.sin(t*0.0011)*0.12;};
-  const _rp=pick;pick=function(x,y){if(RACE_ON){const c=toScr(rocket.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<64)return 'rocket';}{const c=toScr(sbear.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'bear';}return _rp(x,y);};
+  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=(PL[2].orb+PL[3].orb)/2,rb=2.09;sbear.position.set(Math.sin(rb)*o3,-14,Math.cos(rb)*o3);}sbear.visible=window.BEAR_ON===true;sc.add(sbear);
+  const _ru=update;update=function(t){_ru(t);rocket.position.y=-14+Math.sin(t*0.002)*0.6;rocket.rotation.y=t*0.0006;rocket.userData.fl.scale.y=0.8+Math.random()*0.4;sbear.position.y=-14+Math.sin(t*0.0016+1)*0.8;sbear.rotation.y=Math.sin(t*0.0007)*0.55+yawT*0.6;sbear.rotation.z=Math.sin(t*0.0011)*0.12;};
+  const _rp=pick;pick=function(x,y){if(RACE_ON){const c=toScr(rocket.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<64)return 'rocket';}if(window.BEAR_ON===true){const c=toScr(sbear.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'bear';}return _rp(x,y);};
   return{sky:{neb,starsP,starM},rocket,sbear,sc,cam,update,st,PL,toScr,pick,moon,MR,moonHidden,FIN,skyFlash:()=>FIN.flash,sunTop:()=>toScr(new V3(0,R_.sun*1.25,0).applyQuaternion(sun.quaternion)),setYaw:v=>{yawT=Math.max(-0.5,Math.min(Math.PI/2+0.5,v));},get yaw(){return yawT;}};
 })();
 let _cd=0,_cdt=0;const consDone=()=>{const n=performance.now();if(n-_cdt>1000){_cdt=n;try{const c=JSON.parse(localStorage.getItem('cc-v1')||'{}');_cd=(c.done||[]).length>=120;}catch(e){_cd=false;}}return _cd;};
@@ -4490,7 +4490,7 @@ function updateWorldLabels(){{const b=$('sunBub');if(L.world<0.9)b.classList.rem
   const sub=RC.sub();if(e.dataset.t!==sub){e.dataset.t=sub;e.querySelector('span').innerHTML=sub.replace(/7,000 gold/,'<b class="gshim">7,000 gold</b>');}}
   try{orbitPlayers();}catch(_){}
   {let e=wLabels.bear;if(!e){e=document.createElement('button');e.className='wlabel pill rocketL bearPill';e.innerHTML='<b>SPACE BEAR ROLL</b><span>One daily gamble · win <b class="gshim">5,000</b></span>';e.addEventListener('click',()=>{audio.wake();openBear();});$('wlabels').appendChild(e);wLabels.bear=e;}
-    const c0=UNI.toScr(UNI.sbear.position),off=c0.z>1||c0.x<-40||c0.x>W+40||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off){const lw=e.offsetWidth||190,lx=Math.max(8+lw/2,Math.min(W-8-lw/2,c0.x));e.style.transform=`translate(${lx.toFixed(1)}px,${(c0.y+52).toFixed(1)}px) translate(-50%,0)`;}}
+    const c0=UNI.toScr(UNI.sbear.position),off=window.BEAR_ON!==true||c0.z>1||c0.x<-40||c0.x>W+40||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off){const lw=e.offsetWidth||190,lx=Math.max(8+lw/2,Math.min(W-8-lw/2,c0.x));e.style.transform=`translate(${lx.toFixed(1)}px,${(c0.y+52).toFixed(1)}px) translate(-50%,0)`;}}
   let firstLock=0;for(let r=1;r<=9;r++){const e=wLabels[r],P=UNI.PL[r],c0=UNI.toScr(P.grp.position),ed=UNI.toScr(P.grp.position.clone().add(UNI.cam.up.clone().multiplyScalar(P.size))),rad=Math.hypot(ed.x-c0.x,ed.y-c0.y),s={x:c0.x,y:c0.y+rad*1.12+4};
     const RGx=REGIONS[r]&&regWorlds(r).length;if((r>=5)!==(UNI.yaw>0.8)||c0.z>1||c0.x<-90||c0.x>W+90||c0.y<-40||c0.y>H+40){e.style.display='none';continue;}if(!RGx&&r<5){if(firstLock){e.style.display='none';continue;}firstLock=r;}e.style.display='';e.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,0)`;
     let name,sub,cls='';const RG=REGIONS[r]&&regWorlds(r).length?REGIONS[r]:null;
@@ -6337,7 +6337,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795418073';
+const BUILD='1795418481';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
