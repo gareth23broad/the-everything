@@ -487,7 +487,7 @@ body.alienpz #visit{display:none!important}body.alienpz #lvl{color:#e9e2ff!impor
 <div id="rTop"><div class="k">3 DAYS · MOST LAPS WINS</div><h2>ROCKET RACE</h2><div id="rSub">Connecting…</div>
 <div id="rStats"><span id="rFuel">⛽ <b>0</b> fuel</span><button id="rPuz">🧩 Puzzle <small>· earn fuel</small></button></div></div>
 <div class="rTag" id="rTag1"></div><div class="rTag" id="rTag2"></div><div class="rTag" id="rTag3"></div>
-<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>🎡 Pick a <b>multiplier</b>, then tap <b>BLAST</b> to spin the wheel · it shows how far you’ll fly (a lap is 100) · the gold 🚀 is the jackpot<br>📦 Every 3–5 laps the <b>mystery cube</b> opens (3–7 laps once you pass 200) · coins, fuel or a mega boost<br>☄️ Every 15 laps an <b>asteroid</b> blocks your rocket · blast <b>300 fuel</b> into it to smash through (no laps while it’s there)<br>🏁 Most laps after <b>3 days</b> wins <b class="gshim">7,000 gold</b> · 2nd gets <b class="gshim">2,323 gold</b> · 3rd gets <b class="gshim">1,000 gold</b><br>🧊 Then the ships cool down for a week</div>
+<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>🎡 Pick a <b>multiplier</b>, then tap <b>BLAST</b> to spin the wheel · it shows how far you’ll fly (a lap is 100) · the gold 🚀 is the jackpot<br>📦 Every 3–5 laps the <b>mystery cube</b> opens (3–7 laps after 200 laps, 3–15 after 400) · coins, fuel or a mega boost<br>☄️ Every 15 laps an <b>asteroid</b> blocks your rocket · blast <b>300 fuel</b> into it to smash through (no laps while it’s there)<br>🏁 Most laps after <b>3 days</b> wins <b class="gshim">7,000 gold</b> · 2nd gets <b class="gshim">2,323 gold</b> · 3rd gets <b class="gshim">1,000 gold</b><br>🧊 Then the ships cool down for a week</div>
 <div id="rSeats"><button class="rSeat" id="rs1"><canvas></canvas><b></b><small></small></button><button class="rSeat" id="rs2"><canvas></canvas><b></b><small></small></button><button class="rSeat" id="rs3"><canvas></canvas><b></b><small></small></button></div>
 <div id="rCool"></div>
 <div id="rBar"><div class="row"><span class="lap" id="rL1" style="display:none"></span><span id="rTime">⏱</span><span class="lap" id="rL2" style="display:none"></span><span class="lap" id="rL3" style="display:none"></span></div>
@@ -6290,7 +6290,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795404199';
+const BUILD='1795404263';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
@@ -6487,7 +6487,7 @@ function raceUI(){const st=RC.st,r=st&&st.race,cool=RC.cool(),S=[$('rs1'),$('rs2
 async function raceJoin(){if(RC.busy)return;const r=RC.st&&RC.st.race;if(r&&r.seat)return;if(RC.cool()>0){rToast('Ships cooling down · '+fmtLeft(RC.cool()),2000);return;}RC.busy=true;sfx.pick();
   try{const st=await raceRpc('race_join');RC.busy=false;if(st.error==='cooldown'){st.race=null;raceHandle(st);rToast('Ships cooling down',2000);return;}raceHandle(st);const nr=st.race;if(nr&&nr.status==='live'){mayoBanner('RACE ON!','Most laps in 3 days wins 7,000 gold','3 · 2 · 1','🚀',100,3600);}else rToast('You’re in! Waiting for '+(3-RSEATS(nr).length===1?'1 more racer…':(3-RSEATS(nr||{}).length)+' more racers…'),2400);}
   catch(e){RC.busy=false;if(/cool/i.test(e&&e.message||'')){raceRefresh();rToast('Ships cooling down',2000);}else rToast('Couldn’t reach the launch pad · try again',2200);}}
-const raceMyLaps=r=>Math.floor(RD(r,r.seat)/100),raceBoxLeft=r=>Math.max(0,(r.box||0)+3+((r.boxn||0)%((r.box||0)>=200?5:3))-raceMyLaps(r)),raceBoxReady=r=>r&&r.status==='live'&&r.seat&&r['rock'+r.seat]==null&&raceBoxLeft(r)===0;
+const raceMyLaps=r=>Math.floor(RD(r,r.seat)/100),raceBoxLeft=r=>Math.max(0,(r.box||0)+3+((r.boxn||0)%((r.box||0)>=400?13:(r.box||0)>=200?5:3))-raceMyLaps(r)),raceBoxReady=r=>r&&r.status==='live'&&r.seat&&r['rock'+r.seat]==null&&raceBoxLeft(r)===0;
 function raceBoxInfo(){try{paintIcons();}catch(_){}const r=RC.st&&RC.st.race,c=$('rBoxCard');$('rBoxWhen').textContent=r&&raceBoxReady(r)?'Ready · tap the cube to open!':'Opens in '+lapsTxt(raceBoxLeft(r))+' · keep blasting!';c.classList.add('show');clearTimeout(c._t);sfx.pick();}
 async function raceBoxTap(){const r=RC.st&&RC.st.race;if(!r||r.status!=='live'||!r.seat)return;if(!raceBoxReady(r)){raceBoxInfo();return;}if(RC.busy)return;RC.busy=true;$('rBoxCard').classList.remove('show');RC.boxSpin=performance.now();try{sfx.whoosh&&sfx.whoosh(0.6);}catch(_){}
   try{const st=await raceRpc('race_open_box',{p_race:r.id});RC.busy=false;const pz=st.prize;if(pz&&pz.kind==='boost'){RC.blast[r.seat-1]=performance.now()+700;}raceHandle(st);if(pz)setTimeout(()=>racePrizeFx(pz),900);}catch(_){RC.busy=false;rToast('Couldn’t open the cube · try again',2000);}}
@@ -6503,7 +6503,7 @@ function racePrizeFx(pz){const xy=RC.boxXY||[innerWidth/2,innerHeight/2];try{con
   if(pz.kind==='coins'){save.pearls+=pz.amt;persist();updateHud(true);mayoBanner(pz.amt.toLocaleString()+' coins','Straight into your coin jar!','Mystery space cube','🪙',1300,4600);}
   else if(pz.kind==='fuel')mayoBanner('+'+pz.amt+' fuel','Tank topped up · time to BLAST!','Mystery space cube','⛽',1300,4600);
   else mayoBanner('MEGA BOOST','Your rocket zooms ahead!','Mystery space cube','🚀',1300,4600);}
-const RACE_MULTS=[1,2,5,10],raceFuel=r=>(r&&r.fuel||[]).reduce((a,b)=>a+b,0),raceCost=()=>25*(RC.mult||1),raceBestMult=f=>RACE_MULTS.filter(m=>m*25<=Math.max(25,f)).pop();RC.mult=1;
+const RACE_MULTS=[1,2,5,10,20],raceFuel=r=>(r&&r.fuel||[]).reduce((a,b)=>a+b,0),raceCost=()=>25*(RC.mult||1),raceBestMult=f=>RACE_MULTS.filter(m=>m*25<=Math.max(25,f)).pop();RC.mult=1;
 const WSEG=[12,25,12,50,12,25,12,25,100,12,25,12,50,12,25,12,25,50,12,12],WH=28,WREP=7;RC.wIdx=WSEG.length*2;
 const lapTxt=d=>{const q=Math.round(d/12.5),w=Math.floor(q/8),r=q%8,F=['','⅛','¼','⅜','½','⅝','¾','⅞'][r];return (w?w:'')+F+(w>1||(w===1&&r)?' laps':' lap');};
 const wLab=(b,m)=>(b===100?'🚀 ':'')+(b*m).toLocaleString();
