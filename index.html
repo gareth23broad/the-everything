@@ -495,7 +495,7 @@ body.alienpz #visit{display:none!important}body.alienpz #lvl{color:#e9e2ff!impor
 <div id="bearView"><canvas id="bearCv"></canvas><canvas id="bBear" width="380" height="460"></canvas>
 <button id="bBack" aria-label="Back to the universe"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="7.2" fill="#ffc85a"/><ellipse cx="16" cy="17.5" rx="13.5" ry="4.6" fill="none" stroke="#e9d7ff" stroke-width="1.4" opacity=".85" transform="rotate(-14 16 17.5)"/><path d="M12.6 15.4q1-1.1 2 0M17.4 15.4q1-1.1 2 0" fill="none" stroke="#8a4a2a" stroke-width="1.1" stroke-linecap="round"/><path d="M15 18.2q1 .9 2 0" fill="none" stroke="#8a4a2a" stroke-width="1" stroke-linecap="round"/></svg></button>
 <button id="bInfo" aria-label="How it works">i</button>
-<div id="bTop"><div class="k">ONE ROLL A DAY · IT’S A GAMBLE</div><h2>SPACE BEAR ROLL</h2><div id="bSub">…</div><div id="bCoins">🪙 <b>0</b></div></div>
+<div id="bTop"><h2>SPACE BEAR ROLL</h2><div id="bSub">…</div><div id="bCoins">🪙 <b>0</b></div></div>
 <div id="bRes"><b></b><span></span></div>
 <div id="bHowCard"></div>
 <div id="bLow"><div id="bWarn">⚠️ It’s a gamble · you could win big or lose it all</div><button id="bGo">🎲 GAMBLE<small>1,000 coins</small></button></div></div>
@@ -4448,7 +4448,7 @@ rays.material.rotation=t*0.00005;rays2.material.rotation=-t*0.00003;halo.materia
     const hm=A(new THREE.SphereGeometry(1.48,28,20),new THREE.MeshStandardMaterial({color:'#bfe8ff',transparent:true,opacity:0.22,roughness:0.05,metalness:0.2,depthWrite:false}),0,1.6,0);hm.renderOrder=2;
     A(new THREE.TorusGeometry(1.0,0.14,10,28),GR,0,0.72,0).rotation.x=Math.PI/2;
     const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:'#9fffd0',transparent:true,opacity:0.45,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(8,8,1);gl.position.y=0.8;sbear.add(gl);}
-  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=(PL[2].orb+PL[3].orb)/2,rb=2.09;sbear.position.set(Math.sin(rb)*o3,-14,Math.cos(rb)*o3);}sbear.visible=window.BEAR_ON===true;sc.add(sbear);
+  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=(PL[2].orb+PL[3].orb)/2+17,rb=1.25;sbear.position.set(Math.sin(rb)*o3,-14,Math.cos(rb)*o3);}sbear.visible=window.BEAR_ON===true;sc.add(sbear);
   const _ru=update;update=function(t){_ru(t);rocket.position.y=-14+Math.sin(t*0.002)*0.6;rocket.rotation.y=t*0.0006;rocket.userData.fl.scale.y=0.8+Math.random()*0.4;sbear.position.y=-14+Math.sin(t*0.0016+1)*0.8;sbear.rotation.y=Math.sin(t*0.0007)*0.55+yawT*0.6;sbear.rotation.z=Math.sin(t*0.0011)*0.12;};
   const _rp=pick;pick=function(x,y){if(RACE_ON){const c=toScr(rocket.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<64)return 'rocket';}if(window.BEAR_ON===true){const c=toScr(sbear.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'bear';}return _rp(x,y);};
   return{sky:{neb,starsP,starM},rocket,sbear,sc,cam,update,st,PL,toScr,pick,moon,MR,moonHidden,FIN,skyFlash:()=>FIN.flash,sunTop:()=>toScr(new V3(0,R_.sun*1.25,0).applyQuaternion(sun.quaternion)),setYaw:v=>{yawT=Math.max(-0.5,Math.min(Math.PI/2+0.5,v));},get yaw(){return yawT;}};
@@ -4490,7 +4490,7 @@ function updateWorldLabels(){{const b=$('sunBub');if(L.world<0.9)b.classList.rem
   const sub=RC.sub();if(e.dataset.t!==sub){e.dataset.t=sub;e.querySelector('span').innerHTML=sub.replace(/7,000 gold/,'<b class="gshim">7,000 gold</b>');}}
   try{orbitPlayers();}catch(_){}
   {let e=wLabels.bear;if(!e){e=document.createElement('button');e.className='wlabel pill rocketL bearPill';e.innerHTML='<b>SPACE BEAR ROLL</b><span>One daily gamble · win <b class="gshim">5,000</b></span>';e.addEventListener('click',()=>{audio.wake();openBear();});$('wlabels').appendChild(e);wLabels.bear=e;}
-    const c0=UNI.toScr(UNI.sbear.position),off=window.BEAR_ON!==true||c0.z>1||c0.x<-40||c0.x>W+40||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off){const lw=e.offsetWidth||190,lx=Math.max(8+lw/2,Math.min(W-8-lw/2,c0.x));e.style.transform=`translate(${lx.toFixed(1)}px,${(c0.y+52).toFixed(1)}px) translate(-50%,0)`;}}
+    const c0=UNI.toScr(UNI.sbear.position),off=window.BEAR_ON!==true||c0.z>1||c0.x<-40||c0.x>W+40||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';if(!off){/* the pill stays pinned under the bear, exactly like the rocket's */e.style.transform=`translate(${c0.x.toFixed(1)}px,${(c0.y+52).toFixed(1)}px) translate(-50%,0)`;}}
   let firstLock=0;for(let r=1;r<=9;r++){const e=wLabels[r],P=UNI.PL[r],c0=UNI.toScr(P.grp.position),ed=UNI.toScr(P.grp.position.clone().add(UNI.cam.up.clone().multiplyScalar(P.size))),rad=Math.hypot(ed.x-c0.x,ed.y-c0.y),s={x:c0.x,y:c0.y+rad*1.12+4};
     const RGx=REGIONS[r]&&regWorlds(r).length;if((r>=5)!==(UNI.yaw>0.8)||c0.z>1||c0.x<-90||c0.x>W+90||c0.y<-40||c0.y>H+40){e.style.display='none';continue;}if(!RGx&&r<5){if(firstLock){e.style.display='none';continue;}firstLock=r;}e.style.display='';e.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,0)`;
     let name,sub,cls='';const RG=REGIONS[r]&&regWorlds(r).length?REGIONS[r]:null;
@@ -6337,7 +6337,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795418481';
+const BUILD='1795442102';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
@@ -6632,9 +6632,13 @@ function bearInit(){if(SBR.three)return SBR.three;const cv=$('bearCv'),rd=new TH
 function bearTarget(k){const T=SBR.three,f=T.faces[k],q=new THREE.Quaternion().setFromUnitVectors(f.n,new THREE.Vector3(0,0,1)),u=f.up.clone().applyQuaternion(q),qz=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.PI/2-Math.atan2(u.y,u.x));return qz.multiply(q);}
 function bearLayout(){const T=SBR.three,w=innerWidth,h=innerHeight;if(T._w===w&&T._h===h)return;T._w=w;T._h=h;T.rd.setSize(w,h,false);T.cm.aspect=w/h;T.cm.position.z=w/h<0.6?13:10;T.cm.updateProjectionMatrix();T.die.position.y=-0.2;T._lt=0;
   const bb=$('bBear');bb.style.top=Math.round(h*0.42)+'px';}
-function bearLoop(t){if(!SBR.open)return;requestAnimationFrame(bearLoop);const T=SBR.three;bearLayout();const roll=SBR.roll,fast=!!roll||t-(SBR.fx||0)<3200;if(!fast&&t-(T._lt||0)<80)return;T._lt=t;
-  if(roll){const k=Math.min(1,(t-roll.t0)/roll.dur);if(k<0.7){const sp=(1-k/0.7);T.die.rotateOnWorldAxis(roll.ax,0.32*sp+0.02);T.die.rotateOnWorldAxis(roll.ax2,0.18*sp);T.die.position.y=-0.2+Math.abs(Math.sin(k*18))*1.4*(1-k/0.7);if(!roll.q0&&k>0.6)roll.q0=T.die.quaternion.clone();}
-    else{if(!roll.q0)roll.q0=T.die.quaternion.clone();const e=(k-0.7)/0.3,ee=1-Math.pow(1-e,3);T.die.quaternion.copy(roll.q0).slerp(roll.q1,ee);T.die.position.y=-0.2;T.die.scale.setScalar(1+0.12*Math.sin(e*Math.PI));}
+function bearLoop(t){if(!SBR.open)return;requestAnimationFrame(bearLoop);const T=SBR.three;bearLayout();const roll=SBR.roll,fast=!!roll||t-(SBR.fx||0)<3200,quiet=!fast&&t-(SBR.t0||0)>15000&&t-(SBR.fx||0)>15000;if(!fast&&t-(T._lt||0)<(quiet?200:66))return;T._lt=t;
+  if(roll){const k=Math.min(1,(t-roll.t0)/roll.dur);
+    /* the die spins down smoothly and lands exactly on its face: orientation = result face x a spin that eases out to zero (no snap at the end) */
+    if(!roll.q0){roll.q0=T.die.quaternion.clone();roll.spin=Math.PI*2*(3+Math.random()*1.5);}
+    const ez=1-Math.pow(1-k,3),ang=roll.spin*(1-ez),wob=0.5*Math.pow(1-k,2)*Math.sin(k*22),_q=roll.q1.clone().multiply(new THREE.Quaternion().setFromAxisAngle(roll.ax,ang)).multiply(new THREE.Quaternion().setFromAxisAngle(roll.ax2,wob));
+    if(k<0.12)_q.slerp(roll.q0,1-k/0.12);T.die.quaternion.copy(_q);
+    T.die.position.y=-0.2+Math.abs(Math.sin(k*16))*1.3*Math.pow(1-k,2);T.die.scale.setScalar(1+0.08*Math.sin(Math.max(0,(k-0.8)/0.2)*Math.PI));
     if(k>=1){SBR.roll=null;T.die.quaternion.copy(roll.q1);T.die.scale.setScalar(1);bearLanded(roll.n);}}
   else if(!SBR.done){T.die.rotation.y+=0.006;T.die.rotation.x+=0.003;}
   {const B=T.bear,a=SBR.anim,ag=a?t-a.t0:0;if(a&&a.k==='plant'&&ag<1800){const e=Math.min(1,ag/900);B.rotation.set(e*1.9,0.5,e*0.4);B.position.set(-1.3+e*0.9,1.7-e*2.2,1.4);}
@@ -6646,7 +6650,7 @@ function bearUI(){const rdy=bearReady();$('bCoins').querySelector('b').textConte
   if(SBR.roll){go.classList.add('off');return;}
   if(!rdy){const ms=bearNext()-new Date(),hh=Math.floor(ms/3600e3),mm=Math.floor(ms%3600e3/60e3);$('bSub').textContent='Next roll in '+(hh?hh+'h ':'')+mm+'m · resets 8am';go.classList.add('off');go.innerHTML='⏰ SEE YOU TOMORROW<small>'+(save.bearLast?'Today you rolled '+save.bearLast:'one roll a day')+'</small>';}
   else{$('bSub').textContent='Your daily roll is ready!';go.classList.toggle('off',save.pearls<BEAR_COST);go.innerHTML='🎲 GAMBLE<small>'+BEAR_COST.toLocaleString()+' coins</small>';}}
-function openBear(){if(trans||mode!=='world'||consOpen||SBR.open||RC.open)return;sfx.pick();bearInit();SBR.anim=null;SBR.open=true;SBR.done=false;$('bRes').classList.remove('show');const bb=$('bBear');paintBear(bb.getContext('2d'),bb.width,bb.height,true);bb.className='';
+function openBear(){if(trans||mode!=='world'||consOpen||SBR.open||RC.open)return;sfx.pick();bearInit();SBR.anim=null;SBR.t0=performance.now();SBR.open=true;SBR.done=false;$('bRes').classList.remove('show');const bb=$('bBear');paintBear(bb.getContext('2d'),bb.width,bb.height,true);bb.className='';
   $('bearView').classList.add('show');requestAnimationFrame(()=>$('bearView').classList.add('vis'));SBR.three._w=0;bearUI();SBR.ui=setInterval(()=>{if(SBR.open)bearUI();},15000);requestAnimationFrame(bearLoop);}
 function closeBear(){SBR.open=false;clearInterval(SBR.ui);$('bearView').classList.remove('show','vis');$('bHowCard').classList.remove('show');}
 function bearRoll(){if(SBR.roll)return;if(!bearReady()){toast('One roll a day · come back after 8am',2200);return;}if(save.pearls<BEAR_COST){toast('You need '+BEAR_COST.toLocaleString()+' coins to gamble',2200);return;}
