@@ -7757,7 +7757,7 @@ const CVX=(()=>{
     S.busy=true;SND.pop();S.paws-=S.mult;hud();bumpE('cvPawP');$c('cvTot').classList.remove('on');
     try{await qIdle();const rid=crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^Math.random()*16>>c/4).toString(16));
       const st=await NET.rpc('cv_roll',Object.assign(auth(),{p_mult:S.mult,p_rid:rid,p_since:NET.seen}));
-      if(st.error==='paws'){applyMe(st.state);say('Out of paws');}else{S.latest=st;enqueue(st.events);await qIdle();}}
+      if(st.error==='paws'){applyMe(st.state);say('Out of paws');}else if(st.error==='ended'){applyMe(st.state);NET.live=false;say('This Catventure has ended · leftover paws turn into coins',3200);}else{S.latest=st;enqueue(st.events);await qIdle();}}
     catch(e){say('Couldn’t reach the server · try again');try{applyMe(await NET.rpc('cv_state',Object.assign(auth(),{p_since:NET.seen})));}catch(_){}}
     S.busy=false;hud();}
   let pollT=null;
@@ -7808,7 +7808,10 @@ const CVX=(()=>{
     catch(e){NET.ok=false;say('Couldn’t reach the server',4000);console.warn(e);}
     hud();}
   // quietly sign in on load so logic puzzles can drop paws while a Catventure is live
-  async function boot(){if(!await ident(false))return;try{const st=await NET.rpc('cv_join',joinArgs());NET.live=!!(st.team&&st.team.live_until&&new Date(st.team.live_until)>new Date());NET.liveUntil=st.team&&st.team.live_until;NET.island=st.team&&st.team.island;NET.ok=true;applyMe(st);}catch(_){}}
+  async function boot(){if(!CVT&&!CV_OPEN)return;if(!await ident(false))return;try{const st=await NET.rpc('cv_join',joinArgs());NET.live=!!(st.team&&st.team.live_until&&new Date(st.team.live_until)>new Date());NET.liveUntil=st.team&&st.team.live_until;NET.island=st.team&&st.team.island;NET.ok=true;applyMe(st);
+      // the Catventure is over: leftover paws become coins (1 paw = 1 coin)
+      if(!CVT&&!NET.live&&NET.liveUntil){const r=await NET.rpc('cv_settle',auth());const c=await NET.rpc('cv_claim',auth());const amt=(c&&c.coins)|0;
+        if(amt>0){save.pearls+=amt;persist();try{updateHud(true);}catch(_){}mayoBanner(amt.toLocaleString()+' coins',(r.paws>0?'Your '+r.paws.toLocaleString()+' leftover paws turned into coins':'Your Catventure coins')+' · thanks for touring!','Catventure Club','🐾',1200,5200);}}}catch(_){}}
   let earnBusy=Promise.resolve();
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;return;}S.paws=r.total;
       if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
@@ -7864,7 +7867,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795562530';
+const BUILD='1795562646';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
