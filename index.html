@@ -827,13 +827,13 @@ const REGIONS={1:{name:'The Bay',top:[.776,.831,.941],mid:[.918,.847,.902],hor:[
   4:{name:'The Candy Coast',top:[.99,.94,.72],mid:[1.0,.96,.86],hor:[1.0,.90,.92],deep:[.96,.52,.74],smid:[.99,.70,.84],skyc:[1.0,.93,.90],lag:[1.0,.84,.92]},
   5:{name:'Dino Valley',top:[.80,.93,.82],mid:[.93,.97,.84],hor:[1.0,.93,.78],deep:[.30,.62,.52],smid:[.48,.78,.66],skyc:[.98,.93,.80],lag:[.60,.88,.74]},
   6:{name:'Gobble Grove',top:[.96,.78,.56],mid:[1.0,.88,.70],hor:[1.0,.80,.56],deep:[.27,.43,.50],smid:[.47,.60,.62],skyc:[1.0,.86,.62],lag:[.66,.76,.66]},
-  7:{name:'The Spooky Shores',top:[.40,.31,.60],mid:[.70,.52,.78],hor:[1.0,.66,.46],deep:[.17,.15,.30],smid:[.31,.25,.47],skyc:[1.0,.78,.55],lag:[.42,.80,.52]}};
+  7:{name:'Spooky Shores',top:[.40,.31,.60],mid:[.70,.52,.78],hor:[1.0,.66,.46],deep:[.17,.15,.30],smid:[.31,.25,.47],skyc:[1.0,.78,.55],lag:[.42,.80,.52]}};
 /*<R8R>*/
-REGIONS[8]={name:'The Glitter Isles',top:[.72,.84,.96],mid:[.90,.88,.98],hor:[1.0,.92,.96],deep:[.30,.50,.78],smid:[.52,.72,.90],skyc:[.98,.92,.98],lag:[.66,.92,.94]};
+REGIONS[8]={name:'Glitter Isles',top:[.72,.84,.96],mid:[.90,.88,.98],hor:[1.0,.92,.96],deep:[.30,.50,.78],smid:[.52,.72,.90],skyc:[.98,.92,.98],lag:[.66,.92,.94]};
 
 /*</R8R>*/
 /*<R9R>*/
-REGIONS[9]={name:'The Waffle Isles',top:[.96,.78,.56],mid:[1.0,.88,.70],hor:[1.0,.82,.62],deep:[.62,.30,.08],smid:[.86,.50,.16],skyc:[1.0,.84,.58],lag:[.98,.76,.36]};
+REGIONS[9]={name:'Waffle Isles',top:[.96,.78,.56],mid:[1.0,.88,.70],hor:[1.0,.82,.62],deep:[.62,.30,.08],smid:[.86,.50,.16],skyc:[1.0,.84,.58],lag:[.98,.76,.36]};
 
 /*</R9R>*/
 const REG=w=>(w&&w.region)||1;const regWorlds=r=>WORLDS.filter(w=>REG(w)===r);
@@ -7373,7 +7373,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795483849';
+const BUILD='1795485177';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
