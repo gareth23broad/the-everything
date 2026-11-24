@@ -7685,6 +7685,7 @@ const CVX=(()=>{
     async rpc(fn,body){const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH,body:JSON.stringify(body)});const t=await r.text();if(!r.ok)throw new Error(t);return JSON.parse(t);}};
   const auth=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret});
   const CVT=typeof CV_TEST!=='undefined'&&CV_TEST;
+  const CV_OPEN=false; /* flip to true when Catventure opens to players */
   // who am I and which team am I on? (test: a pretend Gareth/Kez pair · live: your real player marker)
   async function ident(interactive){if(NET.me&&NET.team)return true;
     if(CVT){let w=NET.who();if(!w){if(!interactive)return false;w=await pickPlayer();}NET.me=NET.id(w);NET.team='cv-test-1';return true;}
@@ -7809,15 +7810,15 @@ const CVX=(()=>{
   // quietly sign in on load so logic puzzles can drop paws while a Catventure is live
   async function boot(){if(!await ident(false))return;try{const st=await NET.rpc('cv_join',joinArgs());NET.live=!!(st.team&&st.team.live_until&&new Date(st.team.live_until)>new Date());NET.liveUntil=st.team&&st.team.live_until;NET.island=st.team&&st.team.island;NET.ok=true;applyMe(st);}catch(_){}}
   let earnBusy=Promise.resolve();
-  function catFound(x,y){if(!NET.me||!NET.live)return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;return;}S.paws=r.total;
+  function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;return;}S.paws=r.total;
       if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
         try{audio.tone(783.99,0.1,0.4,0.03);audio.tone(1046.5,0.18,0.5,0.025);if(big)audio.tone(1318.5,0.28,0.6,0.025);}catch(_){}
         toast('🐾 +'+r.paws+' Catventure paws'+(big?' · big haul!':''),1800);}}catch(_){}await sleep(750);});}
   // the universe icon fades straight into the first island, and back (no zooming through regions)
   async function fromUniverse(){if(trans||mode!=='world')return;try{audio.wake();sfx.pick();}catch(_){}
-    if(!CVT){if(!NET.team)await ident(false);if(!NET.team){toast('Catventure Club is coming soon',2200);return;}if(!NET.live){toast('Catventure is resting · back soon',2200);return;}}
+    if(!CVT){if(!CV_OPEN){toast('Catventure Club is coming soon',2200);return;}if(!NET.team)await ident(false);if(!NET.team){toast('Catventure Club is coming soon',2200);return;}if(!NET.live){toast('Catventure is resting · back soon',2200);return;}}
     await fadeOut();await open(S.id||NET.island||TEST_ISLANDS[0],true);await fadeIn();}
-  function pill(){if(CVT)return['CATVENTURE','Test · tap to play'];if(!NET.team||!NET.live)return['CATVENTURE','Coming soon'];const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
+  function pill(){if(CVT)return['CATVENTURE','Test · tap to play'];if(!CV_OPEN||!NET.team||!NET.live)return['CATVENTURE','Coming soon'];const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
   async function close(){if(trans||mode!=='cv')return;clearInterval(pollT);await fadeOut();
     if(worldOpen()){UNI.st.r=VR;mode='world';document.body.dataset.mode='world';for(const k in L)L[k]=k==='world'?1:0;}else{mode='hub';document.body.dataset.mode='hub';for(const k in L)L[k]=k==='hub'?1:0;}
     try{setLabels();updateHud(true);}catch(_){}await fadeIn();}
@@ -7850,12 +7851,12 @@ window.__cv=CVX;
   const dm=M('#7a2cff',{metalness:0.5,roughness:0.2,emissive:'#3a0a90',emissiveIntensity:0.4}),pm=M('#ffcc33',{metalness:0.6,roughness:0.2,emissive:'#a06800',emissiveIntensity:0.5});
   const dice=[0,1,2].map(k=>{const d=new THREE.Group();g.add(d);A(new THREE.BoxGeometry(0.7,0.7,0.7),dm,0,0,0,d);for(const [x,y,z] of [[0,0.36,0],[0.36,0.15,0.15],[0.36,-0.15,-0.15],[0.15,0.15,0.36],[-0.15,-0.15,0.36]])A(new THREE.SphereGeometry(0.07,8,6),pm,x,y,z,d);return d;});
   const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:'#c9a8ff',transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(11,11,1);gl.position.y=0.2;g.add(gl);
-  g.scale.setScalar(2.9);const R0=56,AN=2.84,Y0=12;g.position.set(Math.sin(AN)*R0,Y0,Math.cos(AN)*R0);sc.add(g);
+  g.scale.setScalar(1.9);const R0=60,AN=2.96,Y0=-22;g.position.set(Math.sin(AN)*R0,Y0,Math.cos(AN)*R0);sc.add(g);
   const _u=UNI.update;UNI.update=function(t){_u(t);g.position.y=Y0+Math.sin(t*0.0014)*0.7;g.lookAt(UNI.cam.position);g.rotateZ(Math.sin(t*0.0009)*0.06);stones.forEach((s2,k)=>{s2.position.y=[-3.0,-3.4,-3.2,-2.8][k]+Math.sin(t*0.0018+k*1.3)*0.15;});dice.forEach((d,k)=>{const a=t*0.0009+k*2.09;d.position.set(Math.cos(a)*3.0,2.4+Math.sin(t*0.002+k)*0.3,Math.sin(a)*1.2+0.4);d.rotation.set(t*0.0011+k,t*0.0008,k);});};
   const _p=UNI.pick;UNI.pick=function(x,y){const c=UNI.toScr(g.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'catventure';return _p(x,y);};
   const e=document.createElement('button');e.className='wlabel pill rocketL bearPill';e.innerHTML='<b>CATVENTURE</b><span>Coming soon</span>';e._t='';e.addEventListener('click',()=>CVX.fromUniverse());$('wlabels').appendChild(e);
   const _w=updateWorldLabels;updateWorldLabels=function(){_w();if(L.world<0.5){e.style.display='none';return;}{const pl=CVX.pill(),k=pl.join('|');if(e._t!==k){e._t=k;e.innerHTML='<b>'+pl[0]+'</b><span>'+pl[1]+'</span>';}}const c0=UNI.toScr(g.position),off=c0.z>1||c0.x<-40||c0.x>W+40||c0.y<-40||c0.y>H+40;e.style.display=off?'none':'';
-    if(!off){const tp=UNI.toScr(g.position.clone().add(UNI.cam.up.clone().multiplyScalar(9)));e.style.transform=`translate(${c0.x.toFixed(1)}px,${(tp.y-4).toFixed(1)}px) translate(-50%,-100%)`;}};
+    if(!off){const tp=UNI.toScr(g.position.clone().add(UNI.cam.up.clone().multiplyScalar(6.5)));e.style.transform=`translate(${c0.x.toFixed(1)}px,${(tp.y-4).toFixed(1)}px) translate(-50%,-100%)`;}};
   window.__cvIcon=g;window.__UNI=UNI;})();
 
 CVX.boot();
@@ -7863,7 +7864,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795561484';
+const BUILD='1795562530';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
