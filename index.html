@@ -462,8 +462,22 @@ body[data-mode=cv] #hud .top,body[data-mode=cv] #labels,body[data-mode=cv] #bott
 
 #cvPawP{gap:7px;padding:5px 15px 5px 6px;min-width:72px;font-size:19px;box-shadow:0 6px 16px rgba(90,100,150,.14)}#cvPawP svg{width:32px;height:32px}
 
-#cvTestW{position:fixed;left:10px;bottom:calc(env(safe-area-inset-bottom) + 112px);display:flex;flex-direction:column;gap:4px;pointer-events:auto;z-index:7}#cvTestW button{font:800 10px inherit;font-family:inherit;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.7);background:rgba(255,90,140,.85);color:#fff;letter-spacing:.3px}
+#cvTestW{position:fixed;left:10px;top:calc(env(safe-area-inset-top) + 150px);display:flex;flex-direction:column;gap:4px;pointer-events:auto;z-index:7}#cvTestW button{font:800 10px inherit;font-family:inherit;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.7);background:rgba(255,90,140,.85);color:#fff;letter-spacing:.3px}
 #cvMbox button{margin:0 2px}
+
+/* paw counter on the logic puzzle while a Catventure is running: in the empty sand strip above the Map button */
+#cvPawLG{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);z-index:4;display:none;gap:7px;padding:5px 15px 5px 6px;font-size:19px;box-shadow:0 6px 16px rgba(90,100,150,.14);pointer-events:none;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+#cvPawLG svg{width:32px;height:32px}#cvPawLG b{font-variant-numeric:tabular-nums}#cvPawLG small{font-size:11px;font-weight:800;letter-spacing:.4px;opacity:.75;text-transform:uppercase}
+body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display:none!important}
+#cvPawLG.bump{transform:translateX(-50%) scale(1.14)}
+
+.cvSeats{display:flex;align-items:center;justify-content:center;gap:8px}
+.cvSeat{width:118px;padding:12px 6px 10px;border-radius:20px;border:2px dashed rgba(120,110,160,.45);background:rgba(255,255,255,.5);display:flex;flex-direction:column;align-items:center;gap:4px}
+.cvSeat.on{border:2px solid #ffd76a;background:#fff;box-shadow:0 6px 16px rgba(90,100,150,.18)}
+.cvSeat canvas{width:58px;height:58px;border-radius:50%;background:rgba(160,150,200,.18);border:2px solid #fff}
+.cvSeat b{font-size:15px;color:#4a3a6a}.cvSeat small{font-size:11px;font-weight:700;opacity:.7}
+.cvAmp{font-size:22px;font-weight:800;color:#b89ad8}
+#cvModal button.soft{background:rgba(255,255,255,.8);box-shadow:0 4px 0 rgba(120,110,160,.3);color:#6a5a8a}
 /*</CVCSS>*/</style>
 </head>
 <body>
@@ -659,6 +673,7 @@ body[data-mode=cv] #hud .top,body[data-mode=cv] #labels,body[data-mode=cv] #bott
 </div>
 <div id="cvModal"><div class="box" id="cvMbox"></div></div>
 <div id="cvToast"></div>
+<div id="cvPawLG" class="cvPill"><svg viewBox="0 0 32 32" class="cvPawI"></svg><b id="cvPawLGn">0</b><small>Catventure paws</small></div>
 <!--/CVHTML--><script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 'use strict';
@@ -7667,7 +7682,8 @@ const CVX=(()=>{
     finish(){if(!this.ok())return;[392,523.25,659.25,783.99,1046.5].forEach((f,i)=>{audio.tone(f,i*0.14,1.4,0.035);audio.tone(f/2,i*0.14,1.2,0.02,'triangle');});}
   };
   /* ---------- hud ---------- */
-  function hud(){$c('cvCoins').textContent=(save.pearls|0).toLocaleString('en-US');$c('cvPaws').textContent=S.paws.toLocaleString('en-US');
+  function liveMark(){const on=!!(NET.me&&NET.team&&NET.live&&(CVT||CV_OPEN));document.body.classList.toggle('cvLive',on);const e=$c('cvPawLGn');if(e)e.textContent=(S.paws|0).toLocaleString('en-US');}
+  function hud(){liveMark();$c('cvCoins').textContent=(save.pearls|0).toLocaleString('en-US');$c('cvPaws').textContent=S.paws.toLocaleString('en-US');
     const st=STOPS[S.cur];$c('cvStage').textContent=st&&st.type==='chest'?'TREASURE CHEST':'ISLAND '+((S.tour||0)+1)+' OF 4 · KEEPSAKE '+Math.min(3,STOPS.slice(0,S.cur).filter(p=>p.type==='keep').length+1);$c('cvMultV').textContent='×'+S.mult;$c('cvUsesV').textContent=S.mult;
     $c('cvUses').classList.toggle('low',S.paws<S.mult);$c('cvTapT').textContent=!NET.ok?'Connecting…':S.paws<S.mult?'Not enough paws':S.boost?'🔥 Lucky roll':'Tap the bubble';$c('cvPopW').classList.toggle('boost',!!S.boost);}
   const bumpE=id=>{const e=$c(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);};
@@ -7681,18 +7697,19 @@ const CVX=(()=>{
   const TEST_ISLANDS=['lighthouse','garden','harbour','snow','night','tea','glen','maple'];
   const NET={ok:false,team:'cv-test-1',me:null,mate:null,last:0,seen:0,members:[],
     who(){try{return localStorage.getItem('cv-test-who');}catch(_){return null;}},
-    id(w){return{pid:'cvt-'+w,secret:'cvt-secret-'+w+'-7f3a',name:w==='A'?'Gareth':'Kez',icon:w==='A'?'paw':'flower'};},
+    id(w){const N={A:['Gareth','leaf'],B:['Kez','paw'],C:['Dreadster','star'],D:['Lily','flower']}[w]||['Player','paw'];return{pid:'cvt-'+w,secret:'cvt-secret-'+w+'-7f3a',name:N[0],icon:N[1]};},
     async rpc(fn,body){const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH,body:JSON.stringify(body)});const t=await r.text();if(!r.ok)throw new Error(t);return JSON.parse(t);}};
   const auth=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret});
   const CVT=typeof CV_TEST!=='undefined'&&CV_TEST;
   const CV_OPEN=false; /* flip to true when Catventure opens to players */
   // who am I and which team am I on? (test: a pretend Gareth/Kez pair · live: your real player marker)
-  async function ident(interactive){if(NET.me&&NET.team)return true;
-    if(CVT){let w=NET.who();if(!w){if(!interactive)return false;w=await pickPlayer();}NET.me=NET.id(w);NET.team='cv-test-1';return true;}
-    if(!save.me||!save.me.id||!save.me.secret)return false;
-    try{const r=await NET.rpc('cv_myteam',{p_id:save.me.id,p_secret:save.me.secret});if(!r.team){NET.noTeam=true;return false;}
-      NET.team=r.team;NET.island=r.island;NET.live=!!(r.live_until&&new Date(r.live_until)>new Date());NET.liveUntil=r.live_until;
-      NET.me={pid:save.me.id,secret:save.me.secret,name:save.me.name||'You',icon:save.me.icon||'paw'};return true;}catch(_){return false;}}
+  async function ident(interactive){
+    if(!NET.me){if(CVT){let w=NET.who();if(!w){if(!interactive)return false;w=await pickPlayer();}NET.me=NET.id(w);}
+      else{if(!save.me||!save.me.id||!save.me.secret)return false;NET.me={pid:save.me.id,secret:save.me.secret,name:save.me.name||'You',icon:save.me.icon||'paw'};}}
+    if(NET.team&&NET.live)return true;
+    try{const lob=await NET.rpc('cv_lobby',{p_id:NET.me.pid,p_secret:NET.me.secret,p_test:CVT});NET.lob=lob;const T=lob.team;
+      if(T&&T.status==='live'){NET.team=T.id;NET.island=T.island;NET.liveUntil=T.live_until;NET.live=!!(T.live_until&&new Date(T.live_until)>new Date());return NET.live||!!T.live_until;}
+      NET.team=null;NET.live=false;return false;}catch(_){return false;}}
   const joinArgs=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret,p_name:NET.me.name,p_icon:NET.me.icon,p_islands:TEST_ISLANDS,p_test:CVT});
   const seenKey=()=>'cv-seen-'+NET.team+'-'+NET.me.pid;
   function setSeen(s){NET.seen=s;try{localStorage.setItem(seenKey(),String(s));}catch(_){}}
@@ -7779,9 +7796,26 @@ const CVX=(()=>{
       const k=Math.sin(Math.min(1,a)*Math.PI);h.scale.set(2.1+5*k,2.1+5*k,1);h.material.color.set('#ffd870');h.material.opacity=0.6+0.4*k;});
     if(mv)renderer.shadowMap.needsUpdate=true;
     if(mode==='cv'&&!trans){renderTags();popTick(t);}else if(trans&&trans.to==='cv')popTick(t);}
+  /* ---------- the two-seat lobby (like Rocket Race): first player opens a tour, the next one to join is their partner ---------- */
+  let lobT=null;
+  function seatHTML(m,k,me){return `<div class="cvSeat ${m?'on':''}"><canvas id="cvSeat${k}" width="96" height="96"></canvas><b>${m?(me?'You':m.name):k===0?'Enter here':'Waiting…'}</b><small>${m?'In the seat':k===0?'Open seat':'For a partner'}</small></div>`;}
+  async function lobby(){if(!NET.me&&!(await ident(true))&&!NET.me)return;try{audio.wake();}catch(_){}
+    let lastK='';const draw=()=>{const k_=JSON.stringify(NET.lob||{});if(k_===lastK&&$c('cvModal').classList.contains('on'))return;lastK=k_;const lb=NET.lob||{},mineOpen=lb.team&&lb.team.status==='open',op=lb.open,mem=mineOpen?(op&&op.id===lb.team.id?op.members:[{pid:NET.me.pid,name:NET.me.name,icon:NET.me.icon}]):(op?op.members:[]);
+      const m0=mem&&mem[0],m1=mem&&mem[1];
+      $c('cvMbox').innerHTML=`<div style="font-size:40px">🐾</div><h3>Catventure Club</h3><p style="margin-bottom:10px">Two seats · a 5-day island tour starts the moment both are filled</p><div class="cvSeats">${seatHTML(m0,0,m0&&m0.pid===NET.me.pid)}<div class="cvAmp">&amp;</div>${seatHTML(m1,1,m1&&m1.pid===NET.me.pid)}</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">${mineOpen?'<button id="cvLeave" class="soft">Leave seat</button>':`<button id="cvJoin">${op?'Join '+(m0?m0.name:'them'):'Open a tour'}</button>`}<button id="cvMok" class="soft">Close</button></div>`;
+      $c('cvModal').classList.add('on');
+      [m0,m1].forEach((m,k)=>{if(!m)return;const c=$c('cvSeat'+k);const pl=((MK&&MK.list)||[]).find(p=>p.id===m.pid)||{id:m.pid,icon:m.icon||'paw',name:m.name};try{paintTagPic(c,pl);}catch(_){}});
+      $c('cvMok').onclick=()=>{clearInterval(lobT);$c('cvModal').classList.remove('on');};
+      const j=$c('cvJoin');if(j)j.onclick=async()=>{j.disabled=true;try{sfx.pick();}catch(_){}try{NET.lob=await NET.rpc('cv_enter',{p_id:NET.me.pid,p_secret:NET.me.secret,p_name:NET.me.name,p_icon:NET.me.icon,p_islands:TEST_ISLANDS,p_test:CVT});}catch(_){}await check();};
+      const l=$c('cvLeave');if(l)l.onclick=async()=>{try{NET.lob=await NET.rpc('cv_leave',{p_id:NET.me.pid,p_secret:NET.me.secret,p_test:CVT});}catch(_){}lastK='';draw();};};
+    const check=async()=>{if(await ident(false)&&NET.live){clearInterval(lobT);$c('cvModal').classList.remove('on');const mate=(await NET.rpc('cv_join',joinArgs())).members.find(m=>m.pid!==NET.me.pid);
+        SND.finish();mayoBanner('TOUR ON!','You & '+(mate?mate.name:'your partner')+' · 5 days to tour 4 islands together','Catventure Club','🐾',100,4200);
+        if(mode==='world'){await fadeOut();await open(NET.island||TEST_ISLANDS[0],true);await fadeIn();}return;}draw();};
+    await check();clearInterval(lobT);lobT=setInterval(()=>{if($c('cvModal').classList.contains('on'))check();else clearInterval(lobT);},3000);}
   /* ---------- open / close ---------- */
-  function pickPlayer(){return new Promise(r=>{$c('cvMbox').innerHTML=`<div style="font-size:44px">🐾</div><h3>Who's playing?</h3><p>Test mode · open this page on two phones and pick a different player on each</p><div style="display:flex;gap:10px;justify-content:center"><button id="cvPA">Gareth</button><button id="cvPB">Kez</button></div>`;$c('cvModal').classList.add('on');
-    const go_=w=>{try{localStorage.setItem('cv-test-who',w);}catch(_){}$c('cvModal').classList.remove('on');r(w);};$c('cvPA').onclick=()=>go_('A');$c('cvPB').onclick=()=>go_('B');});}
+  function pickPlayer(){return new Promise(r=>{$c('cvMbox').innerHTML=`<div style="font-size:44px">🐾</div><h3>Who's playing?</h3><p>Test mode · open this page on two phones and pick a different player on each</p><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button id="cvPA">Gareth</button><button id="cvPB">Kez</button><button id="cvPC">Dreadster</button><button id="cvPD">Lily</button></div><p style="font-size:12px;margin-top:10px;opacity:.8">Gareth &amp; Kez are already a team · Dreadster &amp; Lily can try the seats</p>`;$c('cvModal').classList.add('on');
+    const go_=w=>{try{localStorage.setItem('cv-test-who',w);}catch(_){}$c('cvModal').classList.remove('on');r(w);};$c('cvPA').onclick=()=>go_('A');$c('cvPB').onclick=()=>go_('B');$c('cvPC').onclick=()=>go_('C');$c('cvPD').onclick=()=>go_('D');});}
   function paintPics(){const mate=NET.mate||{pid:'?',name:'Partner',icon:'flower'};
     const mk=id=>{try{return (MK.list||[]).find(p=>p.id===id);}catch(_){return null;}};
     [mk(NET.me.pid)||{id:NET.me.pid,icon:NET.me.icon,name:NET.me.name},mk(mate.pid)||{id:mate.pid,icon:mate.icon||'flower',name:mate.name}].forEach((p,k)=>{try{paintTagPic(ptags[k].querySelector('canvas'),p);}catch(_){}});
@@ -7793,7 +7827,7 @@ const CVX=(()=>{
     // show the island straight away from what we last knew, then sync with the server
     if(!S.id){S.id=id||'lighthouse';S.tour=0;S.cur=0;S.hp=[0,0,0,0];S.chestAt=1;const r=REG(WMAP[S.id]);if(r!==VR)setRegion(r);build(S.id);S.builtChest=1;}
     enterView(instant);hud();
-    if(!await ident(true)){say('Catventure is coming soon',3000);hud();return;}
+    if(!await ident(true)){hud();await close();lobby();return;}
     try{const st=await NET.rpc('cv_join',joinArgs());
       NET.ok=true;NET.mate=(st.members||[]).find(m=>m.pid!==NET.me.pid)||null;paintPics();try{paintIcons();}catch(_){}
       let seen=0;try{seen=+localStorage.getItem(seenKey())||0;}catch(_){}
@@ -7813,15 +7847,17 @@ const CVX=(()=>{
       if(!CVT&&!NET.live&&NET.liveUntil){const r=await NET.rpc('cv_settle',auth());const c=await NET.rpc('cv_claim',auth());const amt=(c&&c.coins)|0;
         if(amt>0){save.pearls+=amt;persist();try{updateHud(true);}catch(_){}mayoBanner(amt.toLocaleString()+' coins',(r.paws>0?'Your '+r.paws.toLocaleString()+' leftover paws turned into coins':'Your Catventure coins')+' · thanks for touring!','Catventure Club','🐾',1200,5200);}}}catch(_){}}
   let earnBusy=Promise.resolve();
-  function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;return;}S.paws=r.total;
+  function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}S.paws=r.total;liveMark();if(r.paws>0){const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}
       if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
         try{audio.tone(783.99,0.1,0.4,0.03);audio.tone(1046.5,0.18,0.5,0.025);if(big)audio.tone(1318.5,0.28,0.6,0.025);}catch(_){}
         toast('🐾 +'+r.paws+' Catventure paws'+(big?' · big haul!':''),1800);}}catch(_){}await sleep(750);});}
   // the universe icon fades straight into the first island, and back (no zooming through regions)
   async function fromUniverse(){if(trans||mode!=='world')return;try{audio.wake();sfx.pick();}catch(_){}
-    if(!CVT){if(!CV_OPEN){toast('Catventure Club is coming soon',2200);return;}if(!NET.team)await ident(false);if(!NET.team){toast('Catventure Club is coming soon',2200);return;}if(!NET.live){toast('Catventure is resting · back soon',2200);return;}}
+    if(!CVT&&!CV_OPEN){toast('Catventure Club is coming soon',2200);return;}
+    const ok=await ident(true);if(!ok||!NET.live){lobby();return;}
     await fadeOut();await open(S.id||NET.island||TEST_ISLANDS[0],true);await fadeIn();}
-  function pill(){if(CVT)return['CATVENTURE','Test · tap to play'];if(!CV_OPEN||!NET.team||!NET.live)return['CATVENTURE','Coming soon'];const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
+  function pill(){if(!CVT&&!CV_OPEN)return['CATVENTURE','Coming soon'];const lb=NET.lob;
+    if(!NET.team||!NET.live){const op=lb&&lb.open;if(lb&&lb.team&&lb.team.status==='open')return['CATVENTURE','Waiting for a partner'];if(op)return['CATVENTURE',(op.members&&op.members[0]?op.members[0].name:'Someone')+' needs a partner!'];return['CATVENTURE','Two seats · tap to start'];}const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
   async function close(){if(trans||mode!=='cv')return;clearInterval(pollT);await fadeOut();
     if(worldOpen()){UNI.st.r=VR;mode='world';document.body.dataset.mode='world';for(const k in L)L[k]=k==='world'?1:0;}else{mode='hub';document.body.dataset.mode='hub';for(const k in L)L[k]=k==='hub'?1:0;}
     try{setLabels();updateHud(true);}catch(_){}await fadeIn();}
@@ -7833,7 +7869,7 @@ const CVX=(()=>{
   $c('cvSwapB').addEventListener('pointerdown',e=>{e.stopPropagation();try{localStorage.removeItem('cv-test-who');}catch(_){}location.reload();});
   ['cvHud','cvModal'].forEach(id=>$c(id).addEventListener('pointerdown',e=>{if(mode==='cv')e.stopPropagation();try{audio.wake();}catch(_){}}));
   addEventListener('resize',()=>sizePop());
-  return{open,close,boot,catFound,fromUniverse,pill,tick,pose,press,S,NET,get SIGNS(){return SIGNS},get STOPS(){return STOPS},hud};
+  return{open,close,boot,catFound,fromUniverse,pill,lobby,tick,pose,press,S,NET,get SIGNS(){return SIGNS},get STOPS(){return STOPS},hud};
 })();
 
 window.__cv=CVX;
@@ -7867,7 +7903,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795562646';
+const BUILD='1795563095';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
