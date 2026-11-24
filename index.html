@@ -5447,7 +5447,8 @@ function orbitPlayers(){const box=$('wlabels'),t=performance.now(),seen=new Set(
       e.style.transform=`translate(${(c0.x+ox).toFixed(1)}px,${(c0.y+oy).toFixed(1)}px) translate(-50%,-50%) scale(${sc.toFixed(3)})`;e.style.zIndex=front?3:0;e.style.opacity=front?1:0.6;});}
   for(const id in ORB.els)if(!seen.has(id)){ORB.els[id].remove();delete ORB.els[id];}}
 /* one-off coin gifts for specific players (each pays once, remembered in save.gifts) */
-const GIFTS=[{id:'1ec0eb95-0d5f-4e7f-abe3-5018f5f3103a',k:'lily2000',amt:2000,msg:'A gift from the game maker · enjoy!'}];
+const GIFTS=[{id:'1ec0eb95-0d5f-4e7f-abe3-5018f5f3103a',k:'lily2000',amt:2000,msg:'A gift from the game maker · enjoy!'},
+  {id:'b430d922-1d24-4858-8c4f-6bed86c7ac63',k:'nov24gift500',amt:500,msg:'A special gift from the game maker · enjoy!'},{id:'8779d662-5be6-4b38-bdd9-6a64618bd10d',k:'nov24gift500',amt:500,msg:'A special gift from the game maker · enjoy!'},{id:'1ec0eb95-0d5f-4e7f-abe3-5018f5f3103a',k:'nov24gift500',amt:500,msg:'A special gift from the game maker · enjoy!'}];
 setInterval(()=>{try{if(!save.me)return;save.gifts=save.gifts||{};for(const g of GIFTS){if(g.id!==save.me.id||save.gifts[g.k])continue;save.gifts[g.k]=1;save.pearls+=g.amt;persist();updateHud(true);try{mayoBanner(g.amt.toLocaleString()+' coins',g.msg,'Special delivery','🎁',300,4600);}catch(_){toast('🎁 +'+g.amt.toLocaleString()+' coins',3000);}break;}}catch(_){}},3000);
 /* one-off gift: 5,000 coins for Gareth's profile only */
 setInterval(()=>{try{if(save.me&&save.me.id==='234696f3-e980-40f0-88b9-17d01b567a28'&&!save.gift5k){save.gift5k=1;save.pearls+=5000;persist();updateHud(true);try{mayoBanner('5,000 coins','A little gift for the game maker','Special delivery','🎁',300,4200);}catch(_){toast('🎁 +5,000 coins',3000);}}}catch(_){}},3000);
@@ -7373,7 +7374,7 @@ function frame(t){
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795485177';
+const BUILD='1795528130';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
