@@ -478,6 +478,8 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 .cvSeat b{font-size:15px;color:#4a3a6a}.cvSeat small{font-size:11px;font-weight:700;opacity:.7}
 .cvAmp{font-size:22px;font-weight:800;color:#b89ad8}
 #cvModal button.soft{background:rgba(255,255,255,.8);box-shadow:0 4px 0 rgba(120,110,160,.3);color:#6a5a8a}
+
+#cvMbox .cvRest{padding:10px 16px;border-radius:999px;background:rgba(160,210,255,.18);border:1px solid rgba(190,225,255,.5);font-size:14px}
 /*</CVCSS>*/</style>
 </head>
 <body>
@@ -593,7 +595,7 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 <div id="rTop"><div class="k">3 DAYS · MOST LAPS WINS</div><h2>ROCKET RACE</h2><div id="rSub">Connecting…</div>
 <div id="rStats"><span id="rFuel">⛽ <b>0</b> fuel</span><button id="rPuz">🧩 Puzzle <small>· earn fuel</small></button><span id="rCoins"><canvas data-ic="pearl"></canvas><b>0</b></span></div></div>
 <div class="rTag" id="rTag1"></div><div class="rTag" id="rTag2"></div><div class="rTag" id="rTag3"></div>
-<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>🎡 Pick a <b>multiplier</b>, then tap <b>BLAST</b> to spin the wheel · it shows how far you’ll fly (a lap is 100) · the gold 🚀 is the jackpot<br>📦 Every 3–5 laps the <b>mystery cube</b> opens (3–7 laps after 200 laps, 3–15 after 400) · coins, fuel or a mega boost<br>☄️ Every 30 laps an <b>asteroid</b> blocks your rocket · keep <b>blasting</b> it to smash through (no laps while it’s there)<br>🏁 Most laps after <b>3 days</b> wins <b class="gshim">7,000 gold</b> · 2nd gets <b class="gshim">2,323 gold</b> · 3rd gets <b class="gshim">1,000 gold</b><br>🧊 Then the ships cool down for 25 days</div>
+<div id="rLow"><div id="rHow"><div class="t">HOW TO RACE</div>🧩 Solve puzzles to earn <b>fuel ⛽</b><br>🎡 Pick a <b>multiplier</b>, then tap <b>BLAST</b> to spin the wheel · it shows how far you’ll fly (a lap is 100) · the gold 🚀 is the jackpot<br>📦 Every 3–5 laps the <b>mystery cube</b> opens (3–7 laps after 200 laps, 3–15 after 400) · coins, fuel or a mega boost<br>☄️ Every 30 laps an <b>asteroid</b> blocks your rocket · keep <b>blasting</b> it to smash through (no laps while it’s there)<br>🏁 Most laps after <b>3 days</b> wins <b class="gshim">7,000 gold</b> · 2nd gets <b class="gshim">2,323 gold</b> · 3rd gets <b class="gshim">1,000 gold</b><br>🧊 Then the ships cool down for 2 weeks</div>
 <div id="rSeats"><button class="rSeat" id="rs1"><canvas></canvas><b></b><small></small></button><button class="rSeat" id="rs2"><canvas></canvas><b></b><small></small></button><button class="rSeat" id="rs3"><canvas></canvas><b></b><small></small></button></div>
 <div id="rCool"></div>
 <div id="rBar"><div class="row"><span class="lap" id="rL1" style="display:none"></span><span id="rTime">⏱</span><span class="lap" id="rL2" style="display:none"></span><span class="lap" id="rL3" style="display:none"></span></div>
@@ -7798,12 +7800,14 @@ const CVX=(()=>{
     if(mode==='cv'&&!trans){renderTags();popTick(t);}else if(trans&&trans.to==='cv')popTick(t);}
   /* ---------- the two-seat lobby (like Rocket Race): first player opens a tour, the next one to join is their partner ---------- */
   let lobT=null;
+  /* after a tour ends each player rests for 3 weeks (the server keeps the clock) */
+  const coolDays=lb=>{if(!lb||!lb.cooldown)return 0;const ms=new Date(lb.cooldown)-new Date(lb.now||Date.now());return ms>0?Math.max(1,Math.ceil(ms/864e5)):0;};
   function seatHTML(m,k,me){return `<div class="cvSeat ${m?'on':''}"><canvas id="cvSeat${k}" width="96" height="96"></canvas><b>${m?(me?'You':m.name):k===0?'Enter here':'Waiting…'}</b><small>${m?'In the seat':k===0?'Open seat':'For a partner'}</small></div>`;}
   async function lobby(){if(!NET.me&&!(await ident(true))&&!NET.me)return;try{audio.wake();}catch(_){}
     let lastK='';const draw=()=>{const k_=JSON.stringify(NET.lob||{});if(k_===lastK&&$c('cvModal').classList.contains('on'))return;lastK=k_;const lb=NET.lob||{},mineOpen=lb.team&&lb.team.status==='open',op=lb.open,mem=mineOpen?(op&&op.id===lb.team.id?op.members:[{pid:NET.me.pid,name:NET.me.name,icon:NET.me.icon}]):(op?op.members:[]);
-      const m0=mem&&mem[0],m1=mem&&mem[1];
-      $c('cvMbox').innerHTML=`<div style="font-size:40px">🐾</div><h3>Catventure Club</h3><p style="margin-bottom:10px">Two seats · a 5-day island tour starts the moment both are filled</p><div class="cvSeats">${seatHTML(m0,0,m0&&m0.pid===NET.me.pid)}<div class="cvAmp">&amp;</div>${seatHTML(m1,1,m1&&m1.pid===NET.me.pid)}</div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">${mineOpen?'<button id="cvLeave" class="soft">Leave seat</button>':`<button id="cvJoin">${op?'Join '+(m0?m0.name:'them'):'Open a tour'}</button>`}<button id="cvMok" class="soft">Close</button></div>`;
+      const m0=mem&&mem[0],m1=mem&&mem[1],cdD=coolDays(lb);
+      $c('cvMbox').innerHTML=`<div style="font-size:40px">🐾</div><h3>Catventure Club</h3><p style="margin-bottom:10px">Two seats · a 5-day island tour starts the moment both are filled · then 3 weeks' rest</p><div class="cvSeats">${seatHTML(m0,0,m0&&m0.pid===NET.me.pid)}<div class="cvAmp">&amp;</div>${seatHTML(m1,1,m1&&m1.pid===NET.me.pid)}</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">${cdD?`<div class="cvRest">🧊 Your paws are resting · back in <b>${cdD} day${cdD>1?'s':''}</b></div>`:mineOpen?'<button id="cvLeave" class="soft">Leave seat</button>':`<button id="cvJoin">${op?'Join '+(m0?m0.name:'them'):'Open a tour'}</button>`}<button id="cvMok" class="soft">Close</button></div>`;
       $c('cvModal').classList.add('on');
       [m0,m1].forEach((m,k)=>{if(!m)return;const c=$c('cvSeat'+k);const pl=((MK&&MK.list)||[]).find(p=>p.id===m.pid)||{id:m.pid,icon:m.icon||'paw',name:m.name};try{paintTagPic(c,pl);}catch(_){}});
       $c('cvMok').onclick=()=>{clearInterval(lobT);$c('cvModal').classList.remove('on');};
@@ -7857,7 +7861,7 @@ const CVX=(()=>{
     const ok=await ident(true);if(!ok||!NET.live){lobby();return;}
     await fadeOut();await open(S.id||NET.island||TEST_ISLANDS[0],true);await fadeIn();}
   function pill(){if(!CVT&&!CV_OPEN)return['CATVENTURE','Coming soon'];const lb=NET.lob;
-    if(!NET.team||!NET.live){const op=lb&&lb.open;if(lb&&lb.team&&lb.team.status==='open')return['CATVENTURE','Waiting for a partner'];if(op)return['CATVENTURE',(op.members&&op.members[0]?op.members[0].name:'Someone')+' needs a partner!'];return['CATVENTURE','Two seats · tap to start'];}const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
+    if(!NET.team||!NET.live){const op=lb&&lb.open,cd=coolDays(lb);if(cd)return['CATVENTURE','Resting · back in '+cd+' day'+(cd>1?'s':'')];if(lb&&lb.team&&lb.team.status==='open')return['CATVENTURE','Waiting for a partner'];if(op)return['CATVENTURE',(op.members&&op.members[0]?op.members[0].name:'Someone')+' needs a partner!'];return['CATVENTURE','Two seats · tap to start'];}const d=Math.max(1,Math.ceil((new Date(NET.liveUntil)-new Date())/864e5));return['CATVENTURE','Team tour · '+d+' day'+(d>1?'s':'')+' left'];}
   async function close(){if(trans||mode!=='cv')return;clearInterval(pollT);await fadeOut();
     if(worldOpen()){UNI.st.r=VR;mode='world';document.body.dataset.mode='world';for(const k in L)L[k]=k==='world'?1:0;}else{mode='hub';document.body.dataset.mode='hub';for(const k in L)L[k]=k==='hub'?1:0;}
     try{setLabels();updateHud(true);}catch(_){}await fadeIn();}
@@ -7890,7 +7894,7 @@ window.__cv=CVX;
   const dm=M('#7a2cff',{metalness:0.5,roughness:0.2,emissive:'#3a0a90',emissiveIntensity:0.4}),pm=M('#ffcc33',{metalness:0.6,roughness:0.2,emissive:'#a06800',emissiveIntensity:0.5});
   const dice=[0,1,2].map(k=>{const d=new THREE.Group();g.add(d);A(new THREE.BoxGeometry(0.7,0.7,0.7),dm,0,0,0,d);for(const [x,y,z] of [[0,0.36,0],[0.36,0.15,0.15],[0.36,-0.15,-0.15],[0.15,0.15,0.36],[-0.15,-0.15,0.36]])A(new THREE.SphereGeometry(0.07,8,6),pm,x,y,z,d);return d;});
   const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:'#c9a8ff',transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(11,11,1);gl.position.y=0.2;g.add(gl);
-  g.scale.setScalar(1.9);const R0=60,AN=2.96,Y0=-22;g.position.set(Math.sin(AN)*R0,Y0,Math.cos(AN)*R0);sc.add(g);
+  g.scale.setScalar(1.9);const R0=98,AN=2.80,Y0=4.5;g.position.set(Math.sin(AN)*R0,Y0,Math.cos(AN)*R0);sc.add(g);
   const _u=UNI.update;UNI.update=function(t){_u(t);g.position.y=Y0+Math.sin(t*0.0014)*0.7;g.lookAt(UNI.cam.position);g.rotateZ(Math.sin(t*0.0009)*0.06);stones.forEach((s2,k)=>{s2.position.y=[-3.0,-3.4,-3.2,-2.8][k]+Math.sin(t*0.0018+k*1.3)*0.15;});dice.forEach((d,k)=>{const a=t*0.0009+k*2.09;d.position.set(Math.cos(a)*3.0,2.4+Math.sin(t*0.002+k)*0.3,Math.sin(a)*1.2+0.4);d.rotation.set(t*0.0011+k,t*0.0008,k);});};
   const _p=UNI.pick;UNI.pick=function(x,y){const c=UNI.toScr(g.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'catventure';return _p(x,y);};
   const e=document.createElement('button');e.className='wlabel pill rocketL bearPill';e.innerHTML='<b>CATVENTURE</b><span>Coming soon</span>';e._t='';e.addEventListener('click',()=>CVX.fromUniverse());$('wlabels').appendChild(e);
@@ -7903,7 +7907,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795563095';
+const BUILD='1795564312';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
