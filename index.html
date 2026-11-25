@@ -691,7 +691,7 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 </div>
 <div id="cvModal"><div class="box" id="cvMbox"></div></div>
 <div id="cvHow"><div class="box"><h3>How to Catventure</h3><ul>
-<li><span>🧩</span><div><b>Where to earn paws:</b> the logic puzzle on any of your islands · only once <b>both seats are filled</b> and your tour is on · the paw counter shows at the bottom of the puzzle</div></li>
+<li><span>🧩</span><div><b>Where to earn paws:</b> play the puzzle on any of your islands · only once <b>both seats are filled</b> and your tour is on · the paw counter shows at the bottom</div></li>
 <li><span>🐾</span><div>Every 3rd cat gives <b>+10</b>, every 5th <b>+50</b>, every 10th <b>+100</b></div></li>
 <li><span>🎲</span><div>Pick a <b>multiplier</b>, then tap the bubble to roll 3 dice · a <b>pair</b> gives +50%, a <b>triple</b> ×2</div></li>
 <li><span>🪧</span><div>Your points fill each keepsake's sign · fill all 3 to finish the island</div></li>
@@ -7937,7 +7937,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795564955';
+const BUILD='1795565068';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
