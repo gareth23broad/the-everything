@@ -7913,7 +7913,10 @@ const CVX=(()=>{
       if(!CVT&&!NET.live&&NET.liveUntil){const r=await NET.rpc('cv_settle',auth());const c=await NET.rpc('cv_claim',auth());const amt=(c&&c.coins)|0;
         if(amt>0){save.pearls+=amt;persist();try{updateHud(true);}catch(_){}mayoBanner(amt.toLocaleString()+' coins',(r.paws>0?'Your '+r.paws.toLocaleString()+' leftover paws turned into coins':'Your Catventure coins')+' · thanks for touring!','Catventure Club','🐾',1200,5200);}}}catch(_){}}
   let earnBusy=Promise.resolve();
-  function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}S.paws=r.total;liveMark();if(r.paws>0){const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}
+  function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
+    /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
+    try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
+      const rows=m[ck]||[];if(rows.includes(row))return;rows.push(row);delete m[ck];m[ck]=rows;const ks=Object.keys(m);if(ks.length>40)for(const k of ks.slice(0,ks.length-40))delete m[k];localStorage.setItem('cv-earned',JSON.stringify(m));}}catch(_){}earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}S.paws=r.total;liveMark();if(r.paws>0){const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}
       if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
         try{audio.tone(783.99,0.1,0.4,0.03);audio.tone(1046.5,0.18,0.5,0.025);if(big)audio.tone(1318.5,0.28,0.6,0.025);}catch(_){}
         /* the paw counter above the board already bumps and the +paws floats up from the cat, so no toast here (it would sit on the counter) */}}catch(_){}await sleep(750);});}
