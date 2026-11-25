@@ -7942,6 +7942,8 @@ window.__cv=CVX;
 CVX.boot();window.__gl=()=>goLogic();window.__pp=i=>placePiece(i);window.__LG=()=>LG;if(location.hash==='#cv'){try{started=true;$('intro').classList.remove('show');}catch(_){}CVX.open('lighthouse',true);}else if(location.hash!=='#hub'){try{started=true;$('intro').classList.remove('show');}catch(_){}setTimeout(()=>{try{$('worldBtn').click();}catch(_){}let n=0;const w=setInterval(()=>{n++;if((mode==='world'&&!trans)||n>40){clearInterval(w);if(mode==='world')setTimeout(()=>CVX.fromUniverse(),700);}},250);},300);}
 /*</CVJS>*//* ---------- start ---------- */
 addEventListener('resize',()=>{layout();paintIcons();});
+/* iPhones sometimes report the old size while the phone is still turning, which squashes the board · re-check after the turn and keep an eye on it */
+{const fix=()=>{if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
 const BUILD='__BUILD__';
