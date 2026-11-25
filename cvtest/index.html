@@ -523,11 +523,16 @@ body.zz #cvHead .cvMate.r1{animation-play-state:paused}
 .cvShareBox input[type=range]{width:100%;margin:6px 0 14px;accent-color:#7b5cff}
 
 #cvToast{white-space:normal;text-align:center;max-width:min(88vw,360px);width:max-content;box-sizing:border-box;line-height:1.3}
+
+body.cvNoChips.cvLive[data-mode=logic] #logicHud .chips{visibility:hidden}
+body.cvNoChips #cvPawLG{padding:3px 12px 3px 4px;font-size:16px;gap:5px}body.cvNoChips #cvPawLG svg{width:24px;height:24px}body.cvNoChips #cvPawLG small{font-size:9.5px}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
 
 #rBox.cool{opacity:.55;filter:grayscale(.7);pointer-events:none}
+
+#jar{cursor:default}
 </style>
 </head>
 <body>
@@ -7100,6 +7105,10 @@ function updateLabels(){
     else{const b=save.builds[id];name=(w.mega?'★ ':'')+w.name;st=b.stage>=NS(id)?'Complete ✓ · ✦ '+keepsOwned(id).length+'/3':`${b.stage} of ${NS(id)} built`;if(id===save.current)cls='cur';}
     const txt=name+'|'+st+'|'+cls;if(txt!==o.txt){o.txt=txt;o.el.querySelector('b').textContent=name;o.el.querySelector('span').textContent=st;o.el.className='ilabel pill '+cls;}
   }
+  /* island name labels step aside (fade out) when they'd sit on a bubble or a button */
+  {const now_=performance.now();if(!updateLabels.ck||now_-updateLabels.ck>250){updateLabels.ck=now_;const pr=[];for(const id of['dropBubble','bonus','visit','lmap','worldBtn','jar']){const e=$(id);if(!e)continue;if(id==='dropBubble'&&!e.classList.contains('show'))continue;const cs=getComputedStyle(e);if(cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<0.2)continue;const r=e.getBoundingClientRect();if(r.width>0&&r.height>0)pr.push(r);}
+    const hid=new Set();for(const id in labelEls){const el=labelEls[id].el;if(el.style.display==='none'||el.style.opacity==='0')continue;const r=el.getBoundingClientRect();if(pr.some(q=>Math.min(r.right,q.right)-Math.max(r.left,q.left)>4&&Math.min(r.bottom,q.bottom)-Math.max(r.top,q.top)>4))hid.add(id);}updateLabels.hid=hid;}
+   if(updateLabels.hid)for(const id of updateLabels.hid)if(labelEls[id])labelEls[id].el.style.opacity=0;}
 }
 
 /* ---------- wheel ---------- */
@@ -7307,7 +7316,7 @@ function updateSnap(){
   const p=tray[drag.i],d=dragCenter(),c0=Math.round((d.x-p.w*cell/2-boardX)/cell),r0=Math.round((d.y-p.h*cell/2-boardY)/cell);
   if(fits(p,r0,c0)){if(!snap||snap.r!==r0||snap.c!==c0){snap={r:r0,c:c0};hi=linesIf(p,r0,c0);}}else snap=hi=null;
 }
-$('jar').addEventListener('click',()=>{audio.wake();goBuild();});
+/* the coin counter is just a counter: tapping it does nothing (it used to jump to building, even from puzzles and the race) */
 $('map').addEventListener('click',()=>{audio.wake();goHub();});
 function goContinue(){if(trans||mode!=='hub')return;const a=activeWorld();
   if(!isDone(a)){save.current=a;goLogic();return;}
@@ -7924,8 +7933,12 @@ const CVX=(()=>{
     try{const st=await NET.rpc('cv_state',Object.assign(auth(),{p_since:NET.seen}));if(st.events&&st.events.some(e=>e.seq>NET.seen)){S.latest=st;enqueue(st.events);}else applyMe(st);}catch(_){}},2500);}
   /* ---------- per-frame ---------- */
   /* the paw counter in the puzzle sits in the clear strip between the rule chips and the top of the board (it never covers the buttons below) */
-  function placePawLG(){const e=$c('cvPawLG');if(!e||mode!=='logic'||!document.body.classList.contains('cvLive'))return;const pad=Math.max(6,lS*0.025),h=e.offsetHeight||42,top0=logicTop,bot=lY-pad,k=lY+'|'+lS+'|'+logicTop+'|'+h;if(e._k===k)return;e._k=k;
-    let y=bot-h-8;if(y<top0+2)y=Math.max(4,bot-h-4);e.style.top=Math.round(y)+'px';}
+  function placePawLG(){const e=$c('cvPawLG');if(!e||mode!=='logic'||!document.body.classList.contains('cvLive')){document.body.classList.remove('cvNoChips');return;}const pad=Math.max(6,lS*0.025),h=e.offsetHeight||42,top0=logicTop,bot=lY-pad,k=lY+'|'+lS+'|'+logicTop+'|'+h;if(e._k===k)return;e._k=k;
+    /* short phones: no clear strip above the board, so the counter takes the place of the rule chips (they're a reminder players already know) */
+    const chips=document.querySelector('#logicHud .chips');let y=bot-h-8;document.body.classList.remove('cvNoChips');
+    /* every phone: while a tour is on, the counter sits in the rule chips' row, so it never covers the island scenery or the buttons */
+    if(chips||y<top0+2){if(chips){document.body.classList.add('cvNoChips');const h2=e.offsetHeight||32,cr=chips.getBoundingClientRect(),up=$('lCountBox'),ub=up?up.getBoundingClientRect().bottom:0;y=Math.max(cr.top+cr.height/2-h2/2,ub+8);}else y=Math.max(4,bot-h-4);}
+    e.style.top=Math.round(y)+'px';}
   function tick(t){try{placePawLG();}catch(_){}const on=mode==='cv'||(trans&&(trans.to==='cv'||trans.from==='cv'));G.visible=on;$c('cvTags').style.visibility=mode==='cv'&&!trans?'visible':'hidden';
     if(!on){clearAdded();return;}
     S.camA+=(S.camAT-S.camA)*0.07;
