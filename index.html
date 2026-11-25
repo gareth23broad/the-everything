@@ -496,6 +496,10 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 #cvMute{pointer-events:auto;flex:none;width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%}#cvMute svg{width:22px;height:22px}
 
 #cvMbox .cvSeat{cursor:pointer;-webkit-tap-highlight-color:transparent}#cvMbox .cvSeat:active{transform:scale(.96)}
+
+.cvPawFly{position:fixed;left:0;top:0;z-index:30;pointer-events:none;display:flex;align-items:center;gap:5px;padding:4px 12px 4px 5px;border-radius:999px;background:rgba(255,255,255,.95);border:2px solid #b9a0ff;box-shadow:0 0 0 3px rgba(150,110,255,.25),0 6px 18px rgba(80,50,170,.35);color:#5a3fa0;font:800 18px/1 inherit;font-family:inherit;white-space:nowrap;will-change:transform,opacity}
+.cvPawFly svg{width:26px;height:26px}.cvPawFly b{font-variant-numeric:tabular-nums}
+.cvPawFly.big{font-size:22px;border-color:#ffd23f;box-shadow:0 0 0 3px rgba(255,210,63,.35),0 0 22px rgba(255,200,80,.6),0 6px 18px rgba(80,50,170,.35)}.cvPawFly.big svg{width:30px;height:30px}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
@@ -699,7 +703,7 @@ body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,
 <div id="cvModal"><div class="box" id="cvMbox"></div></div>
 <div id="cvHow"><div class="box"><h3>How to Catventure</h3><ul>
 <li><span>🧩</span><div><b>Where to earn paws:</b> play the puzzle on any of your islands · only once <b>both seats are filled</b> and your tour is on · the paw counter shows at the bottom</div></li>
-<li><span>🐾</span><div>Every 3rd cat gives <b>+10</b>, every 5th <b>+50</b>, every 10th <b>+100</b></div></li>
+<li><span>🐾</span><div>Every 3rd cat gives <b>+5</b>, every 5th <b>+15</b>, every 10th <b>+30</b></div></li>
 <li><span>🎲</span><div>Pick a <b>multiplier</b>, then tap the bubble to roll 3 dice · a <b>pair</b> gives +50%, a <b>triple</b> ×2</div></li>
 <li><span>🪧</span><div>Your points fill each keepsake's sign · fill all 3 to finish the island</div></li>
 <li><span>🎁</span><div>Pass the <b>treasure chest</b> for a lucky fire roll, coins or paws · you both get it</div></li>
@@ -7910,11 +7914,16 @@ const CVX=(()=>{
       if(!CVT&&!NET.live&&NET.liveUntil){const r=await NET.rpc('cv_settle',auth());const c=await NET.rpc('cv_claim',auth());const amt=(c&&c.coins)|0;
         if(amt>0){save.pearls+=amt;persist();try{updateHud(true);}catch(_){}mayoBanner(amt.toLocaleString()+' coins',(r.paws>0?'Your '+r.paws.toLocaleString()+' leftover paws turned into coins':'Your Catventure coins')+' · thanks for touring!','Catventure Club','🐾',1200,5200);}}}catch(_){}}
   let earnBusy=Promise.resolve();
+  /* a little paw pill pops up on the cat you found, then flies up into the paw counter above the board */
+  function flyPaw(x,y,amt,big,done){const c=$c('cvPawLG');const el=document.createElement('div');el.className='cvPawFly'+(big?' big':'');const ic=c&&c.querySelector('svg');el.innerHTML=(ic?ic.outerHTML:'🐾')+'<b>+'+amt+'</b>';document.body.appendChild(el);
+    const w=el.offsetWidth,h=el.offsetHeight,x0=x-w/2,y0=y-h/2-8;let tx=x0,ty=y0-120;if(c&&c.offsetParent){const b=c.getBoundingClientRect();tx=b.left+22-w/2;ty=b.top+b.height/2-h/2;}
+    const a=el.animate([{transform:`translate(${x0}px,${y0}px) scale(.2)`,opacity:0},{transform:`translate(${x0}px,${y0-14}px) scale(1.15)`,opacity:1,offset:.16},{transform:`translate(${x0}px,${y0-18}px) scale(1)`,opacity:1,offset:.5},{transform:`translate(${(x0+tx)/2}px,${Math.min(y0,ty)-30}px) scale(.85)`,opacity:1,offset:.75},{transform:`translate(${tx}px,${ty}px) scale(.55)`,opacity:.2}],{duration:big?1500:1250,easing:'cubic-bezier(.4,0,.3,1)',fill:'forwards'});
+    a.onfinish=()=>{el.remove();done&&done();};}
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
     /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
     try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
-      const rows=m[ck]||[];if(rows.includes(row))return;rows.push(row);delete m[ck];m[ck]=rows;const ks=Object.keys(m);if(ks.length>40)for(const k of ks.slice(0,ks.length-40))delete m[k];localStorage.setItem('cv-earned',JSON.stringify(m));}}catch(_){}earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}S.paws=r.total;liveMark();if(r.paws>0){const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}
-      if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
+      const rows=m[ck]||[];if(rows.includes(row))return;rows.push(row);delete m[ck];m[ck]=rows;const ks=Object.keys(m);if(ks.length>40)for(const k of ks.slice(0,ks.length-40))delete m[k];localStorage.setItem('cv-earned',JSON.stringify(m));}}catch(_){}earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}if(!(r.paws>0)){S.paws=r.total;liveMark();}
+      if(r.paws>0){const big=r.paws>=30,tot=r.total;flyPaw(x,y,r.paws,big,()=>{S.paws=Math.max(S.paws||0,tot);liveMark();const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);try{audio.tone(1174.66,0,0.25,0.025);}catch(_){}});
         try{audio.tone(783.99,0.1,0.4,0.03);audio.tone(1046.5,0.18,0.5,0.025);if(big)audio.tone(1318.5,0.28,0.6,0.025);}catch(_){}
         /* the paw counter above the board already bumps and the +paws floats up from the cat, so no toast here (it would sit on the counter) */}}catch(_){}await sleep(750);});}
   // the universe icon fades straight into the first island, and back (no zooming through regions)
@@ -7971,7 +7980,7 @@ addEventListener('resize',()=>{layout();paintIcons();});
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795580272';
+const BUILD='1795581246';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
