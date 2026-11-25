@@ -533,6 +533,13 @@ body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,
 #rBox.cool{opacity:.55;filter:grayscale(.7);pointer-events:none}
 
 #jar{cursor:default}
+
+/* turning a phone sideways: the universe becomes a quiet full-sky view (no labels, nothing to tap · drag still spins it); every other screen asks to be turned back upright */
+body.uniLand>*:not(#gl):not(#c):not(script){visibility:hidden!important;pointer-events:none!important}
+#rotNote{position:fixed;inset:0;z-index:10000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,#efe6ff,#ffe9f2);color:#5a4a7a;font-weight:800;font-size:18px;text-align:center;padding:20px}
+#rotNote .ph{width:46px;height:78px;border:4px solid #8f6bff;border-radius:12px;position:relative;animation:rotPh 2.4s ease-in-out infinite}#rotNote .ph::after{content:'';position:absolute;left:50%;bottom:6px;width:12px;height:3px;margin-left:-6px;border-radius:2px;background:#8f6bff}
+@keyframes rotPh{0%,30%{transform:rotate(-90deg)}60%,100%{transform:rotate(0)}}
+body.rotBlock #rotNote{display:flex}
 </style>
 </head>
 <body>
@@ -5529,6 +5536,7 @@ return LV;})();
   function planetPos(r,t){const d=PL[r],a=d.ang+Math.sin(t*0.00006+r*1.7)*0.05;return new V3(Math.sin(a)*d.orb,0,Math.cos(a)*d.orb);}
   function overview(){const asp=W/H,tz=44,span=R_.orb[5]+12+16,elev=1.02;
     let d=(span*0.5)/Math.tan(20*Math.PI/180)*1.02;d=Math.max(d,30/(Math.tan(20*Math.PI/180)*asp));
+    /* phone turned sideways: frame the whole universe, centred on the sun */if(asp>1.25){const R=R_.orb[5]+14;d=Math.max(R*0.92/Math.tan(20*Math.PI/180),R*1.1/(Math.tan(20*Math.PI/180)*asp));const tg=new V3(0,0,0);return{pos:tg.clone().add(new V3(0,Math.sin(elev)*d,Math.cos(elev)*d)),tgt:tg};}
     const tgt=new V3(0,0,tz);return{pos:tgt.clone().add(new V3(0,Math.sin(elev)*d,Math.cos(elev)*d)),tgt};}
   function closeTo(r,t){const p=planetPos(r,t),s=PL[r].size;return{pos:p.clone().add(new V3(0,s*1.6,s*3.2)),tgt:p.clone()};}
   const st={k:0,from:1,to:null,ov:null};
@@ -7326,7 +7334,7 @@ $('worldBtn').addEventListener('click',()=>{audio.wake();if(mode==='world')goHub
 let wDrag=null;
 cv.addEventListener('pointerdown',e=>{if(mode!=='world'||trans)return;wDrag={x:e.clientX,y:e.clientY,yaw:UNI.yaw,moved:false};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
 cv.addEventListener('pointermove',e=>{if(!wDrag)return;const dx=e.clientX-wDrag.x;if(Math.abs(dx)>8||Math.abs(e.clientY-wDrag.y)>8)wDrag.moved=true;if(wDrag.moved)UNI.setYaw(wDrag.yaw-dx/W*1.1);});
-cv.addEventListener('pointerup',e=>{if(!wDrag)return;const d=wDrag;wDrag=null;if(!d.moved){const r=UNI.pick(e.clientX,e.clientY);if(r==='rocket')openRace();else if(r==='bear')openBear();else if(r==='catventure')CVX.fromUniverse();else if(r==='moon')pickMoon();else if(r)pickRegion(r);}});
+cv.addEventListener('pointerup',e=>{if(!wDrag)return;const d=wDrag;wDrag=null;if(!d.moved&&!document.body.classList.contains('uniLand')){const r=UNI.pick(e.clientX,e.clientY);if(r==='rocket')openRace();else if(r==='bear')openBear();else if(r==='catventure')CVX.fromUniverse();else if(r==='moon')pickMoon();else if(r)pickRegion(r);}});
 $('dropLabel').addEventListener('click',()=>{audio.wake();$('dropBubble').classList.remove('show');goDrop();});
 $('dropBubble').addEventListener('click',()=>{audio.wake();$('dropBubble').classList.remove('show');goDrop();});
 $('dBack').addEventListener('click',()=>{audio.wake();goHub();});
@@ -8098,11 +8106,17 @@ function realMeow(vol=0.9,pick){const a=audio.ctx;if(!a||audio.muted)return fals
 ['pointerdown','touchstart','keydown'].forEach(ev=>addEventListener(ev,()=>{try{if(audio.ctx)loadMeows();}catch(_){}},{passive:true}));
 /*</REALMEOW>*//* ---------- start ---------- */
 addEventListener('resize',()=>{layout();paintIcons();});
+{const note=document.createElement('div');note.id='rotNote';note.innerHTML='<div class="ph"></div><div>Turn your phone upright to keep playing</div>';document.body.appendChild(note);
+ const coarse=()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(_){return false;}};
+ const orient=()=>{const land=innerWidth>innerHeight&&coarse()&&Math.min(innerWidth,innerHeight)<=520;
+   const uni=land&&mode==='world'&&!(typeof RC!=='undefined'&&RC.open)&&!(typeof SBR!=='undefined'&&SBR.open)&&!(typeof consOpen!=='undefined'&&consOpen);
+   const b=document.body;if(b.classList.contains('uniLand')!==uni)b.classList.toggle('uniLand',uni);const blk=land&&!uni;if(b.classList.contains('rotBlock')!==blk)b.classList.toggle('rotBlock',blk);};
+ addEventListener('resize',orient);addEventListener('orientationchange',()=>setTimeout(orient,300));setInterval(orient,400);orient();}
 /* iPhones sometimes report the old size while the phone is still turning, which squashes the board · re-check after the turn and keep an eye on it */
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795584984';
+const BUILD='1795585560';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
