@@ -5839,7 +5839,7 @@ const VPAL=new Map();
 const BOLD=['#ff9ec7','#ff8c42','#ffd23f','#62d26f','#1fc8c0','#4d96ff','#8f6bff','#e46bdc','#a8714a','#b5e33b'];
 function hsl_(hex){const n=parseInt(hex.slice(1),16);let r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;
   if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6;}return[h*360,s,l];}
-function lgBase(pal){const v=vividPal(pal);return LG&&LG.metal&&LG.metal.type==='bronze'?v.map(c=>c==='#a8714a'?'#e0434b':c):v;}
+function lgBase(pal){const v=vividPal(pal);return LG&&LG.metal&&LG.metal.type==='bronze'?v.map(c=>c==='#a8714a'?'#e0434b':c):LG&&LG.berry?v.map(c=>c==='#ff9ec7'?'#e2536a':c):v;}
 function lgPal(pal){const v=lgBase(pal);return LG&&LG.perm&&LG.perm.length===v.length?LG.perm.map(i=>v[i]):v;}
 const METALC={diamond:'#d6f2ff',gold:'#f2c64a',bronze:'#cf8d55',silver:'#c4cad6'};
 function hexLab(h){const n=parseInt(h.slice(1),16),f=x=>{x/=255;return x>0.04045?Math.pow((x+0.055)/1.055,2.4):x/12.92;};const r=f(n>>16),g=f(n>>8&255),b=f(n&255);
@@ -5895,7 +5895,7 @@ function newLogic(race){race=race===true;frame.sky=0;frame.force=performance.now
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
   LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null,lives:3,hints:4,reveal:1,race};drawLives();updHint();try{paintIcons();}catch(_){}
   {const num=(save.solved||0)+1,type=race?null:num%38===0?'diamond':num%19===0?'gold':num%10===0?'silver':num%4===0?'bronze':null;LG.metal=type?{k:(()=>{const cnt=new Array(n).fill(0);LG.reg.forEach(r=>r.forEach(v=>cnt[v]++));let ok=[...cnt.keys()].filter(k=>cnt[k]>=3);if(!ok.length)ok=[cnt.indexOf(Math.max(...cnt))];return ok[seed%ok.length];})(),type,got:false}:null;{const h=((((seed>>>3)^(num*2654435761))>>>0)%10000)/10000,kt=race?((save.raceK||0)%10===0?'rocket':null):type?null:h<0.01?'diamond':h<0.06?'gold':h<0.1267?'silver':h<0.2267?'bronze':null;LG.gk=kt?{k:(seed>>>5)%n,got:false,type:kt}:null;}
-   LG.perm=null;LG.perm=colourPerm(LG,lgBase(TH().pal),seed);
+   /* about 1 puzzle in 4 swaps pink for berry red (never in bronze puzzles, which already bring in a red) · fixed per puzzle */LG.berry=!(LG.metal&&LG.metal.type==='bronze')&&(Math.imul(seed>>>0,2246822519)>>>0)%4===0;LG.perm=null;LG.perm=colourPerm(LG,lgBase(TH().pal),seed);
    if(type)setTimeout(()=>{if(LG&&LG.metal&&mode==='logic')toast(type==='diamond'?'✦ Diamond puzzle! Find the crystal cat for +75 coins':type==='gold'?'✦ Gold puzzle! Find the gold cat for +50 coins':type==='silver'?'✦ Silver puzzle! Find the silver cat for +25 coins':'✦ Bronze puzzle! Find the bronze cat for +15 coins',3000);},2900);}
   setLabels();updateHud(true);
 }
@@ -7948,7 +7948,7 @@ addEventListener('resize',()=>{layout();paintIcons();});
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795573553';
+const BUILD='1795577051';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
