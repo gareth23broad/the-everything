@@ -5554,7 +5554,7 @@ rays.material.rotation=t*0.00005;rays2.material.rotation=-t*0.00003;halo.materia
     const hm=A(new THREE.SphereGeometry(1.48,28,20),new THREE.MeshStandardMaterial({color:'#bfe8ff',transparent:true,opacity:0.22,roughness:0.05,metalness:0.2,depthWrite:false}),0,1.6,0);hm.renderOrder=2;
     A(new THREE.TorusGeometry(1.0,0.14,10,28),GR,0,0.72,0).rotation.x=Math.PI/2;
     const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:softTex,color:'#9fffd0',transparent:true,opacity:0.45,depthWrite:false,blending:THREE.AdditiveBlending}));gl.scale.set(8,8,1);gl.position.y=0.8;/* glow removed (perf) */}
-  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=75.5,rb=2.07;sbear.position.set(Math.sin(rb)*o3,-14,Math.cos(rb)*o3);}sbear.visible=window.BEAR_ON!==false;sc.add(sbear);
+  sbear.scale.setScalar(2.5);{/* fixed spot in the universe (it turns with the view like the rocket), in the open space to the right of the newest planets */const o3=75.5,rb=1.99;sbear.position.set(Math.sin(rb)*o3,-14,Math.cos(rb)*o3);}sbear.visible=window.BEAR_ON!==false;sc.add(sbear);
   const _ru=update;update=function(t){_ru(t);rocket.position.y=-14+Math.sin(t*0.002)*0.6;rocket.rotation.y=t*0.0006;rocket.userData.fl.scale.y=0.8+Math.random()*0.4;sbear.position.y=-14+Math.sin(t*0.0016+1)*0.8;sbear.lookAt(cam.position);sbear.rotateY(Math.sin(t*0.0007)*0.15);sbear.rotateZ(Math.sin(t*0.0011)*0.1);};
   const _rp=pick;pick=function(x,y){if(RACE_ON){const c=toScr(rocket.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<64)return 'rocket';}if(window.BEAR_ON!==false){const c=toScr(sbear.position);if(c.z<1&&Math.hypot(c.x-x,c.y-y)<70)return 'bear';}return _rp(x,y);};
   return{sky:{neb,starsP,starM},rocket,sbear,sc,cam,update,st,PL,toScr,pick,moon,MR,moonHidden,FIN,skyFlash:()=>FIN.flash,sunTop:()=>toScr(new V3(0,R_.sun*1.25,0).applyQuaternion(sun.quaternion)),setYaw:v=>{yawT=v;},get yaw(){return yawT;},/* is this planet on the side we're facing? (the universe spins all the way round) */facing:r=>{const d=PL[r];const x=((d.ang-yawT)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;return Math.abs(x)<1.5;}};
@@ -7941,7 +7941,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795572074';
+const BUILD='1795572117';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
