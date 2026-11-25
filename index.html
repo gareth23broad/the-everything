@@ -7918,7 +7918,7 @@ const CVX=(()=>{
     if(!sameIsl||p.chest_at!==S.builtChest){S.id=p.island;const r=REG(WMAP[p.island]);if(r!==VR)setRegion(r);build(p.island);S.builtChest=p.chest_at;try{paintIcons();}catch(_){}}
     else{placeTokens(S.cur<STOPS.length?STOPS[S.cur].a-spotOff():A0);SIGNS.forEach((g,i)=>{g.visible=i>=S.cur;g.userData.gone=i<S.cur?1:0;});}
     S.camA=S.camAT=tokAng();if(fade&&!sameIsl)await fadeIn();hud();}
-  function fadeEl(){let f=$c('cvFade');if(!f){f=document.createElement('div');f.id='cvFade';f.style.cssText='position:fixed;inset:0;z-index:50;background:#f4f8ff;opacity:0;pointer-events:none;transition:opacity .55s';document.body.appendChild(f);}return f;}
+  function fadeEl(){let f=$c('cvFade');if(!f){f=document.createElement('div');f.id='cvFade';f.style.cssText='position:fixed;inset:0;z-index:50;background:#f4f8ff;opacity:0;pointer-events:none;transition:opacity .55s';document.body.appendChild(f);void f.offsetWidth;/* let the browser see opacity 0 first, so the very first fade animates instead of flashing */}return f;}
   async function fadeOut(){fadeEl().style.opacity=1;await sleep(650);}
   async function fadeIn(){await sleep(150);fadeEl().style.opacity=0;await sleep(500);}
   async function unlock(b,fast){const i=S.cur,sg=SIGNS[i],stop=STOPS[i];
@@ -8132,7 +8132,7 @@ addEventListener('resize',()=>{layout();paintIcons();});
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795614078';
+const BUILD='1795614321';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}

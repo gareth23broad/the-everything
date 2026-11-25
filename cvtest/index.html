@@ -7905,7 +7905,7 @@ const CVX=(()=>{
     if(!sameIsl||p.chest_at!==S.builtChest){S.id=p.island;const r=REG(WMAP[p.island]);if(r!==VR)setRegion(r);build(p.island);S.builtChest=p.chest_at;try{paintIcons();}catch(_){}}
     else{placeTokens(S.cur<STOPS.length?STOPS[S.cur].a-spotOff():A0);SIGNS.forEach((g,i)=>{g.visible=i>=S.cur;g.userData.gone=i<S.cur?1:0;});}
     S.camA=S.camAT=tokAng();if(fade&&!sameIsl)await fadeIn();hud();}
-  function fadeEl(){let f=$c('cvFade');if(!f){f=document.createElement('div');f.id='cvFade';f.style.cssText='position:fixed;inset:0;z-index:50;background:#f4f8ff;opacity:0;pointer-events:none;transition:opacity .55s';document.body.appendChild(f);}return f;}
+  function fadeEl(){let f=$c('cvFade');if(!f){f=document.createElement('div');f.id='cvFade';f.style.cssText='position:fixed;inset:0;z-index:50;background:#f4f8ff;opacity:0;pointer-events:none;transition:opacity .55s';document.body.appendChild(f);void f.offsetWidth;/* let the browser see opacity 0 first, so the very first fade animates instead of flashing */}return f;}
   async function fadeOut(){fadeEl().style.opacity=1;await sleep(650);}
   async function fadeIn(){await sleep(150);fadeEl().style.opacity=0;await sleep(500);}
   async function unlock(b,fast){const i=S.cur,sg=SIGNS[i],stop=STOPS[i];
@@ -7945,7 +7945,7 @@ const CVX=(()=>{
     /* short phones: no clear strip above the board, so the counter takes the place of the rule chips (they're a reminder players already know) */
     const chips=document.querySelector('#logicHud .chips');let y=bot-h-8;document.body.classList.remove('cvNoChips');
     /* every phone: while a tour is on, the counter sits in the rule chips' row, so it never covers the island scenery or the buttons */
-    if(chips||y<top0+2){if(chips){document.body.classList.add('cvNoChips');const h2=e.offsetHeight||32,cr=chips.getBoundingClientRect(),up=$('lCountBox'),ub=up?up.getBoundingClientRect().bottom:0;y=Math.max(cr.top+cr.height/2-h2/2,ub+8);}else y=Math.max(4,bot-h-4);}
+    if(chips||y<top0+2){if(chips){document.body.classList.add('cvNoChips');const h2=e.offsetHeight||32,cr=chips.getBoundingClientRect(),up=document.querySelector('#logicHud .crow'),ub=up?Math.max(...[...up.children].map(x=>x.getBoundingClientRect().bottom)):0;y=Math.max(cr.top+cr.height/2-h2/2,ub+16);}else y=Math.max(4,bot-h-4);}
     e.style.top=Math.round(y)+'px';}
   function tick(t){try{placePawLG();}catch(_){}const on=mode==='cv'||(trans&&(trans.to==='cv'||trans.from==='cv'));G.visible=on;$c('cvTags').style.visibility=mode==='cv'&&!trans?'visible':'hidden';
     if(!on){clearAdded();return;}
