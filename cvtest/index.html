@@ -5843,12 +5843,13 @@ function hsl_(hex){const n=parseInt(hex.slice(1),16);let r=(n>>16)/255,g=(n>>8&2
   if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h/=6;}return[h*360,s,l];}
 function lgBase(pal){const v=vividPal(pal);return LG&&LG.metal&&LG.metal.type==='bronze'?v.map(c=>c==='#a8714a'?'#e0434b':c):LG&&LG.berry?v.map(c=>c==='#ff9ec7'?'#e2536a':c):v;}
 function lgPal(pal){const v=lgBase(pal);return LG&&LG.perm&&LG.perm.length===v.length?LG.perm.map(i=>v[i]):v;}
+const NEON_UV='#7a00ff';
 const METALC={diamond:'#d6f2ff',gold:'#f2c64a',bronze:'#cf8d55',silver:'#c4cad6'};
 function hexLab(h){const n=parseInt(h.slice(1),16),f=x=>{x/=255;return x>0.04045?Math.pow((x+0.055)/1.055,2.4):x/12.92;};const r=f(n>>16),g=f(n>>8&255),b=f(n&255);
   let X=(r*0.4124+g*0.3576+b*0.1805)/0.95047,Y=r*0.2126+g*0.7152+b*0.0722,Z=(r*0.0193+g*0.1192+b*0.9505)/1.08883;const q=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;X=q(X);Y=q(Y);Z=q(Z);return[116*Y-16,500*(X-Y),200*(Y-Z)];}
 function colourPerm(L,v,seed){const n=L.n,m=v.length,adj=new Set();
   for(let r=0;r<n;r++)for(let c=0;c<n;c++){const a=L.reg[r][c];for(const[dr,dc]of[[0,1],[1,0],[1,1],[1,-1]]){const r2=r+dr,c2=c+dc;if(r2<0||r2>=n||c2<0||c2>=n)continue;const b=L.reg[r2][c2];if(a!==b)adj.add(a<b?a+','+b:b+','+a);}}
-  const E=[...adj].map(x=>x.split(',').map(Number)),lab=v.map(hexLab),mk=L.metal?L.metal.k:-1,mlab=L.metal?hexLab(METALC[L.metal.type]):null;
+  const E=[...adj].map(x=>x.split(',').map(Number)),lab=v.map(hexLab),mk=L.metal?L.metal.k:L.neon?L.neon.k:-1,mlab=L.metal?hexLab(METALC[L.metal.type]):L.neon?hexLab(NEON_UV):null;
   const col=(k,p)=>k===mk?mlab:lab[p[k]],dE=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
   const score=p=>{let mn=1e9,sum=0;for(const[a,b]of E){const d=dE(col(a,p),col(b,p));if(d<mn)mn=d;sum+=Math.min(d,60);}
     if(mk>=0)for(let k=0;k<n;k++)if(k!==mk){const d=dE(mlab,lab[p[k]]);if(d<mn+8)mn=Math.min(mn,d+8);}return mn*1000+sum;};
@@ -5875,6 +5876,14 @@ function drawMetal(x,y,s,type,t,ph){const p=Math.max(1,s*0.045),w=s-2*p,r=s*0.16
   const sw=((t*0.000175+ph*0.09)%1.6)-0.3,sx=x+sw*s*1.4;ctx.translate(sx,y+s/2);ctx.rotate(0.6);const sh=ctx.createLinearGradient(-s*0.25,0,s*0.25,0);sh.addColorStop(0,'rgba(255,255,255,0)');sh.addColorStop(0.5,type==='diamond'?'rgba(255,255,255,0.95)':type==='bronze'?'rgba(255,236,214,0.75)':G?'rgba(255,252,225,0.75)':'rgba(255,255,255,0.8)');sh.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=sh;ctx.fillRect(-s*0.25,-s,s*0.5,s*2);ctx.restore();
   const tw=0.5+0.5*Math.sin(t*0.002+ph*1.7);if(tw>0.7){const a=(tw-0.7)/0.3,px=x+s*(0.25+((ph*37)%5)/10),py=y+s*(0.25+((ph*53)%5)/10);ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.beginPath();for(let q=0;q<8;q++){const aa=q*Math.PI/4,rr=q%2?s*0.025:s*0.1*a;ctx.lineTo(px+Math.cos(aa)*rr,py+Math.sin(aa)*rr);}ctx.closePath();ctx.fill();}
   ctx.strokeStyle=G?'rgba(160,110,10,0.55)':'rgba(110,118,140,0.55)';ctx.lineWidth=Math.max(1,s*0.025);rrect(ctx,x+p,y+p,w,w,r);ctx.stroke();}
+/* Ultraviolet neon tile (race): pulsing glow, a light sweep like the metals, energy ripples and sparks */
+function drawNeon(x,y,s,t,ph){const g=ctx,p=s*0.045,w=s-2*p,r=s*0.16,pul=0.5+0.5*Math.sin(t*0.004+ph*0.9);
+  g.save();g.shadowColor=`rgba(190,110,255,${0.55+0.4*pul})`;g.shadowBlur=s*(0.18+0.22*pul);g.drawImage(tileSprite(NEON_UV,s).c,x,y,s,s);g.restore();
+  g.save();rrect(g,x+p,y+p,w,w,r);g.clip();
+  for(let k=0;k<2;k++){const u=((t*0.0005+k*0.5+ph*0.13)%1);g.strokeStyle=`rgba(230,190,255,${0.35*(1-u)})`;g.lineWidth=Math.max(1,s*0.03);g.beginPath();g.arc(x+s/2,y+s/2,u*s*0.75,0,7);g.stroke();}
+  for(let k=0;k<3;k++){const u=((t*0.0004+k*0.33+ph*0.21)%1),px=x+s*(0.2+((k*37+ph*13)%60)/100),py=y+s*(0.9-u*0.8);g.fillStyle=`rgba(255,230,255,${Math.sin(u*Math.PI)})`;g.beginPath();g.arc(px,py,Math.max(0.8,s*0.022),0,7);g.fill();}
+  const sw=((t*0.00022+ph*0.09)%1.6)-0.3,sx=x+sw*s*1.4;g.translate(sx,y+s/2);g.rotate(0.6);const sh=g.createLinearGradient(-s*0.22,0,s*0.22,0);sh.addColorStop(0,'rgba(255,255,255,0)');sh.addColorStop(0.5,'rgba(240,215,255,0.8)');sh.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=sh;g.fillRect(-s*0.22,-s,s*0.44,s*2);g.restore();
+  g.save();g.strokeStyle=`rgba(225,170,255,${0.7+0.3*pul})`;g.lineWidth=Math.max(1.2,s*0.03);g.shadowColor='#c07aff';g.shadowBlur=s*0.15;rrect(g,x+p,y+p,w,w,r);g.stroke();g.restore();}
 function tileSprite(col,s){
   const k='T'+col+'@'+Math.round(s*DPR);let sp=sprites.get(k);if(sp)return sp;
   const c=document.createElement('canvas');c.width=c.height=Math.ceil(s*DPR);const g=c.getContext('2d');g.scale(DPR,DPR);
@@ -5897,6 +5906,7 @@ function newLogic(race){race=race===true;frame.sky=0;frame.force=performance.now
   const P=makePuzzle(n,seed)||makePuzzle(n,seed+17);
   LG={world:save.current,n,reg:P.reg,sol:P.sol,st:new Array(n*n).fill(0),anim:{},hist:[],done:false,hint:null,lives:3,hints:4,reveal:1,race};drawLives();updHint();try{paintIcons();}catch(_){}
   {const num=(save.solved||0)+1,type=race?null:num%38===0?'diamond':num%19===0?'gold':num%10===0?'silver':num%4===0?'bronze':null;LG.metal=type?{k:(()=>{const cnt=new Array(n).fill(0);LG.reg.forEach(r=>r.forEach(v=>cnt[v]++));let ok=[...cnt.keys()].filter(k=>cnt[k]>=3);if(!ok.length)ok=[cnt.indexOf(Math.max(...cnt))];return ok[seed%ok.length];})(),type,got:false}:null;{const h=((((seed>>>3)^(num*2654435761))>>>0)%10000)/10000,kt=race?((save.raceK||0)%10===0?'rocket':null):type?null:h<0.01?'diamond':h<0.06?'gold':h<0.1267?'silver':h<0.2267?'bronze':null;LG.gk=kt?{k:(seed>>>5)%n,got:false,type:kt}:null;}
+   /* Ultraviolet: the 5th, 15th, 25th... race puzzle has one glowing neon area worth +99 fuel at the finish (the Rocket Cat takes the 10th, 20th...) */LG.neon=race&&(save.raceK||0)%10===5?{k:(()=>{const cnt=new Array(n).fill(0);LG.reg.forEach(r=>r.forEach(v=>cnt[v]++));let ok=[...cnt.keys()].filter(k=>cnt[k]>=3);if(!ok.length)ok=[cnt.indexOf(Math.max(...cnt))];return ok[(seed>>>7)%ok.length];})(),got:false}:null;
    /* about 1 puzzle in 4 swaps pink for berry red (never in bronze puzzles, which already bring in a red) · fixed per puzzle */LG.berry=!(LG.metal&&LG.metal.type==='bronze')&&(Math.imul(seed>>>0,2246822519)>>>0)%4===0;LG.perm=null;LG.perm=colourPerm(LG,lgBase(TH().pal),seed);
    if(type)setTimeout(()=>{if(LG&&LG.metal&&mode==='logic')toast(type==='diamond'?'✦ Diamond puzzle! Find the crystal cat for +75 coins':type==='gold'?'✦ Gold puzzle! Find the gold cat for +50 coins':type==='silver'?'✦ Silver puzzle! Find the silver cat for +25 coins':'✦ Bronze puzzle! Find the bronze cat for +15 coins',3000);},2900);}
   setLabels();updateHud(true);
@@ -5931,6 +5941,8 @@ function placePiece(i){
   const b=[];setCell(i,2,b);const k=LG.reg[r][c];clearHint();if(!LG.race)try{const _cs=lS/n;CVX.catFound(lX+(c+0.5)*_cs,lY+(r+0.5)*_cs);}catch(_){}
   if(LG.gk&&k===LG.gk.k&&!LG.gk.got){LG.gk.got=true;const KT=KITTY[LG.gk.type],csz=lS/n,px=lX+(c+0.5)*csz,py=lY+(r+0.5)*csz;if(KT.fuel){LG.catFuel=KT.v;}else{save.pearls+=KT.v;persist();}
     setTimeout(()=>{sfx.meow&&sfx.meow();if(KT.fuel)try{audio.roar(0,0.9,0.16,200,1800);}catch(_){}if(KT.big)bigWinFx(KT.name,px,py);else toast('✦ '+KT.name,2400);fx.push({type:'text',text:'+'+KT.v+(KT.fuel?' fuel at the finish ⛽':' coins!'),x:px,y:py-csz*0.6,t0:performance.now(),dur:2200,size:Math.max(24,csz*0.5),layer:'logic'});if(!KT.fuel)pourPearls(Math.min(KT.v,600),px,py,performance.now()+250);for(let q=0;q<KT.bursts;q++)setTimeout(()=>burst(px,py,40,KT.cols),q*220);},350);}
+  if(LG.neon&&k===LG.neon.k&&!LG.neon.got){LG.neon.got=true;const csz=lS/n,px=lX+(c+0.5)*csz,py=lY+(r+0.5)*csz;
+    setTimeout(()=>{fx.push({type:'text',text:'+99 neon fuel at the finish ⛽',x:px,y:py-csz*0.6,t0:performance.now(),dur:2000,size:Math.max(22,csz*0.45),layer:'logic'});sfx.tada&&sfx.tada();burst(px,py,34,['#c07aff','#ffffff','#e8c8ff','#7a00ff']);},350);}
   if(LG.metal&&k===LG.metal.k&&!LG.metal.got){LG.metal.got=true;const bon=LG.metal.type==='diamond'?75:LG.metal.type==='gold'?50:LG.metal.type==='silver'?25:15,csz=lS/n,px=lX+(c+0.5)*csz,py=lY+(r+0.5)*csz;save.pearls+=bon;persist();
     setTimeout(()=>{fx.push({type:'text',text:'+'+bon+' '+LG.metal.type+' bonus!',x:px,y:py-csz*0.6,t0:performance.now(),dur:1800,size:Math.max(22,csz*0.45),layer:'logic'});pourPearls(bon,px,py,performance.now()+200);sfx.tada&&sfx.tada();burst(px,py,30,LG.metal.type==='gold'?['#fff3b8','#f6cf5a','#ffffff']:['#ffffff','#d4d9e4','#eef2ff']);},350);}
   LG.hist.push(b);
@@ -6023,7 +6035,7 @@ function drawLogic(t){
   if(LG.race){const e=$('pzFuel'),f=raceFuel(RC.st&&RC.st.race);if(e._f!==f){if(e._f!==undefined&&f>e._f){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');}e._f=f;e.querySelector('b').textContent=f.toLocaleString();}}
   ctx.save();ctx.shadowColor='rgba(70,80,130,0.2)';ctx.shadowBlur=30;ctx.shadowOffsetY=10;rrect(ctx,lX-pad,lY-pad,lS+2*pad,lS+2*pad,pad*2);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fill();ctx.restore();
   rrect(ctx,lX-pad,lY-pad,lS+2*pad,lS+2*pad,pad*2);ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.stroke();
-  for(let r=0;r<n;r++)for(let c=0;c<n;c++){const mk=LG.metal&&LG.reg[r][c]===LG.metal.k;ctx.drawImage(tileSprite(mk?(LG.metal.type==='diamond'?'#d6f2ff':LG.metal.type==='gold'?'#f2c64a':LG.metal.type==='bronze'?'#cf8d55':'#c4cad6'):pal[LG.reg[r][c]%pal.length],cs).c,lX+c*cs,lY+r*cs,cs,cs);if(mk)drawMetal(lX+c*cs,lY+r*cs,cs,LG.metal.type,t,r+c);}
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){const mk=LG.metal&&LG.reg[r][c]===LG.metal.k;if(LG.neon&&LG.reg[r][c]===LG.neon.k){drawNeon(lX+c*cs,lY+r*cs,cs,t,r*n+c);continue;}ctx.drawImage(tileSprite(mk?(LG.metal.type==='diamond'?'#d6f2ff':LG.metal.type==='gold'?'#f2c64a':LG.metal.type==='bronze'?'#cf8d55':'#c4cad6'):pal[LG.reg[r][c]%pal.length],cs).c,lX+c*cs,lY+r*cs,cs,cs);if(mk)drawMetal(lX+c*cs,lY+r*cs,cs,LG.metal.type,t,r+c);}
   const kind=TH().piece;
   for(let i=0;i<n*n;i++){
     const r=i/n|0,c=i%n,x=lX+(c+0.5)*cs,y=lY+(r+0.5)*cs,s=LG.st[i],a=LG.anim[i],age=a?t-a.t0:1e9;
@@ -8291,7 +8303,7 @@ $('bInfo').addEventListener('click',()=>{const c=$('bHowCard');c.innerHTML='<but
 let RSKY=null;function raceSkyRender(t){if(!RSKY){const sc=new THREE.Scene();sc.add(UNI.sky.neb.clone(),UNI.sky.starsP.clone());const cm=new THREE.PerspectiveCamera(50,1,0.1,4000);cm.position.set(0,0,0);cm.lookAt(0,0.25,-1);RSKY={sc,cm,w:0,h:0};}if(RSKY.w!==innerWidth||RSKY.h!==innerHeight){RSKY.w=innerWidth;RSKY.h=innerHeight;RSKY.cm.aspect=innerWidth/innerHeight;RSKY.cm.updateProjectionMatrix();}const S=UNI.sky;S.neb.material.uniforms.uT.value=t/1000;S.starM.uniforms.uT.value=t/1000;S.starM.uniforms.uPx.value=Math.min(devicePixelRatio||1,2);RSKY.cm.rotation.y=t*0.000012;renderer.render(RSKY.sc,RSKY.cm);}
 function raceBack(){if(trans)return;raceWarp(()=>{document.body.classList.add('racing');go('world',{dur:60,done:()=>{RC.noZoom=1;openRace();}});});}
 async function raceWin(){LG.done=true;const t=performance.now(),n=LG.n;for(let i=0;i<n*n;i++)if(LG.st[i]===2)LG.anim[i]={t0:t+300+((i/n|0)+(i%n))*60,type:'dance'};sfx.win();
-  const b0=RACE_BURSTS[Math.random()*RACE_BURSTS.length|0],cf=LG.catFuel||0,b=cf?{c:b0.c,t:b0.t+' + 🔥 Rocket Cat '+cf}:b0,tot=b.c.reduce((a,x)=>a+x,0)+cf,r=RC.st&&RC.st.race;try{if(r)raceHandle(await raceRpc('race_fuel',cf?{p_race:r.id,p_cells:b.c,p_cat:true}:{p_race:r.id,p_cells:b.c}));}catch(_){}
+  const b0=RACE_BURSTS[Math.random()*RACE_BURSTS.length|0],cf=LG.catFuel||0,nf=LG.neon&&LG.neon.got?99:0,b1=cf?{c:b0.c,t:b0.t+' + 🔥 Rocket Cat '+cf}:b0,b=nf?{c:b1.c,t:b1.t+' + ✨ Neon '+nf}:b1,tot=b.c.reduce((a,x)=>a+x,0)+cf+nf,r=RC.st&&RC.st.race;try{if(r){const q={p_race:r.id,p_cells:b.c};if(cf)q.p_cat=true;if(nf)q.p_neon=true;raceHandle(await raceRpc('race_fuel',q));}}catch(_){}
   setTimeout(()=>{$('doneEarn').textContent='+'+tot+' fuel ⛽';$('doneKick').textContent=b.t;$('done').classList.add('racewin');$('doneTitle').textContent='Fuel loaded!';$('done').classList.remove('perfect');setLabels();$('done').classList.add('show');},1600);}
 async function raceFailFuel(){const r=RC.st&&RC.st.race;if(!r)return;try{raceHandle(await raceRpc('race_fuel',{p_race:r.id,p_cells:[],p_fail:true}));setTimeout(()=>toast('Out of lives · −10 fuel',2200),900);}catch(_){}}
 $('rBack').addEventListener('click',()=>{audio.wake();closeRace();document.body.classList.remove('racing');});$('rs1').addEventListener('click',()=>{if($('rs1').classList.contains('open'))raceJoin();});$('rs3').addEventListener('click',()=>{if($('rs3').classList.contains('open'))raceJoin();});$('rs2').addEventListener('click',()=>{if($('rs2').classList.contains('open'))raceJoin();});
