@@ -743,7 +743,7 @@ body.rotBlock #rotNote{display:flex}
 <li><span>🪧</span><div>Your points fill each keepsake's sign · fill all 3 to finish the island</div></li>
 <li><span>🎁</span><div>Pass the <b>treasure chest</b> for a lucky fire roll, coins or paws · you both get it</div></li>
 <li><span>🏝️</span><div>Each island pays <b class="gshim">1,000 coins</b> each · finish all 4 for a <b class="gshim">4,000 bonus</b> each</div></li>
-<li><span>⏳</span><div>The tour lasts <b>5 days</b> · leftover paws turn into coins, then <b>3 weeks' rest</b></div></li>
+<li><span>⏳</span><div>The tour lasts <b>5 days</b> · leftover paws turn into coins, then <b>40 days' rest</b></div></li>
 </ul><button id="cvHowOk">Got it</button></div></div>
 <div id="cvToast"></div>
 <div id="cvPawLG" class="cvPill"><svg viewBox="0 0 32 32" class="cvPawI"></svg><b id="cvPawLGn">0</b><small>Catventure paws</small></div>
@@ -7968,13 +7968,13 @@ const CVX=(()=>{
   function howTo(){try{audio.wake();sfx.pick();}catch(_){}$c('cvHow').classList.add('on');}
   setTimeout(()=>{const mu=$c('cvMute'),gm=document.getElementById('mute');if(mu&&gm){const sync=()=>{mu.innerHTML=gm.innerHTML;};sync();mu.onclick=()=>{gm.click();sync();};gm.addEventListener('click',()=>setTimeout(sync,0));}
     const b=$c('cvInfo');if(b)b.onclick=howTo;const o=$c('cvHowOk');if(o)o.onclick=()=>{try{sfx.pick();}catch(_){}$c('cvHow').classList.remove('on');};const w=$c('cvHow');if(w)w.addEventListener('pointerdown',e=>{if(e.target===w)w.classList.remove('on');});},0);
-  /* after a tour ends each player rests for 3 weeks (the server keeps the clock) */
+  /* after a tour ends each player rests for 40 days (the server keeps the clock) */
   const coolDays=lb=>{if(!lb||!lb.cooldown)return 0;const ms=new Date(lb.cooldown)-new Date(lb.now||Date.now());return ms>0?Math.max(1,Math.ceil(ms/864e5)):0;};
   function seatHTML(m,k,me){return `<div class="cvSeat ${m?'on':''}"><canvas id="cvSeat${k}" width="96" height="96"></canvas><b>${m?(me?'You':m.name):k===0?'Enter here':'Waiting…'}</b><small>${m?'In the seat':k===0?'Tap to sit':'For a partner'}</small></div>`;}
   async function lobby(){if(!NET.me&&!(await ident(true))&&!NET.me)return;try{audio.wake();}catch(_){}
     let lastK='';const draw=()=>{const k_=JSON.stringify(NET.lob||{});if(k_===lastK&&$c('cvModal').classList.contains('on'))return;lastK=k_;const lb=NET.lob||{},mineOpen=lb.team&&lb.team.status==='open',op=lb.open,mem=mineOpen?(op&&op.id===lb.team.id?op.members:[{pid:NET.me.pid,name:NET.me.name,icon:NET.me.icon}]):(op?op.members:[]);
       const m0=mem&&mem[0],m1=mem&&mem[1],cdD=coolDays(lb);
-      $c('cvMbox').innerHTML=`<button class="cvInfoB" id="cvInfoL" aria-label="How Catventure works">i</button><div style="font-size:40px">🐾</div><h3>Catventure Club</h3><p style="margin-bottom:10px">Two seats · a 5-day island tour starts the moment both are filled · then 3 weeks' rest</p><div class="cvSeats">${seatHTML(m0,0,m0&&m0.pid===NET.me.pid)}<div class="cvAmp">&amp;</div>${seatHTML(m1,1,m1&&m1.pid===NET.me.pid)}</div>
+      $c('cvMbox').innerHTML=`<button class="cvInfoB" id="cvInfoL" aria-label="How Catventure works">i</button><div style="font-size:40px">🐾</div><h3>Catventure Club</h3><p style="margin-bottom:10px">Two seats · a 5-day island tour starts the moment both are filled · then 40 days' rest</p><div class="cvSeats">${seatHTML(m0,0,m0&&m0.pid===NET.me.pid)}<div class="cvAmp">&amp;</div>${seatHTML(m1,1,m1&&m1.pid===NET.me.pid)}</div>
         <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">${cdD?`<div class="cvRest">🧊 Your paws are resting · back in <b>${cdD} day${cdD>1?'s':''}</b></div>`:mineOpen?'<button id="cvLeave" class="soft">Leave seat</button>':`<button id="cvJoin"${op?'':' style="display:none"'}>${op?'Join '+(m0?m0.name:'them'):'Enter'}</button>`}<button id="cvMok" class="soft">Close</button></div>`;
       $c('cvModal').classList.add('on');
       [m0,m1].forEach((m,k)=>{if(!m)return;const c=$c('cvSeat'+k);const pl=((MK&&MK.list)||[]).find(p=>p.id===m.pid)||{id:m.pid,icon:m.icon||'paw',name:m.name};try{paintTagPic(c,pl);}catch(_){}});
