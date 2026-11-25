@@ -466,8 +466,8 @@ body[data-mode=cv] #hud .top,body[data-mode=cv] #labels,body[data-mode=cv] #bott
 #cvMbox button{margin:0 2px}
 
 /* paw counter on the logic puzzle while a Catventure is running: in the empty sand strip above the Map button */
-#cvPawLG{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);z-index:4;display:none;gap:7px;padding:5px 15px 5px 6px;font-size:19px;box-shadow:0 6px 16px rgba(90,100,150,.14);pointer-events:none;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
-#cvPawLG svg{width:32px;height:32px}#cvPawLG b{font-variant-numeric:tabular-nums}#cvPawLG small{font-size:11px;font-weight:800;letter-spacing:.4px;opacity:.75;text-transform:uppercase}
+#cvPawLG{position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:4;display:none;gap:7px;padding:5px 15px 5px 6px;font-size:19px;box-shadow:0 6px 16px rgba(90,100,150,.14);pointer-events:none;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+#cvPawLG svg{width:32px;height:32px}#cvPawLG b{font-variant-numeric:tabular-nums}#cvPawLG small{white-space:nowrap;font-size:11px;font-weight:800;letter-spacing:.4px;opacity:.75;text-transform:uppercase}
 body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display:none!important}
 #cvPawLG.bump{transform:translateX(-50%) scale(1.14)}
 
@@ -7835,7 +7835,10 @@ const CVX=(()=>{
   function poll(){clearInterval(pollT);pollT=setInterval(async()=>{if(mode!=='cv'||trans||S.busy||qBusy||!NET.ok||document.hidden)return;
     try{const st=await NET.rpc('cv_state',Object.assign(auth(),{p_since:NET.seen}));if(st.events&&st.events.some(e=>e.seq>NET.seen)){S.latest=st;enqueue(st.events);}else applyMe(st);}catch(_){}},2500);}
   /* ---------- per-frame ---------- */
-  function tick(t){const on=mode==='cv'||(trans&&(trans.to==='cv'||trans.from==='cv'));G.visible=on;$c('cvTags').style.visibility=mode==='cv'&&!trans?'visible':'hidden';
+  /* the paw counter in the puzzle sits in the clear strip between the rule chips and the top of the board (it never covers the buttons below) */
+  function placePawLG(){const e=$c('cvPawLG');if(!e||mode!=='logic'||!document.body.classList.contains('cvLive'))return;const pad=Math.max(6,lS*0.025),h=e.offsetHeight||42,top0=logicTop,bot=lY-pad,k=lY+'|'+lS+'|'+logicTop+'|'+h;if(e._k===k)return;e._k=k;
+    let y=bot-h-8;if(y<top0+2)y=Math.max(4,bot-h-4);e.style.top=Math.round(y)+'px';}
+  function tick(t){try{placePawLG();}catch(_){}const on=mode==='cv'||(trans&&(trans.to==='cv'||trans.from==='cv'));G.visible=on;$c('cvTags').style.visibility=mode==='cv'&&!trans?'visible':'hidden';
     if(!on){clearAdded();return;}
     S.camA+=(S.camAT-S.camA)*0.07;
     STONES.forEach(s=>{s.position.y=0.12+Math.sin(t*0.0016+s.userData.ph)*0.035*SC;});
@@ -7913,7 +7916,7 @@ const CVX=(()=>{
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;earnBusy=earnBusy.then(async()=>{try{const r=await NET.rpc('cv_earn',auth());if(!r.live){NET.live=false;liveMark();return;}S.paws=r.total;liveMark();if(r.paws>0){const e=$c('cvPawLG');e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}
       if(r.paws>0){const big=r.paws>=100;fx.push({type:'text',text:'+'+r.paws+' paws 🐾',x,y:y-30,t0:performance.now(),dur:2000,size:big?30:24,layer:'logic'});
         try{audio.tone(783.99,0.1,0.4,0.03);audio.tone(1046.5,0.18,0.5,0.025);if(big)audio.tone(1318.5,0.28,0.6,0.025);}catch(_){}
-        toast('🐾 +'+r.paws+' Catventure paws'+(big?' · big haul!':''),1800);}}catch(_){}await sleep(750);});}
+        /* the paw counter above the board already bumps and the +paws floats up from the cat, so no toast here (it would sit on the counter) */}}catch(_){}await sleep(750);});}
   // the universe icon fades straight into the first island, and back (no zooming through regions)
   async function fromUniverse(){if(trans||mode!=='world')return;try{audio.wake();sfx.pick();}catch(_){}
     if(!CVT&&!CV_OPEN){toast('Catventure Club is coming soon',2200);return;}
