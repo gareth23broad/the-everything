@@ -510,6 +510,17 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 #cvHead .cvMate.r1{background-image:linear-gradient(110deg,#a8740e 0%,#e9b93a 22%,#fff3c0 38%,#f2c44a 52%,#b9800f 75%,#e9b93a 100%);background-size:260% 100%;animation:pshim 2.8s linear infinite;color:#4a3205}
 #cvHead .cvMate .cvPts{background:rgba(255,255,255,.25)!important;color:inherit!important}#cvHead .cvMate.r1 .cvPts{background:rgba(255,255,255,.5)!important}
 body.zz #cvHead .cvMate.r1{animation-play-state:paused}
+
+/* multiplier shows the paw it spends · the right-hand button now shares paws with your partner */
+#cvMult .mpaw{display:block;margin-top:2px}#cvMult .mpaw svg{width:24px;height:24px}#cvMult.low{border-color:#ff8a6a}
+#cvShare{position:relative;z-index:1;flex:none;width:78px;padding:10px 4px 8px;border-radius:20px;text-align:center;font-family:inherit;color:#4a3a8a;line-height:1.1;pointer-events:auto;border:2px solid #fff;background:rgba(255,255,255,.8);box-shadow:0 5px 0 rgba(60,80,140,.25),0 8px 16px rgba(20,40,90,.2);cursor:pointer;transition:transform .1s}
+#cvShare:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(60,80,140,.25)}
+#cvShare .sp{position:relative;display:block;margin:0 auto 4px;width:34px;height:34px}#cvShare svg{width:34px;height:34px}#cvShare i{position:absolute;right:-6px;top:-5px;font-style:normal;font-size:15px;color:#ff5a8a;text-shadow:0 1px 0 #fff}
+#cvShare small{display:block;font-size:9.5px;font-weight:800;letter-spacing:.8px}
+.cvShareBox .amt{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 6px}
+.cvShareBox .amt button{width:46px;height:46px;padding:0;border-radius:50%;font-size:26px;line-height:1}
+.cvShareBox .amt b{min-width:84px;font-size:34px;color:#4a3a8a;font-variant-numeric:tabular-nums}
+.cvShareBox input[type=range]{width:100%;margin:6px 0 14px;accent-color:#7b5cff}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
@@ -705,9 +716,9 @@ body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,
   <div id="cvHead"><h1>Catventure Club</h1><div class="sub"><div class="cvMate"><canvas id="cvMe" width="44" height="44"></canvas>You<b class="cvPts" id="cvMeP">0</b></div><span id="cvStage">ISLAND 1 OF 4</span><div class="cvMate"><canvas id="cvKz" width="44" height="44"></canvas><span id="cvKzN">Partner</span><b class="cvPts" id="cvKzP">0</b></div></div></div>
   <div id="cvTags"></div>
   <div id="cvBot"><div id="cvRow">
-    <button id="cvMult" aria-label="Change multiplier"><small>MULTIPLIER</small><b id="cvMultV">×1</b></button>
+    <button id="cvMult" aria-label="Change multiplier"><small>MULTIPLIER</small><b id="cvMultV">×1</b><span class="mpaw"><svg viewBox="0 0 32 32" class="cvPawI"></svg></span></button>
     <div id="cvPopW"><canvas id="cvPop"></canvas><div id="cvTot"><span id="cvTd">1 + 2 + 3</span><b id="cvTs">6</b></div><div id="cvTap"><span id="cvTapT">Tap the bubble</span></div></div>
-    <div id="cvUses"><div class="cv2"><svg viewBox="0 0 32 32" class="cvPawI"></svg><b id="cvUsesV">1</b></div></div>
+    <button id="cvShare" aria-label="Share paws with your partner"><span class="sp"><svg viewBox="0 0 32 32" class="cvPawI"></svg><i>♥</i></span><small>SHARE</small></button>
   </div></div>
 </div>
 <div id="cvModal"><div class="box" id="cvMbox"></div></div>
@@ -7807,8 +7818,8 @@ const CVX=(()=>{
   /* ---------- hud ---------- */
   function liveMark(){const on=!!(NET.me&&NET.team&&NET.live&&(CVT||CV_OPEN));document.body.classList.toggle('cvLive',on);const e=$c('cvPawLGn');if(e)e.textContent=(S.paws|0).toLocaleString('en-US');}
   function hud(){liveMark();$c('cvCoins').textContent=(save.pearls|0).toLocaleString('en-US');$c('cvPaws').textContent=S.paws.toLocaleString('en-US');
-    const st=STOPS[S.cur];$c('cvStage').textContent='ISLAND '+((S.tour||0)+1)+' OF 4';ptsHud();$c('cvMultV').textContent='×'+S.mult;$c('cvUsesV').textContent=S.mult;
-    $c('cvUses').classList.toggle('low',S.paws<S.mult);$c('cvTapT').textContent=!NET.ok?'Connecting…':S.paws<S.mult?'Not enough paws':S.boost?'🔥 Lucky roll':'Tap the bubble';$c('cvPopW').classList.toggle('boost',!!S.boost);}
+    const st=STOPS[S.cur];$c('cvStage').textContent='ISLAND '+((S.tour||0)+1)+' OF 4';ptsHud();$c('cvMultV').textContent='×'+S.mult;0;
+    $c('cvMult').classList.toggle('low',S.paws<S.mult);$c('cvTapT').textContent=!NET.ok?'Connecting…':S.paws<S.mult?'Not enough paws':S.boost?'🔥 Lucky roll':'Tap the bubble';$c('cvPopW').classList.toggle('boost',!!S.boost);}
   const bumpE=id=>{const e=$c(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);};
   let tT;const say=(m,ms)=>{const e=$c('cvToast');e.textContent=m;e.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('on'),ms||2400);};
   function coinFly(x,y,v){const b=$c('cvCoinP').getBoundingClientRect(),tx=b.left+18,ty=b.top+b.height/2,n=Math.min(12,Math.max(5,(v/60)|0));
@@ -7849,6 +7860,12 @@ const CVX=(()=>{
   function flyNum(x,y,dst,txt,col){const f=document.createElement('div');f.className='cvFly';if(col)f.style.color=col;f.textContent=txt;f.style.left=x+'px';f.style.top=y+'px';document.body.appendChild(f);
     return sleep(30).then(()=>{f.style.left=dst.x+'px';f.style.top=(dst.y+8)+'px';f.style.fontSize='20px';return sleep(700);}).then(()=>{f.style.opacity=0;setTimeout(()=>f.remove(),300);});}
   async function playRoll(ev,fast){const d=ev.data,mine=ev.pid===NET.me.pid;
+    if(ev.kind==='share'){/* paws shared between partners: a paw pill flies from the giver's name pill to the other's */
+      const from=$c(mine?'cvMeP':'cvKzP'),to=$c(mine?'cvKzP':'cvMeP');
+      if(!fast&&from&&to){const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();await new Promise(r=>flyPawTo(a.left+a.width/2,a.top+a.height/2,b.left+b.width/2,b.top+b.height/2,d.amt,r));}
+      if(!mine){try{SND.chest&&SND.chest();}catch(_){}mayoBanner('+'+d.amt+' paws',(d.name||'Your partner')+' shared paws with you','Paw share','🐾',100,3600);}
+      else say('Sent '+d.amt+' paws to '+(d.to_name||'your partner'),2000);
+      hud();return;}
     // make sure we are looking at the island/stop this roll started on
     if(d.before.island!==S.id||d.before.tour!==S.tour||d.before.cur!==S.cur){await moveTo(d.before,true);}
     S.hp[S.cur]=d.before.hp;
@@ -7990,6 +8007,17 @@ const CVX=(()=>{
   /* each player's points for this tour, in their name pill (a friendly race between partners; the leader's turns gold) */
   function ptsHud(){try{const ms=NET.members||[],me=ms.find(m=>m.pid===(NET.me&&NET.me.pid)),mt=ms.find(m=>m.pid!==(NET.me&&NET.me.pid));const a=(me&&me.pts)|0,b=(mt&&mt.pts)|0;
     [[$c('cvMeP'),a,a>=b],[$c('cvKzP'),b,b>a]].forEach(([e,v,lead])=>{if(!e)return;const t=e.parentNode;t.classList.toggle('r1',lead);t.classList.toggle('r2',!lead);const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
+  function flyPawTo(x0,y0,x1,y1,amt,done){const el=document.createElement('div');el.className='cvPawFly big';el.innerHTML='<svg viewBox="0 0 32 32">'+PAW_SVG+'</svg><b>+'+amt+'</b>';document.body.appendChild(el);const w=el.offsetWidth,h=el.offsetHeight;
+    const a=el.animate([{transform:`translate(${x0-w/2}px,${y0-h/2}px) scale(.3)`,opacity:0},{transform:`translate(${x0-w/2}px,${y0-h/2+30}px) scale(1.1)`,opacity:1,offset:.25},{transform:`translate(${(x0+x1)/2-w/2}px,${Math.max(y0,y1)+60-h/2}px) scale(1)`,opacity:1,offset:.6},{transform:`translate(${x1-w/2}px,${y1-h/2}px) scale(.5)`,opacity:.3}],{duration:1500,easing:'cubic-bezier(.4,0,.3,1)',fill:'forwards'});a.onfinish=()=>{el.remove();done&&done();};}
+  /* paw share: a simple picker · −/+ and a slider, then send */
+  function shareBox(){if(!NET.ok||S.busy)return;const mate=NET.mate||(NET.members||[]).find(m=>m.pid!==NET.me.pid);if(!mate){say('Your partner hasn’t joined yet');return;}
+    const max=Math.max(0,S.paws|0);if(max<1){say('You have no paws to share yet');return;}let v=Math.min(max,Math.max(1,Math.min(25,max)));
+    $c('cvMbox').innerHTML=`<div class="cvShareBox"><div style="font-size:40px">🐾</div><h3>Share paws</h3><p style="margin-bottom:4px">Send some of your paws to ${mate.name}</p><div class="amt"><button class="soft" id="cvSm">−</button><b id="cvSv">${v}</b><button class="soft" id="cvSp">+</button></div><input type="range" id="cvSr" min="1" max="${max}" step="1" value="${v}"><p style="font-size:13px;opacity:.75;margin:-6px 0 12px">You have ${max.toLocaleString()} paws</p><div style="display:flex;gap:8px;justify-content:center"><button id="cvSgo">Send</button><button class="soft" id="cvSx">Cancel</button></div></div>`;
+    $c('cvModal').classList.add('on');const set=n=>{v=Math.max(1,Math.min(max,n|0));$c('cvSv').textContent=v;$c('cvSr').value=v;try{audio.tone(520+v/max*500,0,0.06,0.02);}catch(_){}};
+    const step=()=>max>=200?10:max>=50?5:1;$c('cvSm').onclick=()=>set(v-step());$c('cvSp').onclick=()=>set(v+step());$c('cvSr').oninput=e=>set(+e.target.value);$c('cvSx').onclick=()=>$c('cvModal').classList.remove('on');
+    $c('cvSgo').onclick=async()=>{const b=$c('cvSgo');if(b.disabled)return;b.disabled=true;try{await qIdle();const rid=crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^Math.random()*16>>c/4).toString(16));
+      const st=await NET.rpc('cv_share',Object.assign(auth(),{p_amt:v,p_rid:rid,p_since:NET.seen}));$c('cvModal').classList.remove('on');
+      if(st.error){applyMe(st.state);say(st.error==='paws'?'Not enough paws':st.error==='ended'?'This Catventure has ended':'Your partner hasn’t joined yet');return;}applyMe(st);enqueue(st.events);}catch(_){b.disabled=false;say('Couldn’t reach the server · try again');}};}
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
     /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
     try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
@@ -8010,6 +8038,7 @@ const CVX=(()=>{
   pc.addEventListener('pointerdown',e=>{e.stopPropagation();press();});
   $c('cvMult').addEventListener('pointerdown',e=>{e.stopPropagation();if(S.busy)return;S.mult=MULTS[(MULTS.indexOf(S.mult)+1)%MULTS.length];const b=$c('cvMult');b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');try{audio.tone(660+MULTS.indexOf(S.mult)*110,0,0.15,0.03);}catch(_){}hud();});
   $c('cvBack').addEventListener('pointerdown',e=>{e.stopPropagation();close();});
+  $c('cvShare').addEventListener('click',e=>{e.stopPropagation();try{audio.wake();sfx.pick();}catch(_){}shareBox();});
   if(!CVT)$c('cvTestW').style.display='none';
   $c('cvTestB').addEventListener('pointerdown',async e=>{e.stopPropagation();if(!NET.ok)return;try{applyMe(await NET.rpc('cv_test_paws',Object.assign(auth(),{p_n:500})));say('+500 test paws');}catch(_){}});
   $c('cvSwapB').addEventListener('pointerdown',e=>{e.stopPropagation();try{sessionStorage.removeItem('cv-test-who');}catch(_){}location.reload();});
