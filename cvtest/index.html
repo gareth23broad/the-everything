@@ -7733,7 +7733,7 @@ const CVX=(()=>{
     async rpc(fn,body){const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH,body:JSON.stringify(body)});const t=await r.text();if(!r.ok)throw new Error(t);return JSON.parse(t);}};
   const auth=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret});
   const CVT=typeof CV_TEST!=='undefined'&&CV_TEST;
-  const CV_OPEN=false; /* flip to true when Catventure opens to players */
+  const CV_OPEN=true; /* Catventure is open to players */
   // who am I and which team am I on? (test: a pretend Gareth/Kez pair · live: your real player marker)
   async function ident(interactive){
     if(!NET.me){if(CVT){let w=NET.who();if(!w){if(!interactive)return false;w=await pickPlayer();}NET.me=NET.id(w);}

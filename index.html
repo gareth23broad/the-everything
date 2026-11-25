@@ -7730,7 +7730,7 @@ const CVX=(()=>{
     async rpc(fn,body){const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH,body:JSON.stringify(body)});const t=await r.text();if(!r.ok)throw new Error(t);return JSON.parse(t);}};
   const auth=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret});
   const CVT=typeof CV_TEST!=='undefined'&&CV_TEST;
-  const CV_OPEN=false; /* flip to true when Catventure opens to players */
+  const CV_OPEN=true; /* Catventure is open to players */
   // who am I and which team am I on? (test: a pretend Gareth/Kez pair · live: your real player marker)
   async function ident(interactive){
     if(!NET.me){if(CVT){let w=NET.who();if(!w){if(!interactive)return false;w=await pickPlayer();}NET.me=NET.id(w);}
@@ -7941,7 +7941,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795570621';
+const BUILD='1795570915';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
