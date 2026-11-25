@@ -6994,8 +6994,11 @@ $('pFile').addEventListener('change',ev=>{const f=ev.target.files&&ev.target.fil
     let q=0.85,d=c.toDataURL('image/jpeg',q);while(d.length>55000&&q>0.3){q-=0.1;d=c.toDataURL('image/jpeg',q);}MK.pPhoto=d;prevPhoto();sfx.pick();};
   im.onerror=()=>{URL.revokeObjectURL(url);toast('That photo couldn’t be opened',2200);};im.src=url;});
 async function pushPhoto(){for(let k=0;k<30&&MK.busy;k++)await new Promise(r=>setTimeout(r,200));syncMarkers(true);}
-$('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pNeed').textContent='Please type a name to continue';$('pName').focus();return;}$('pNeed').textContent='';
-  save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick,photo:MK.pPhoto||null});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();
+$('pSave').addEventListener('click',async()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pNeed').textContent='Please type a name to continue';$('pName').focus();return;}$('pNeed').textContent='';
+  /* names are one per player: check nobody else on the map already uses it (if the check can't reach the server, let it through) */
+  const nid=(save.me&&save.me.id)||(MK.newId=MK.newId||uuid());if(!save.me||save.me.name.trim().toLowerCase()!==n.toLowerCase()){if(MK.chk)return;MK.chk=1;$('pSave').disabled=true;let taken=false;try{const r=await fetch(SB_URL+'/rest/v1/rpc/name_taken',{method:'POST',headers:sbH,body:JSON.stringify({p_id:nid,p_name:n})});if(r.ok)taken=(await r.json())===true;}catch(_){}MK.chk=0;$('pSave').disabled=false;
+    if(taken){$('pNeed').textContent='That name’s already taken · try another';$('pName').focus();try{sfx.err&&sfx.err();}catch(_){}return;}}
+  save.me=Object.assign(save.me||{id:nid,secret:rid()+rid()},{name:n,icon:MK.pick,photo:MK.pPhoto||null});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();
   if((save.me.photo||'')!==(save.me.photoSent||''))pushPhoto();else syncMarkers(true);drawMarkers();toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
 $('lmap').addEventListener('click',()=>{audio.wake();if(mode==='logic'&&LG&&LG.race)raceBack();else goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
@@ -7960,7 +7963,7 @@ addEventListener('resize',()=>{layout();paintIcons();});
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795578480';
+const BUILD='1795578517';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}

@@ -6997,8 +6997,11 @@ $('pFile').addEventListener('change',ev=>{const f=ev.target.files&&ev.target.fil
     let q=0.85,d=c.toDataURL('image/jpeg',q);while(d.length>55000&&q>0.3){q-=0.1;d=c.toDataURL('image/jpeg',q);}MK.pPhoto=d;prevPhoto();sfx.pick();};
   im.onerror=()=>{URL.revokeObjectURL(url);toast('That photo couldn’t be opened',2200);};im.src=url;});
 async function pushPhoto(){for(let k=0;k<30&&MK.busy;k++)await new Promise(r=>setTimeout(r,200));syncMarkers(true);}
-$('pSave').addEventListener('click',()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pNeed').textContent='Please type a name to continue';$('pName').focus();return;}$('pNeed').textContent='';
-  save.me=Object.assign(save.me||{id:uuid(),secret:rid()+rid()},{name:n,icon:MK.pick,photo:MK.pPhoto||null});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();
+$('pSave').addEventListener('click',async()=>{const n=$('pName').value.trim().slice(0,16);if(!n){$('pNeed').textContent='Please type a name to continue';$('pName').focus();return;}$('pNeed').textContent='';
+  /* names are one per player: check nobody else on the map already uses it (if the check can't reach the server, let it through) */
+  const nid=(save.me&&save.me.id)||(MK.newId=MK.newId||uuid());if(!save.me||save.me.name.trim().toLowerCase()!==n.toLowerCase()){if(MK.chk)return;MK.chk=1;$('pSave').disabled=true;let taken=false;try{const r=await fetch(SB_URL+'/rest/v1/rpc/name_taken',{method:'POST',headers:sbH,body:JSON.stringify({p_id:nid,p_name:n})});if(r.ok)taken=(await r.json())===true;}catch(_){}MK.chk=0;$('pSave').disabled=false;
+    if(taken){$('pNeed').textContent='That name’s already taken · try another';$('pName').focus();try{sfx.err&&sfx.err();}catch(_){}return;}}
+  save.me=Object.assign(save.me||{id:nid,secret:rid()+rid()},{name:n,icon:MK.pick,photo:MK.pPhoto||null});persist();$('pcard').classList.remove('show');$('pName').blur();sfx.pick();
   if((save.me.photo||'')!==(save.me.photoSent||''))pushPhoto();else syncMarkers(true);drawMarkers();toast('You’re on the map',1800);});
 $('helpMarker').addEventListener('click',()=>{$('help').classList.remove('show');setTimeout(openMarker,300);});
 $('lmap').addEventListener('click',()=>{audio.wake();if(mode==='logic'&&LG&&LG.race)raceBack();else goHub();});$('bmap').addEventListener('click',()=>{audio.wake();goHub();});
