@@ -502,6 +502,18 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 .cvPawFly.big{font-size:22px;border-color:#ffd23f;box-shadow:0 0 0 3px rgba(255,210,63,.35),0 0 22px rgba(255,200,80,.6),0 6px 18px rgba(80,50,170,.35)}.cvPawFly.big svg{width:30px;height:30px}
 
 .cvPts{margin-left:3px;padding:1px 7px;border-radius:999px;background:linear-gradient(#8f6bff,#6a4ae0);color:#fff;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.cvPts.bump{transform:scale(1.25)}.cvPts.lead{background:linear-gradient(#ffd86a,#f0a820);color:#5a3a00}
+
+/* player pills over the tokens: the universe-map player marker look · leader = shimmering gold, second = purple */
+.cvP{flex-direction:row!important;gap:5px!important;padding:3px 10px 3px 3px;border-radius:999px;background:linear-gradient(180deg,#7462b0,#4e3f84);border:1.5px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(60,50,110,.35);color:#fff;--tip:#4e3f84;transition:transform .12s linear}
+.cvP::after{content:'';position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:var(--tip)}
+.cvP canvas{width:34px!important;height:34px!important;margin:-6px 0 -6px -8px;border:2px solid #fff!important;background:linear-gradient(180deg,#fff7ec,#f4e6f0)}
+.cvP span{background:none!important;color:inherit!important;padding:0!important;box-shadow:none!important;font-size:12.5px!important;font-weight:800;text-shadow:none!important}
+.cvP .pp{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.22);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.cvP .pp.bump{transform:scale(1.3)}
+.cvP.r1{--tip:#c8901c;background-image:linear-gradient(110deg,#a8740e 0%,#e9b93a 22%,#fff3c0 38%,#f2c44a 52%,#b9800f 75%,#e9b93a 100%);background-size:260% 100%;animation:pshim 2.8s linear infinite;color:#4a3205}
+.cvP.r1 .pp{background:rgba(255,255,255,.45)}
+.cvP.r2{--tip:#5b46b8;background-image:linear-gradient(180deg,#8f6bff,#5b46b8)}
+body.zz .cvP.r1{animation-play-state:paused}
+#cvHead .cvMate{display:none!important}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
@@ -7641,14 +7653,17 @@ const CVX=(()=>{
     return{pos:tgt.clone().addScaledVector(dir,d*Math.cos(e)).add(new V3(0,d*Math.sin(e),0)),tgt,oy:H/2-ys};}
   /* ---------- labels + player pictures ---------- */
   const tags=[0,1,2,3].map(i=>{const e=document.createElement('div');e.className='cvTag';e.innerHTML='<div class="tn"></div><div class="pts"></div><div class="barw"><div class="bar"></div><div class="num"></div></div>';$c('cvTags').appendChild(e);return e;});
-  const ptags=[0,1].map(k=>{const e=document.createElement('div');e.className='cvP '+(k?'kz':'me');e.innerHTML='<canvas></canvas><span>'+(k?'Kez':'You')+'</span>';$c('cvTags').appendChild(e);return e;});
+  const ptags=[0,1].map(k=>{const e=document.createElement('div');e.className='cvP '+(k?'kz':'me');e.innerHTML='<canvas></canvas><span>'+(k?'Kez':'You')+'</span><b class="pp">0</b>';$c('cvTags').appendChild(e);return e;});
   const scr=(x,y,z)=>{const v=new V3(x,y,z).project(camera);return{x:(v.x+1)/2*W,y:(1-v.y)/2*H,z:v.z};};
   function stopScreen(i){const g=SIGNS[i];const p=g.getWorldPosition(new V3());return scr(p.x,p.y+(STOPS[i].type==='chest'?2.15:2.75)*SC,p.z);}
   function renderTags(){if(!SIGNS.length)return;SIGNS.forEach((g,i)=>{const e=tags[i],s=stopScreen(i),off=g.userData.gone>=1||s.z>1||s.x<-60||s.x>W+60;e.style.display=off?'none':'';if(off)return;
       e.style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-100%)`;const st=i>S.cur?'later':'';if(e._st!==st){e._st=st;e.className='cvTag '+st;}
       e.querySelector('.tn').textContent=STOPS[i].name;e.querySelector('.pts').textContent=(STOPS[i].type==='chest'?'🎁 ':'')+S.goals[i]+' points';
       e.querySelector('.bar').style.width=Math.min(100,S.hp[i]/S.goals[i]*100)+'%';e.querySelector('.num').textContent=Math.min(S.hp[i],S.goals[i])+' / '+S.goals[i];});
-    TOK.forEach((t,k)=>{const p=t.getWorldPosition(new V3()),s=scr(p.x,p.y+0.3*SC,p.z);ptags[k].style.transform=`translate(${s.x.toFixed(1)}px,${s.y.toFixed(1)}px) translate(-50%,-44px)`;});}
+    const ps=TOK.map(t=>{const p=t.getWorldPosition(new V3());return scr(p.x,p.y+0.3*SC,p.z);});
+    /* the two player pills sit over their tokens; if they'd overlap, the leader's rides a little higher */
+    const ld=ptags[1].classList.contains('r1')?1:0,w0=ptags[0].offsetWidth||110,w1=ptags[1].offsetWidth||110,clash=Math.abs(ps[0].x-ps[1].x)<(w0+w1)/2+6&&Math.abs(ps[0].y-ps[1].y)<34;
+    ps.forEach((s,k)=>{const lift=clash&&k===ld?34:0;ptags[k].style.transform=`translate(${s.x.toFixed(1)}px,${(s.y-lift).toFixed(1)}px) translate(-50%,-60px)`;});}
   /* ---------- dice popper ---------- */
   const pc=$c('cvPop');let PR=null,PS,PCAM,dome,shine,base,dice=[],popAnim=null,bodyM,pipM,fireB,fireP,fireL,embers,FIRE=0,fireOn=false;
   function initPop(){if(PR)return;PR=new THREE.WebGLRenderer({canvas:pc,antialias:true,alpha:true});PR.setPixelRatio(Math.min(2,devicePixelRatio||1));PR.outputColorSpace=THREE.SRGBColorSpace;PR.toneMapping=THREE.ACESFilmicToneMapping;PR.toneMappingExposure=1.1;PR.shadowMap.enabled=true;
@@ -7926,7 +7941,7 @@ const CVX=(()=>{
     a.onfinish=()=>{el.remove();done&&done();};}
   /* each player's points for this tour, in their name pill (a friendly race between partners; the leader's turns gold) */
   function ptsHud(){try{const ms=NET.members||[],me=ms.find(m=>m.pid===(NET.me&&NET.me.pid)),mt=ms.find(m=>m.pid!==(NET.me&&NET.me.pid));const a=(me&&me.pts)|0,b=(mt&&mt.pts)|0;
-    [['cvMeP',a,a>b],['cvKzP',b,b>a]].forEach(([id,v,lead])=>{const e=$c(id);if(!e)return;const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
+    [[ptags[0],a,a>=b],[ptags[1],b,b>a]].forEach(([t,v,lead])=>{t.classList.toggle('r1',lead);t.classList.toggle('r2',!lead);const e=t.querySelector('.pp');if(!e)return;const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
     /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
     try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
