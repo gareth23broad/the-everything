@@ -503,17 +503,13 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 
 .cvPts{margin-left:3px;padding:1px 7px;border-radius:999px;background:linear-gradient(#8f6bff,#6a4ae0);color:#fff;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.cvPts.bump{transform:scale(1.25)}.cvPts.lead{background:linear-gradient(#ffd86a,#f0a820);color:#5a3a00}
 
-/* player pills over the tokens: the universe-map player marker look · leader = shimmering gold, second = purple */
-.cvP{flex-direction:row!important;gap:5px!important;padding:3px 10px 3px 3px;border-radius:999px;background:linear-gradient(180deg,#7462b0,#4e3f84);border:1.5px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(60,50,110,.35);color:#fff;--tip:#4e3f84;transition:transform .12s linear}
-.cvP::after{content:'';position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:var(--tip)}
-.cvP canvas{width:34px!important;height:34px!important;margin:-6px 0 -6px -8px;border:2px solid #fff!important;background:linear-gradient(180deg,#fff7ec,#f4e6f0)}
-.cvP span{background:none!important;color:inherit!important;padding:0!important;box-shadow:none!important;font-size:12.5px!important;font-weight:800;text-shadow:none!important}
-.cvP .pp{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.22);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.cvP .pp.bump{transform:scale(1.3)}
-.cvP.r1{--tip:#c8901c;background-image:linear-gradient(110deg,#a8740e 0%,#e9b93a 22%,#fff3c0 38%,#f2c44a 52%,#b9800f 75%,#e9b93a 100%);background-size:260% 100%;animation:pshim 2.8s linear infinite;color:#4a3205}
-.cvP.r1 .pp{background:rgba(255,255,255,.45)}
-.cvP.r2{--tip:#5b46b8;background-image:linear-gradient(180deg,#8f6bff,#5b46b8)}
-body.zz .cvP.r1{animation-play-state:paused}
-#cvHead .cvMate{display:none!important}
+/* the tokens on the track are just the player's picture; names + points sit up top in the two pills */
+.cvP span,.cvP .pp{display:none!important}
+/* name pills at the top, either side of the island line · the leader's pill shimmers gold like a first-place player marker, second is purple */
+#cvHead .cvMate{padding:2px 4px 2px 2px;gap:5px;font-weight:800;color:#fff;border:1.5px solid rgba(255,255,255,.9);background:linear-gradient(180deg,#8f6bff,#5b46b8);box-shadow:0 4px 12px rgba(60,50,110,.3)}
+#cvHead .cvMate.r1{background-image:linear-gradient(110deg,#a8740e 0%,#e9b93a 22%,#fff3c0 38%,#f2c44a 52%,#b9800f 75%,#e9b93a 100%);background-size:260% 100%;animation:pshim 2.8s linear infinite;color:#4a3205}
+#cvHead .cvMate .cvPts{background:rgba(255,255,255,.25)!important;color:inherit!important}#cvHead .cvMate.r1 .cvPts{background:rgba(255,255,255,.5)!important}
+body.zz #cvHead .cvMate.r1{animation-play-state:paused}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
@@ -7561,7 +7557,7 @@ const CVX=(()=>{
   document.querySelectorAll('.cvCoinI').forEach(e=>e.innerHTML=COIN_SVG);document.querySelectorAll('.cvPawI').forEach(e=>e.innerHTML=PAW_SVG);
   /* goals per island (same table as the server's _cv_goals2): keepsakes 1-3 plus a chest */
   const GK=[[5000,6000,7000,2000],[6000,8000,9000,2000],[7000,9000,11000,3000],[8000,11000,13000,3000]];
-  const GOALS2=(ch,tour)=>{const k=GK[Math.min(3,Math.max(0,tour))];return ch===1?[k[0],k[3],k[1],k[2]]:[k[0],k[1],k[3],k[2]];};
+  const GOALS2=(ch,tour)=>{const k=GK[Math.min(3,Math.max(0,tour))];if(tour>=3)return[k[0],k[3],k[1],k[3],k[2]];return ch===1?[k[0],k[3],k[1],k[2]]:[k[0],k[1],k[3],k[2]];};
   const MULTS=[1,2,5,10],KGOALS=[40,80,120],CHEST_GOAL=30,LAP_COINS=5000;
   const S={id:null,paws:0,mult:1,cur:0,tour:0,hp:[0,0,0,0],goals:null,busy:false,done:false,camA:0,camAT:0,chestAt:1,boost:false,coinsDue:0};
   const MAT=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:0.7},o||{}));
@@ -7586,7 +7582,7 @@ const CVX=(()=>{
     for(const x of [-0.95,0.95]){const tf=MS(new THREE.ConeGeometry(0.16,0.22,6),MAT('#7cc46a'),x,0.06,0,g);tf.scale.set(1,1,0.8);}
     g.userData={board};return g;}
   /* a big treasure chest: planked wood, gold bands, studs, lock with a gem, a lid that swings open on a glowing pile of loot */
-  function chest(){const g=new THREE.Group();const wood=MAT('#9a5a2a',{roughness:0.75}),wood2=MAT('#83481e',{roughness:0.8}),gold=MAT('#ffd250',{metalness:0.45,roughness:0.28,emissive:'#6a4200',emissiveIntensity:0.25}),dk=MAT('#3a2410',{roughness:0.6});
+  function chest0(){const g=new THREE.Group();const wood=MAT('#9a5a2a',{roughness:0.75}),wood2=MAT('#83481e',{roughness:0.8}),gold=MAT('#ffd250',{metalness:0.45,roughness:0.28,emissive:'#6a4200',emissiveIntensity:0.25}),dk=MAT('#3a2410',{roughness:0.6});
     MS(new THREE.CylinderGeometry(1.25,1.35,0.26,32),MAT('#cdb89a',{roughness:0.85}),0,0.0,0,g);
     const body=new THREE.Group();body.position.y=0.13;g.add(body);
     for(let i=0;i<4;i++)MS(RBX(1.62,0.24,1.02,0.03),i%2?wood:wood2,0,0.14+i*0.235,0,body);
@@ -7608,6 +7604,56 @@ const CVX=(()=>{
     const gem=MS(new THREE.OctahedronGeometry(0.07,0),MAT('#ff4a7a',{metalness:0.2,roughness:0.1,emissive:'#ff2a6a',emissiveIntensity:0.5}),0,0.09,0.05,lock);gem.scale.z=0.5;
     const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.35,color:'#ffd870'}));glow.scale.set(3.6,3.6,1);glow.position.y=1.0;g.add(glow);
     g.userData={lid,lock,glow,loot,board:body};return g;}
+  /* chest designs: wooden (classic), kitty, crystal geode · the final island has the royal crown and starlight chests */
+  function kittyChest(){const g=chest0();const pal={'#9a5a2a':'#c9a8f0','#83481e':'#f2b6d6'};
+  g.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){const h='#'+o.material.color.getHexString();if(pal[h]){o.material=o.material.clone();o.material.color.set(pal[h]);o.material.roughness=0.55;}}});
+  const lid=g.userData.lid,ear=MAT('#c9a8f0',{roughness:0.55}),inner=MAT('#ffc0dc',{roughness:0.6}),gold=MAT('#ffd250',{metalness:0.45,roughness:0.28,emissive:'#6a4200',emissiveIntensity:0.25});
+  for(const x of [-0.5,0.5]){const e=MS(new THREE.ConeGeometry(0.26,0.42,4),ear,x,0.62,0.45,lid);e.rotation.set(0,Math.PI/4,x*-0.5);const e2=MS(new THREE.ConeGeometry(0.14,0.26,4),inner,x*1.0,0.6,0.53,lid);e2.rotation.set(0,Math.PI/4,x*-0.5);}
+  const lock=g.userData.lock;lock.children.forEach(c=>c.visible=false);
+  MS(new THREE.CylinderGeometry(0.17,0.17,0.06,24),gold,0,-0.02,0.03,lock).rotation.x=Math.PI/2;
+  for(const [x,y] of [[-0.11,0.1],[-0.04,0.15],[0.04,0.15],[0.11,0.1]])MS(new THREE.SphereGeometry(0.045,12,8),MAT('#ff8ac0',{roughness:0.4}),x,y,0.05,lock);
+  MS(new THREE.SphereGeometry(0.08,14,10),MAT('#ff8ac0',{roughness:0.4}),0,-0.03,0.06,lock).scale.set(1.15,0.9,0.5);
+  g.userData.glow.material.color.set('#ffc8ec');return g;}
+/* NEW 2: Crystal geode chest · a rough grey-lilac stone box cracked open with violet crystals, silver bands and a glowing amethyst lock */
+  function geodeChest(){const g=new THREE.Group();const stone=MAT('#b3abc8',{roughness:0.95,flatShading:true}),stone2=MAT('#9d95b6',{roughness:0.95,flatShading:true}),silver=MAT('#f4f6ff',{metalness:0.35,roughness:0.3,emissive:'#3a3a50',emissiveIntensity:0.2}),amy=(c)=>MAT(c,{metalness:0.1,roughness:0.08,emissive:c,emissiveIntensity:0.35,transparent:true,opacity:0.92});
+  MS(new THREE.CylinderGeometry(1.25,1.35,0.26,32),MAT('#cdb89a',{roughness:0.85}),0,0,0,g);
+  const body=new THREE.Group();body.position.y=0.13;g.add(body);
+  const box=MS(new THREE.BoxGeometry(1.62,1.0,1.02,6,4,4),stone,0,0.5,0,body);{const p=box.geometry.attributes.position;for(let i=0;i<p.count;i++){p.setXYZ(i,p.getX(i)*(1+(Math.random()-0.5)*0.05),p.getY(i)*(1+(Math.random()-0.5)*0.05),p.getZ(i)*(1+(Math.random()-0.5)*0.06));}box.geometry.computeVertexNormals();}
+  for(const x of [-0.5,0.5])MS(new THREE.BoxGeometry(0.12,1.04,1.08),silver,x,0.5,0,body);
+  for(const [x,y] of [[-0.62,0.25],[0.66,0.7],[0.2,0.18]]){const c=MS(new THREE.ConeGeometry(0.08,0.24,5),amy('#c890ff'),x,y,0.54,body);c.rotation.x=Math.PI/2;}
+  const loot=new THREE.Group();loot.position.y=0.98;body.add(loot);
+  for(let k=0;k<11;k++){const col=['#b06aff','#d9a8ff','#8f5aff','#ff9ad8'][k%4];const c=MS(new THREE.ConeGeometry(0.07+Math.random()*0.06,0.3+Math.random()*0.35,6),amy(col),(Math.random()-0.5)*1.2,0.12,(Math.random()-0.5)*0.6,loot);c.rotation.set((Math.random()-0.5)*0.7,Math.random()*3,(Math.random()-0.5)*0.7);}
+  const lid=new THREE.Group();lid.position.set(0,1.13,-0.51);g.add(lid);
+  const top=MS(new THREE.BoxGeometry(1.66,0.34,1.06,6,2,4),stone2,0,0.12,0.51,lid);{const p=top.geometry.attributes.position;for(let i=0;i<p.count;i++)if(p.getY(i)>0)p.setY(i,p.getY(i)+Math.random()*0.12);top.geometry.computeVertexNormals();}
+  for(const x of [-0.5,0.5])MS(new THREE.BoxGeometry(0.12,0.4,1.1),silver,x,0.12,0.51,lid);
+  for(const [x,z,h,col] of [[-0.3,0.4,0.5,'#b06aff'],[-0.15,0.6,0.38,'#d9a8ff'],[0.25,0.45,0.55,'#8f5aff'],[0.05,0.3,0.3,'#ff9ad8'],[0.6,0.6,0.35,'#c890ff'],[-0.62,0.65,0.3,'#d9a8ff']]){const c=MS(new THREE.ConeGeometry(0.1,h,6),amy(col),x,0.3+h/2,z,lid);c.rotation.set((z-0.5)*0.6,0,-x*0.5);}
+  const lock=new THREE.Group();lock.position.set(0,1.0,0.56);g.add(lock);MS(RBX(0.34,0.4,0.06,0.03),silver,0,0,0,lock);const gem=MS(new THREE.OctahedronGeometry(0.1,0),amy('#a64aff'),0,0.02,0.06,lock);gem.scale.z=0.55;
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.4,color:'#c8a0ff'}));glow.scale.set(3.6,3.6,1);glow.position.y=1.0;g.add(glow);
+  g.userData={lid,lock,glow,loot,board:body};return g;}
+  function royalChest(){const g=chest0();const pal={'#9a5a2a':'#f1c24a','#83481e':'#e2a92e'};
+  g.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){const h='#'+o.material.color.getHexString();if(pal[h]){o.material=o.material.clone();o.material.color.set(pal[h]);o.material.metalness=0.55;o.material.roughness=0.25;o.material.emissive=new THREE.Color('#5a3a00');o.material.emissiveIntensity=0.25;}
+    else if(h==='ffd250'){o.material=o.material.clone();o.material.color.set('#fff3c8');o.material.metalness=0.6;}}});
+  const lid=g.userData.lid,gold=MAT('#ffd250',{metalness:0.6,roughness:0.2,emissive:'#6a4200',emissiveIntensity:0.3}),ruby=MAT('#e0204a',{metalness:0.2,roughness:0.08,emissive:'#a0102a',emissiveIntensity:0.5}),pearl=MAT('#fffaf0',{metalness:0.3,roughness:0.15});
+  const cr=new THREE.Group();cr.position.set(0,0.5,0.51);lid.add(cr);MS(new THREE.CylinderGeometry(0.32,0.34,0.18,24,1,true),gold,0,0.06,0,cr).material.side=THREE.DoubleSide;
+  for(let k=0;k<5;k++){const a=k/5*Math.PI*2;const sp=MS(new THREE.ConeGeometry(0.08,0.24,8),gold,Math.sin(a)*0.3,0.26,Math.cos(a)*0.3,cr);MS(new THREE.SphereGeometry(0.045,10,8),pearl,Math.sin(a)*0.3,0.4,Math.cos(a)*0.3,cr);}
+  for(let k=0;k<5;k++){const a=(k+0.5)/5*Math.PI*2;const r=MS(new THREE.OctahedronGeometry(0.05,0),ruby,Math.sin(a)*0.335,0.06,Math.cos(a)*0.335,cr);}
+  for(const x of [-0.64,0,0.64])MS(new THREE.OctahedronGeometry(0.07,0),ruby,x,0.32,0.5,g.userData.board).scale.z=0.5;
+  const gem=g.userData.lock.children[2];if(gem)gem.material=ruby;
+  g.userData.glow.material.color.set('#ffe08a');g.userData.glow.material.opacity=0.55;return g;}
+/* FINAL 2: Starlight chest · midnight blue with gold star studs, a crescent moon on the lid and a glowing star lock */
+  function starChest(){const g=chest0();const pal={'#9a5a2a':'#2e3a8a','#83481e':'#232c6e'};
+  g.traverse(o=>{if(o.isMesh&&o.material&&o.material.color){const h='#'+o.material.color.getHexString();if(pal[h]){o.material=o.material.clone();o.material.color.set(pal[h]);o.material.roughness=0.45;}}});
+  const lid=g.userData.lid,gold=MAT('#ffd86a',{metalness:0.5,roughness:0.22,emissive:'#7a5200',emissiveIntensity:0.4}),glowS=MAT('#fff3b0',{emissive:'#ffd86a',emissiveIntensity:1.1});
+  const star=(r)=>{const sh=new THREE.Shape();for(let k=0;k<10;k++){const a=k/10*Math.PI*2+Math.PI/2,rr=k%2?r*0.45:r;k?sh.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):sh.moveTo(Math.cos(a)*rr,Math.sin(a)*rr);}return new THREE.ExtrudeGeometry(sh,{depth:r*0.3,bevelEnabled:true,bevelSize:r*0.08,bevelThickness:r*0.08,bevelSegments:2});};
+  for(const [x,y] of [[-0.66,0.3],[-0.62,0.74],[0.64,0.28],[0.68,0.7],[-0.2,0.2],[0.22,0.78]])MS(star(0.07),gold,x,y,0.52,g.userData.board);
+  const moon=new THREE.Group();moon.position.set(0,0.56,0.55);lid.add(moon);const cres=(()=>{const R=0.27,r=0.24,d=0.15,x=(d*d+R*R-r*r)/(2*d),y=Math.sqrt(R*R-x*x),al=Math.atan2(y,x),be=Math.atan2(y,x-d);const sh=new THREE.Shape();
+    sh.absarc(0,0,R,al,Math.PI*2-al,false);sh.absarc(d,0,r,Math.PI*2-be,be,true);return new THREE.ExtrudeGeometry(sh,{depth:0.07,bevelEnabled:true,bevelSize:0.02,bevelThickness:0.02,bevelSegments:3,curveSegments:32});})();
+  const m1=MS(cres,gold,0,0.22,-0.03,moon);m1.rotation.z=0.35;
+  for(const [x,z] of [[-0.5,0.62],[0.48,0.4],[0.3,0.75]]){const st=MS(star(0.06),glowS,x,0.5,z,lid);st.rotation.x=-0.7;}
+  const lk=g.userData.lock;lk.children.forEach(c=>c.visible=false);MS(new THREE.CylinderGeometry(0.18,0.18,0.05,24),MAT('#1a2060',{roughness:0.4}),0,0,0.02,lk).rotation.x=Math.PI/2;MS(star(0.13),glowS,0,-0.01,0.04,lk);
+  g.userData.glow.material.color.set('#9fb8ff');g.userData.glow.material.opacity=0.5;return g;}
+  function chest(v){return v==='kitty'?kittyChest():v==='geode'?geodeChest():v==='royal'?royalChest():v==='star'?starChest():chest0();}
+
   function clearAdded(){HID.forEach(g=>g.visible=true);HID=[];if(!ADDED.length)return;const I=islands[ADDED[0].id];ADDED.forEach(a=>{I.g.remove(a.g);const j=(I.keeps||[]).indexOf(a.g);if(j>=0)I.keeps.splice(j,1);});ADDED=[];}
   function build(id){
     clearAdded();while(G.children.length)G.remove(G.children[0]);STONES=[];SIGNS=[];
@@ -7622,7 +7668,9 @@ const CVX=(()=>{
     let st=KEEPS[id].map((d,k)=>{const p=kg[k].userData.base||kg[k].position;const a=(Math.abs(p.x)+Math.abs(p.z)<0.5)?A0+TAU*(k+1)/4:Math.atan2(p.x,p.z);return{k,r:rel(a)};}).sort((a,b)=>a.r-b.r);
     st[0].r=Math.max(st[0].r,0.75);for(let i=1;i<3;i++)st[i].r=Math.max(st[i].r,st[i-1].r+1.0);if(st[2].r>TAU-0.75)st.forEach((s,i)=>s.r=TAU*(i+1)/4);
     STOPS=st.map(s=>({type:'keep',k:s.k,a:A0+s.r,name:KEEPS[id][s.k].name,g:kg[s.k]}));
-    {const j=S.chestAt,a=(STOPS[j-1].a+STOPS[j].a)/2;STOPS.splice(j,0,{type:'chest',a,name:'Treasure chest'});}
+    {const ins=(j,v)=>{const a=(STOPS[j-1].a+STOPS[j].a)/2;STOPS.splice(j,0,{type:'chest',a,name:'Treasure chest',v});};
+      /* islands 1-3: one chest, a random design (the same for both players); the final island: two chests, royal crown and starlight */
+      if((S.tour||0)>=3){ins(1,'royal');ins(3,'star');}else ins(S.chestAt,['wood','kitty','geode'][hashStr(id+'|'+(S.tour||0))%3]);}
     S.goals=GOALS2(S.chestAt,S.tour||0);
     const sm=new THREE.MeshStandardMaterial({map:pawTex,roughness:0.85}),side=MAT('#d9c7ad',{roughness:0.9});
     const n=Math.round(R*TAU/(1.0*SC));
@@ -7634,7 +7682,7 @@ const CVX=(()=>{
     {const s=new THREE.Group();s.position.set(Math.sin(A0)*R,0.12,Math.cos(A0)*R);s.scale.setScalar(SC);G.add(s);MS(new THREE.CylinderGeometry(0.85,0.95,0.24,32),MAT('#ffd45a',{roughness:0.45,metalness:0.2}),0,-0.02,0,s);
       const t=MS(new THREE.CircleGeometry(0.72,32),new THREE.MeshStandardMaterial({map:pawTex,color:'#fff2c0',roughness:0.6}),0,0.105,0,s);t.rotation.x=-Math.PI/2;s.userData.ph=0;STONES.push(s);}
     // a wooden tour sign beside the path at each stop, facing out toward the camera
-    STOPS.forEach((p,i)=>{const isC=p.type==='chest',sg=isC?chest():sign(p.name);const rr=isC?R:R+1.05*SC;sg.position.set(Math.sin(p.a)*rr,0.05,Math.cos(p.a)*rr);sg.rotation.y=p.a;sg.scale.setScalar(SC*(isC?0.95:1.2));G.add(sg);sg.userData.gone=i<S.cur?1:0;sg.visible=i>=S.cur;SIGNS.push(sg);});
+    STOPS.forEach((p,i)=>{const isC=p.type==='chest',sg=isC?chest(p.v):sign(p.name);const rr=isC?R:R+1.05*SC;sg.position.set(Math.sin(p.a)*rr,0.05,Math.cos(p.a)*rr);sg.rotation.y=p.a;sg.scale.setScalar(SC*(isC?0.95:1.2));G.add(sg);sg.userData.gone=i<S.cur?1:0;sg.visible=i>=S.cur;SIGNS.push(sg);});
     // tokens: logical spots on the path (drawn as the players' round pictures) with soft shadows
     TOK=[0,1].map(k=>{const o=new THREE.Object3D();G.add(o);const sh=MS(new THREE.CircleGeometry(0.34,24),new THREE.MeshBasicMaterial({color:'#1a2a40',transparent:true,opacity:0.28,depthWrite:false}),0,0,0,G);sh.rotation.x=-Math.PI/2;sh.castShadow=false;sh.receiveShadow=false;sh.scale.setScalar(SC);o.userData={sh,ang:0};return o;});
     placeTokens(S.cur<STOPS.length?STOPS[S.cur].a-spotOff():A0+TAU-0.05);S.camA=S.camAT=tokAng();
@@ -7649,7 +7697,7 @@ const CVX=(()=>{
     const dir=new V3(Math.sin(a),0,Math.cos(a)),tgt=c.clone().addScaledVector(dir,R*0.22).add(new V3(0,1.2*SC,0));
     return{pos:tgt.clone().addScaledVector(dir,d*Math.cos(e)).add(new V3(0,d*Math.sin(e),0)),tgt,oy:H/2-ys};}
   /* ---------- labels + player pictures ---------- */
-  const tags=[0,1,2,3].map(i=>{const e=document.createElement('div');e.className='cvTag';e.innerHTML='<div class="tn"></div><div class="pts"></div><div class="barw"><div class="bar"></div><div class="num"></div></div>';$c('cvTags').appendChild(e);return e;});
+  const tags=[0,1,2,3,4].map(i=>{const e=document.createElement('div');e.className='cvTag';e.innerHTML='<div class="tn"></div><div class="pts"></div><div class="barw"><div class="bar"></div><div class="num"></div></div>';$c('cvTags').appendChild(e);return e;});
   const ptags=[0,1].map(k=>{const e=document.createElement('div');e.className='cvP '+(k?'kz':'me');e.innerHTML='<canvas></canvas><span>'+(k?'Kez':'You')+'</span><b class="pp">0</b>';$c('cvTags').appendChild(e);return e;});
   const scr=(x,y,z)=>{const v=new V3(x,y,z).project(camera);return{x:(v.x+1)/2*W,y:(1-v.y)/2*H,z:v.z};};
   function stopScreen(i){const g=SIGNS[i];const p=g.getWorldPosition(new V3());return scr(p.x,p.y+(STOPS[i].type==='chest'?2.15:2.75)*SC,p.z);}
@@ -7814,7 +7862,7 @@ const CVX=(()=>{
     hud();}
   // jump the view to a given tour state (used for catch-up and new islands)
   async function moveTo(p,fade){const sameIsl=p.island===S.id&&p.tour===S.tour;if(fade&&!sameIsl)await fadeOut();
-    S.tour=p.tour;S.chestAt=p.chest_at;S.cur=p.cur;S.hp=[0,0,0,0];S.hp[p.cur]=p.hp||0;S.goals=GOALS2(p.chest_at,p.tour);
+    S.tour=p.tour;S.chestAt=p.chest_at;S.cur=p.cur;S.hp=[0,0,0,0,0];S.hp[p.cur]=p.hp||0;S.goals=GOALS2(p.chest_at,p.tour);
     if(!sameIsl||p.chest_at!==S.builtChest){S.id=p.island;const r=REG(WMAP[p.island]);if(r!==VR)setRegion(r);build(p.island);S.builtChest=p.chest_at;try{paintIcons();}catch(_){}}
     else{placeTokens(S.cur<STOPS.length?STOPS[S.cur].a-spotOff():A0);SIGNS.forEach((g,i)=>{g.visible=i>=S.cur;g.userData.gone=i<S.cur?1:0;});}
     S.camA=S.camAT=tokAng();if(fade&&!sameIsl)await fadeIn();hud();}
@@ -7909,7 +7957,7 @@ const CVX=(()=>{
     else go('cv',{dur:2200,done:()=>sizePop()});}
   async function open(id,instant){if(trans)return;initPop();if(CVT)NET.me=null;
     // show the island straight away from what we last knew, then sync with the server
-    if(!S.id){S.id=id||'lighthouse';S.tour=0;S.cur=0;S.hp=[0,0,0,0];S.chestAt=1;const r=REG(WMAP[S.id]);if(r!==VR)setRegion(r);build(S.id);S.builtChest=1;}
+    if(!S.id){S.id=id||'lighthouse';S.tour=0;S.cur=0;S.hp=[0,0,0,0,0];S.chestAt=1;const r=REG(WMAP[S.id]);if(r!==VR)setRegion(r);build(S.id);S.builtChest=1;}
     enterView(instant);hud();
     if(!await ident(true)){hud();await close();lobby();return;}
     try{const st=await NET.rpc('cv_join',joinArgs());
@@ -7938,7 +7986,7 @@ const CVX=(()=>{
     a.onfinish=()=>{el.remove();done&&done();};}
   /* each player's points for this tour, in their name pill (a friendly race between partners; the leader's turns gold) */
   function ptsHud(){try{const ms=NET.members||[],me=ms.find(m=>m.pid===(NET.me&&NET.me.pid)),mt=ms.find(m=>m.pid!==(NET.me&&NET.me.pid));const a=(me&&me.pts)|0,b=(mt&&mt.pts)|0;
-    [[ptags[0],a,a>=b],[ptags[1],b,b>a]].forEach(([t,v,lead])=>{t.classList.toggle('r1',lead);t.classList.toggle('r2',!lead);const e=t.querySelector('.pp');if(!e)return;const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
+    [[$c('cvMeP'),a,a>=b],[$c('cvKzP'),b,b>a]].forEach(([e,v,lead])=>{if(!e)return;const t=e.parentNode;t.classList.toggle('r1',lead);t.classList.toggle('r2',!lead);const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
     /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
     try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
@@ -8000,7 +8048,7 @@ addEventListener('resize',()=>{layout();paintIcons();});
 {const fix=()=>{if(document.hidden)return;if(innerWidth!==W||innerHeight!==H)dispatchEvent(new Event('resize'));};addEventListener('orientationchange',()=>{for(const d of[120,350,700,1200])setTimeout(fix,d);});addEventListener('resize',()=>{for(const d of[250,700])setTimeout(fix,d);});try{visualViewport&&visualViewport.addEventListener('resize',()=>setTimeout(fix,60));}catch(_){}setInterval(fix,800);}
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795581878';
+const BUILD='1795582563';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
