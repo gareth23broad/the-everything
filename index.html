@@ -494,6 +494,8 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 #cvHow button{display:block;margin:0 auto;padding:12px 34px;border:0;border-radius:999px;font:800 18px inherit;font-family:inherit;color:#4a2e00;background:linear-gradient(#ffe89a,#ffc84a);box-shadow:0 5px 0 #d8962a;cursor:pointer}
 
 #cvMute{pointer-events:auto;flex:none;width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%}#cvMute svg{width:22px;height:22px}
+
+#cvMbox .cvSeat{cursor:pointer;-webkit-tap-highlight-color:transparent}#cvMbox .cvSeat:active{transform:scale(.96)}
 /*</CVCSS>*/</style>
 </head>
 <body>
@@ -7841,7 +7843,9 @@ const CVX=(()=>{
       [m0,m1].forEach((m,k)=>{if(!m)return;const c=$c('cvSeat'+k);const pl=((MK&&MK.list)||[]).find(p=>p.id===m.pid)||{id:m.pid,icon:m.icon||'paw',name:m.name};try{paintTagPic(c,pl);}catch(_){}});
       $c('cvInfoL').onclick=howTo;
       $c('cvMok').onclick=()=>{clearInterval(lobT);$c('cvModal').classList.remove('on');};
-      const j=$c('cvJoin');if(j)j.onclick=async()=>{j.disabled=true;try{sfx.pick();}catch(_){}try{NET.lob=await NET.rpc('cv_enter',{p_id:NET.me.pid,p_secret:NET.me.secret,p_name:NET.me.name,p_icon:NET.me.icon,p_islands:TEST_ISLANDS,p_test:CVT});}catch(_){}await check();};
+      const j=$c('cvJoin');if(j)j.onclick=async()=>{j.disabled=true;try{sfx.pick();}catch(_){}try{NET.lob=await NET.rpc('cv_enter',{p_id:NET.me.pid,p_secret:NET.me.secret,p_name:NET.me.name,p_icon:NET.me.icon,p_islands:TEST_ISLANDS,p_test:CVT});}catch(e){toast('Could not reach the server · try again',2600);console.warn(e);j.disabled=false;}await check();};
+      /* the seat cards themselves are tappable too */
+      document.querySelectorAll('#cvMbox .cvSeat').forEach(el=>{if(!el.classList.contains('on')||!mineOpen)el.onclick=()=>{const jb=$c('cvJoin');if(jb&&!jb.disabled)jb.click();};});
       const l=$c('cvLeave');if(l)l.onclick=async()=>{try{NET.lob=await NET.rpc('cv_leave',{p_id:NET.me.pid,p_secret:NET.me.secret,p_test:CVT});}catch(_){}lastK='';draw();};};
     const check=async()=>{if(await ident(false)&&NET.live){clearInterval(lobT);$c('cvModal').classList.remove('on');const mate=(await NET.rpc('cv_join',joinArgs())).members.find(m=>m.pid!==NET.me.pid);
         SND.finish();mayoBanner('TOUR ON!','You & '+(mate?mate.name:'your partner')+' · 5 days to tour 4 islands together','Catventure Club','🐾',100,4200);
@@ -7937,7 +7941,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795570268';
+const BUILD='1795570621';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
