@@ -500,6 +500,8 @@ body.cvLive[data-mode=logic] #cvPawLG{display:flex}body.alienpz #cvPawLG{display
 .cvPawFly{position:fixed;left:0;top:0;z-index:30;pointer-events:none;display:flex;align-items:center;gap:5px;padding:4px 12px 4px 5px;border-radius:999px;background:rgba(255,255,255,.95);border:2px solid #b9a0ff;box-shadow:0 0 0 3px rgba(150,110,255,.25),0 6px 18px rgba(80,50,170,.35);color:#5a3fa0;font:800 18px/1 inherit;font-family:inherit;white-space:nowrap;will-change:transform,opacity}
 .cvPawFly svg{width:26px;height:26px}.cvPawFly b{font-variant-numeric:tabular-nums}
 .cvPawFly.big{font-size:22px;border-color:#ffd23f;box-shadow:0 0 0 3px rgba(255,210,63,.35),0 0 22px rgba(255,200,80,.6),0 6px 18px rgba(80,50,170,.35)}.cvPawFly.big svg{width:30px;height:30px}
+
+.cvPts{margin-left:3px;padding:1px 7px;border-radius:999px;background:linear-gradient(#8f6bff,#6a4ae0);color:#fff;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}.cvPts.bump{transform:scale(1.25)}.cvPts.lead{background:linear-gradient(#ffd86a,#f0a820);color:#5a3a00}
 /*</CVCSS>*/
 /* battery: when nobody has touched the screen for a while, the looping shimmers and bobs rest (they pick up again on the next touch) */
 body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,body.zz #rPuz,body.zz .rSeat.open,body.zz #rBox.ready,body.zz #moonBub.show,body.zz .pmark,body.zz .pmark::before,body.zz #dropLabel,body.zz #dropLabel .dlBal,body.zz .ilabel.gate,body.zz #worldBtn,body.zz #cvPopW.boost::after,body.zz #rSlot .lt,body.zz #bBear{animation-play-state:paused!important}
@@ -692,7 +694,7 @@ body.zz .gshim,body.zz .wlabel.new,body.zz .bearL,body.zz #rBack,body.zz #bBack,
     <div class="cvPill" id="cvCoinP"><canvas data-ic="pearl"></canvas><b id="cvCoins">0</b></div>
     <div class="cvPill" id="cvPawP"><svg viewBox="0 0 32 32" class="cvPawI"></svg><b id="cvPaws">0</b></div>
   </div>
-  <div id="cvHead"><h1>Catventure Club</h1><div class="sub"><div class="cvMate"><canvas id="cvMe" width="44" height="44"></canvas>You</div><span id="cvStage">KEEPSAKE 1 OF 3</span><div class="cvMate"><canvas id="cvKz" width="44" height="44"></canvas><span id="cvKzN">Partner</span></div></div></div>
+  <div id="cvHead"><h1>Catventure Club</h1><div class="sub"><div class="cvMate"><canvas id="cvMe" width="44" height="44"></canvas>You<b class="cvPts" id="cvMeP">0</b></div><span id="cvStage">ISLAND 1 OF 4</span><div class="cvMate"><canvas id="cvKz" width="44" height="44"></canvas><span id="cvKzN">Partner</span><b class="cvPts" id="cvKzP">0</b></div></div></div>
   <div id="cvTags"></div>
   <div id="cvBot"><div id="cvRow">
     <button id="cvMult" aria-label="Change multiplier"><small>MULTIPLIER</small><b id="cvMultV">×1</b></button>
@@ -7742,7 +7744,7 @@ const CVX=(()=>{
   /* ---------- hud ---------- */
   function liveMark(){const on=!!(NET.me&&NET.team&&NET.live&&(CVT||CV_OPEN));document.body.classList.toggle('cvLive',on);const e=$c('cvPawLGn');if(e)e.textContent=(S.paws|0).toLocaleString('en-US');}
   function hud(){liveMark();$c('cvCoins').textContent=(save.pearls|0).toLocaleString('en-US');$c('cvPaws').textContent=S.paws.toLocaleString('en-US');
-    const st=STOPS[S.cur];$c('cvStage').textContent=st&&st.type==='chest'?'TREASURE CHEST':'ISLAND '+((S.tour||0)+1)+' OF 4 · KEEPSAKE '+Math.min(3,STOPS.slice(0,S.cur).filter(p=>p.type==='keep').length+1);$c('cvMultV').textContent='×'+S.mult;$c('cvUsesV').textContent=S.mult;
+    const st=STOPS[S.cur];$c('cvStage').textContent='ISLAND '+((S.tour||0)+1)+' OF 4';ptsHud();$c('cvMultV').textContent='×'+S.mult;$c('cvUsesV').textContent=S.mult;
     $c('cvUses').classList.toggle('low',S.paws<S.mult);$c('cvTapT').textContent=!NET.ok?'Connecting…':S.paws<S.mult?'Not enough paws':S.boost?'🔥 Lucky roll':'Tap the bubble';$c('cvPopW').classList.toggle('boost',!!S.boost);}
   const bumpE=id=>{const e=$c(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);};
   let tT;const say=(m,ms)=>{const e=$c('cvToast');e.textContent=m;e.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('on'),ms||2400);};
@@ -7922,6 +7924,9 @@ const CVX=(()=>{
     const w=el.offsetWidth,h=el.offsetHeight,x0=x-w/2,y0=y-h/2-8;let tx=x0,ty=y0-120;if(c&&c.offsetParent){const b=c.getBoundingClientRect();tx=b.left+22-w/2;ty=b.top+b.height/2-h/2;}
     const a=el.animate([{transform:`translate(${x0}px,${y0}px) scale(.2)`,opacity:0},{transform:`translate(${x0}px,${y0-14}px) scale(1.15)`,opacity:1,offset:.16},{transform:`translate(${x0}px,${y0-18}px) scale(1)`,opacity:1,offset:.5},{transform:`translate(${(x0+tx)/2}px,${Math.min(y0,ty)-30}px) scale(.85)`,opacity:1,offset:.75},{transform:`translate(${tx}px,${ty}px) scale(.55)`,opacity:.2}],{duration:big?1500:1250,easing:'cubic-bezier(.4,0,.3,1)',fill:'forwards'});
     a.onfinish=()=>{el.remove();done&&done();};}
+  /* each player's points for this tour, in their name pill (a friendly race between partners; the leader's turns gold) */
+  function ptsHud(){try{const ms=NET.members||[],me=ms.find(m=>m.pid===(NET.me&&NET.me.pid)),mt=ms.find(m=>m.pid!==(NET.me&&NET.me.pid));const a=(me&&me.pts)|0,b=(mt&&mt.pts)|0;
+    [['cvMeP',a,a>b],['cvKzP',b,b>a]].forEach(([id,v,lead])=>{const e=$c(id);if(!e)return;const tx=v.toLocaleString();if(e.textContent!==tx){if(e._v!==undefined&&v>e._v){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),300);}e._v=v;e.textContent=tx;}e.classList.toggle('lead',lead);});}catch(_){}}
   function catFound(x,y){if(!NET.me||!NET.live||(!CVT&&!CV_OPEN))return;
     /* each cat counts once per puzzle: undoing and placing it again, or failing and replaying the same puzzle, doesn't pay twice */
     try{if(LG&&LG.n){const ck=LG._ck||(LG._ck=String(hashStr(LG.world+'|'+JSON.stringify(LG.reg)))),row=Math.floor((y-lY)/(lS/LG.n));let m={};try{m=JSON.parse(localStorage.getItem('cv-earned')||'{}')||{};}catch(_){}
