@@ -7723,7 +7723,7 @@ const CVX=(()=>{
   /* ---------- server (shared tour; the server decides every roll) ---------- */
   const TEST_ISLANDS=['lighthouse','garden','harbour','snow','night','tea','glen','maple'];
   const NET={ok:false,team:'cv-test-1',me:null,mate:null,last:0,seen:0,members:[],
-    who(){try{return localStorage.getItem('cv-test-who');}catch(_){return null;}},
+    who(){try{return sessionStorage.getItem('cv-test-who');}catch(_){return null;}},
     id(w){const N={A:['Gareth','leaf'],B:['Kez','paw'],C:['Dreadster','star'],D:['Lily','flower']}[w]||['Player','paw'];return{pid:'cvt-'+w,secret:'cvt-secret-'+w+'-7f3a',name:N[0],icon:N[1]};},
     async rpc(fn,body){const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:sbH,body:JSON.stringify(body)});const t=await r.text();if(!r.ok)throw new Error(t);return JSON.parse(t);}};
   const auth=()=>({p_team:NET.team,p_id:NET.me.pid,p_secret:NET.me.secret});
@@ -7849,7 +7849,7 @@ const CVX=(()=>{
     await check();clearInterval(lobT);lobT=setInterval(()=>{if($c('cvModal').classList.contains('on'))check();else clearInterval(lobT);},3000);}
   /* ---------- open / close ---------- */
   function pickPlayer(){return new Promise(r=>{$c('cvMbox').innerHTML=`<div style="font-size:44px">🐾</div><h3>Who's playing?</h3><p>Test mode · open this page on two phones and pick a different player on each</p><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center"><button id="cvPA">Gareth</button><button id="cvPB">Kez</button><button id="cvPC">Dreadster</button><button id="cvPD">Lily</button></div><p style="font-size:12px;margin-top:10px;opacity:.8">Gareth &amp; Kez are already a team · Dreadster &amp; Lily can try the seats</p>`;$c('cvModal').classList.add('on');
-    const go_=w=>{try{localStorage.setItem('cv-test-who',w);}catch(_){}$c('cvModal').classList.remove('on');r(w);};$c('cvPA').onclick=()=>go_('A');$c('cvPB').onclick=()=>go_('B');$c('cvPC').onclick=()=>go_('C');$c('cvPD').onclick=()=>go_('D');});}
+    const go_=w=>{try{sessionStorage.setItem('cv-test-who',w);}catch(_){}$c('cvModal').classList.remove('on');r(w);};$c('cvPA').onclick=()=>go_('A');$c('cvPB').onclick=()=>go_('B');$c('cvPC').onclick=()=>go_('C');$c('cvPD').onclick=()=>go_('D');});}
   function paintPics(){const mate=NET.mate||{pid:'?',name:'Partner',icon:'flower'};
     const mk=id=>{try{return (MK.list||[]).find(p=>p.id===id);}catch(_){return null;}};
     [mk(NET.me.pid)||{id:NET.me.pid,icon:NET.me.icon,name:NET.me.name},mk(mate.pid)||{id:mate.pid,icon:mate.icon||'flower',name:mate.name}].forEach((p,k)=>{try{paintTagPic(ptags[k].querySelector('canvas'),p);}catch(_){}});
@@ -7900,7 +7900,7 @@ const CVX=(()=>{
   $c('cvBack').addEventListener('pointerdown',e=>{e.stopPropagation();close();});
   if(!CVT)$c('cvTestW').style.display='none';
   $c('cvTestB').addEventListener('pointerdown',async e=>{e.stopPropagation();if(!NET.ok)return;try{applyMe(await NET.rpc('cv_test_paws',Object.assign(auth(),{p_n:500})));say('+500 test paws');}catch(_){}});
-  $c('cvSwapB').addEventListener('pointerdown',e=>{e.stopPropagation();try{localStorage.removeItem('cv-test-who');}catch(_){}location.reload();});
+  $c('cvSwapB').addEventListener('pointerdown',e=>{e.stopPropagation();try{sessionStorage.removeItem('cv-test-who');}catch(_){}location.reload();});
   ['cvHud','cvModal'].forEach(id=>$c(id).addEventListener('pointerdown',e=>{if(mode==='cv')e.stopPropagation();try{audio.wake();}catch(_){}}));
   addEventListener('resize',()=>sizePop());
   return{open,close,boot,catFound,fromUniverse,pill,lobby,tick,pose,press,S,NET,get SIGNS(){return SIGNS},get STOPS(){return STOPS},hud};
@@ -7937,7 +7937,7 @@ CVX.boot();
 addEventListener('resize',()=>{layout();paintIcons();});
 document.addEventListener('gesturestart',e=>e.preventDefault());
 addEventListener('hashchange',()=>{if(/^#(test-grab|test-drop|reset)$/.test(location.hash))location.reload();});
-const BUILD='1795565310';
+const BUILD='1795570268';
 async function checkUpdate(){try{if(location.protocol==='file:'||BUILD.startsWith('__'))return;const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});const t=await r.text();const m=t.match(/const BUILD='(\d+)'/);
   if(m&&m[1]!==BUILD&&+m[1]>+BUILD){let tried='';try{tried=localStorage.getItem('upd')||'';}catch(_){}const[tv,tt]=tried.split('@');if(tv===m[1]&&Date.now()-(+tt||0)<120000)return;
     const go_=()=>{if((mode==='hub'||mode==='build'||(mode==='world'&&!RC.busy&&!(UNI.FIN&&UNI.FIN.t0>0&&performance.now()-UNI.FIN.t0<30000)))&&!trans&&!GR.on&&!spin&&!BZ.ptrs.size&&!document.querySelector('.card.show')){try{localStorage.setItem('upd',m[1]+'@'+Date.now());}catch(_){}location.replace(location.pathname+'?v='+m[1]+'&r='+(Date.now()%100000)+location.hash);}else setTimeout(go_,3000);};go_();}}catch(e){}}
